@@ -1,21 +1,35 @@
-vobcopy (0.5.13-1) unstable; urgency=low
+vobcopy (0.5.14-2) unstable; urgency=low
 
-  * New release from upstream
-  * Add new Release-Notes file from upstream
-  * List valid build depend first (libdvdread3) (closes: 240389)
+  * Put libdvdread3 ahead of libdvdread2 in control file
+  * Change from native to non native Debian package
 
- -- Stephen Birch <sgbirch@imsmail.org>  Sat, 27 Mar 2004 13:49:31 -0500
+ -- Stephen Birch <sgbirch@imsmail.org>  Sat, 27 Nov 2004 15:04:21 +0000
+
+vobcopy (0.5.14-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Stephen Birch <sgbirch@imsmail.org>  Thu, 18 Nov 2004 11:18:55 +0000
+
+vobcopy (0.5.12-3) unstable; urgency=low
+
+  * Set up vobcopy for backport into woody
+
+ -- Stephen Birch <sgbirch@woody.uk.birch.ws>  Tue,  9 Mar 2004 10:08:07 +0000
+
+vobcopy (0.5.12-2) unstable; urgency=low
+
+  * Add comment to control file per upstream request
+
+ -- Stephen Birch <sgbirch@imsmail.org>  Tue,  9 Mar 2004 06:36:36 +0000
 
 vobcopy (0.5.12-1) unstable; urgency=low
 
-  * Initial Debian release (closes: 232189)
-  * Set up vobcopy for backport into woody
-  * Add comment to control file per upstream request
   * New version from upstream
   * Tidy up changelog files
   * Added postinst and postrm files for dh_installmenu
 
- -- Stephen Birch <sgbirch@imsmail.org>  Sat, 27 Mar 2004 13:34:29 -0500
+ -- Stephen Birch <sgbirch@imsmail.org>  Mon,  8 Mar 2004 11:10:54 +0000
 
 vobcopy (0.5.11-2) unstable; urgency=low
 

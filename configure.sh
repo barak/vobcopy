@@ -17,44 +17,38 @@ then
      while [ $# != 0 ]
      do
        
-       if $(echo $1 | grep "prefix=" - >/dev/null 2>&1)
-       then
-       	   prefix=$(echo $1 | sed s/--prefix=//)
+       if [ "$1" != "${1#--prefix=}" ]; then
+       	   prefix="${1#--prefix=}"
 	   prefix_provided=true
            echo "prefix = $prefix"
        fi
-       
-       if $(echo $1 | grep "bindir=" - >/dev/null 2>&1)
-       then
-       	   bindir=$(echo $1 | sed s/--bindir=//)
+
+       if [ "$1" != "${1#--bindir=}" ]; then
+       	   bindir="${1#--bindir=}"
 	   bindir_provided=true
        	   echo "bindir here: $bindir"
        fi
 
-       if $(echo $1 | grep "mandir=" - >/dev/null 2>&1)
-       then
-       	   mandir=$(echo $1 | sed s/--mandir=//)
+       if [ "$1" != "${1#--mandir=}" ]; then
+       	   mandir="${1#--mandir=}"
 	   mandir_provided=true
        	   echo "with mandir here: $mandir"
        fi
 
-       if $(echo $1 | grep "with-lfs" - >/dev/null 2>&1)
-       then
+       if [ "$1" != "${1#--with-lfs}" ]; then
   	   echo "with large-file support"
  	   LFS="LFS    = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE"
 	   lfs_provided=true
        fi
 
-       if $(echo $1 | grep "with-dvdread-libs=" - >/dev/null 2>&1)
-       then
-       	   libs_dir=$(echo $1 | sed s/--with-dvdread-libs=//)
+       if [ "$1" != "${1#--with-dvdread-libs=}" ]; then
+       	   libs_dir="${1#--with-dvdread-libs=}"
 	   libs_dir_provided=true
        	   echo "with dvdread-libs here: $libs_dir"
        fi
        
-       if $(echo $1 | grep "help" - >/dev/null 2>&1)
-       then
-           echo "--prefix=PREFIX                install architecture-independent files in PREFIX [/usr/local]"
+       if [ "$1" != "${1%help}" ]; then
+	   echo "--prefix=PREFIX                install architecture-independent files in PREFIX [/usr/local]"
 	   echo "--bindir=DIR                   user executables in DIR [PREFIX/bin]"
 	   echo "--mandir=DIR                   man documentation in DIR [PREFIX/bin]"
            echo "--with-dvdread-libs=DIR        directory where dvdread lib (dvd_reader.h) is installed"
@@ -84,10 +78,9 @@ fi
 #see if libdvdread is installed
 if [ -z $libs_dir_provided ]
 then
-    if !( test -e /usr/local/include/dvdread ) 
-    then
-	if !( test -e /usr/include/dvdread )
-		then
+
+    if [ ! -e /usr/local/include/dvdread ]; then
+	if [ ! -e /usr/include/dvdread ]; then #muss hier das then hin??
 		echo "Do you have libdvdread installed? I (the script) can't
 find it"
      		echo "Please provide the path to dvdreader.h after
@@ -108,8 +101,7 @@ makefile to robos@muon.de, thanks!"
 else
 # Remove the following if...fi if the program complains about non-existing
 # headers when they really are there...
-    if !( test -e $libs_dir/include/dvdread )
-    then
+    if [ ! -e $libs_dir/include/dvdread ]; then
         echo "You specified that libdvdread is installed at $libs_dir. However"
 	echo "I (the script) am unable to find the header files at"
 	echo "$libs_dir/include/dvdread."
@@ -137,16 +129,21 @@ then
 fi
 
        
-#FreeBSD needs libgnugetopt
+#FreeBSD needs libgnugetopt (kern.osreldate < 500041)
+#if [ `uname -s` = FreeBSD -a \
+#	`sysctl -n kern.osreldate 2> /dev/null` -lt 500041 ]; then
 if [ `uname -s` = FreeBSD ]; then
-	LDFLAGS="LDFLAGS += -ldvdread -L/usr/local/lib -lgnugetopt"
+  if [ `sysctl -n kern.osreldate 2> /dev/null` -lt 500041 ]; then
+	  LDFLAGS="LDFLAGS += -ldvdread -L/usr/local/lib -lgnugetopt"
+  else
+	  LDFLAGS="LDFLAGS += -ldvdread -L$libs_dir/lib"
+  fi	
 else
 	LDFLAGS="LDFLAGS += -ldvdread -L$libs_dir/lib"
 fi
 
 #see if a Makefile is present - and kill it ;-)
-if test -e ./Makefile
-then
+if [ -e ./Makefile ]; then
 	rm -f ./Makefile
 fi
 
@@ -157,7 +154,7 @@ echo "
 #This is the makefile for vobcopy, mainly written by rosenauer. These things 
 #below here are variable definitions. They get substituted in the (CC) and 
 #stuff places.
-CC     = gcc
+CC     ?= gcc
 #PREFIX += /usr/local
 #BINDIR = \${PREFIX}/bin
 #MANDIR = \${PREFIX}/man

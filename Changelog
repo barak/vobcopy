@@ -1,8 +1,31 @@
 Changelog for vobcopy:
 For more infos on the options see "man vobcopy"
 
+0.5.14: some more cleanup. Another small fix for different freebsd versions. Nothing major.
+
+0.5.14-rc1:
+	lots of bug fixes for *bds, solaris and -tada- OSX!
+	Quite some stuff should now work better on freebsd, openbsd and
+	solaris since Takeshi Nakamura provided some patches. Also
+	incorporated the fix the netbsd folks did when they incorporated 
+	0.5.13 into their ports collection. AND it seems that OSX now 
+	works (besides fink, which provided vobcopy for quite some time 
+	already). What is needed is dlcompat IIRC. Thanks to all for their help!
+
+0.5.14-test1:
+	changed dvd name getting function to what Jim Hatfield found works
+	for freebsd
+	Davide has a dvd which has names like this:
+	VTS_01_2.VOB;?
+	A new routine tries to remove the ;?.
+	On OSX, getopt.h doesn't get found. /usr/include/getopt.h should do it
 0.5.13: start for copying routine adjusted to the culmulative size of the
-	previous files (via stat)
+	previous files (via stat). Patch from Andrew Leiserson did fix the same.
+	patch from Mark Prusinowski:
+	"This fails to work in my case as I don't have the mount point
+	 listed under /etc/fstab.  I manually mount the drive.  I created
+	 a patch that uses libc's getmntent() to retrieve the desired
+         information directly from /etc/mtab"
 
 0.5.12: good old off-by-one error in the -m function fixed
 
