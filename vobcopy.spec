@@ -1,6 +1,6 @@
 Name: vobcopy
 Summary: vobcopy copies DVD .vob files to harddisk
-Version: 0.5.14
+Version: 1.0.2
 Release: 1
 License: GPL
 Group: Applications/Multimedia
@@ -48,6 +48,21 @@ rm -fr %{buildroot}
 %doc Changelog COPYING README Release-Notes TODO alternative_programs.txt
 
 %changelog 
+* Sun Jun 24 2007 Robos  <robos@muon.de>
+- 1.0.2: -see changelog
+
+* Mon Nov 13 2006 Robos  <robos@muon.de>
+- 1.0.1: -see changelog
+
+* Sun Apr 2 2006 Robos  <robos@muon.de>
+- 1.0.0: -see changelog
+
+* Wed Dez 7 2005 Robos  <robos@muon.de>
+- 0.5.16: -see changelog
+
+* Fri Jul 29 2005 Robos  <robos@muon.de>
+- 0.5.15: -option to skip already present files with -m. 
+  	  copying of dvd's with files ending in ";?" should work now.
 
 * Sun Oct 24 2004 Robos  <robos@muon.de>
 - 0.5.14-rc1: - misc *bsd fixes and first straight OSX support

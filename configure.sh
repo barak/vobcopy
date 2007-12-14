@@ -83,6 +83,7 @@ then
 	if [ ! -e /usr/include/dvdread ]; then #muss hier das then hin??
 		echo "Do you have libdvdread installed? I (the script) can't
 find it"
+		echo "You probably need the libdvdread-devel package or something similar installed. If you already have:"
      		echo "Please provide the path to dvdreader.h after
 ./configure --with-dvdread-libs="
 	    	echo "And please mail me the location so that I can fix the
@@ -138,6 +139,8 @@ if [ `uname -s` = FreeBSD ]; then
   else
 	  LDFLAGS="LDFLAGS += -ldvdread -L$libs_dir/lib"
   fi	
+elif [ `uname -m` = x86_64 ]; then #for ia64/AMD64 libraries
+	LDFLAGS="LDFLAGS += -ldvdread -L$libs_dir/lib64"
 else
 	LDFLAGS="LDFLAGS += -ldvdread -L$libs_dir/lib"
 fi

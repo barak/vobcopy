@@ -2,7 +2,7 @@
 .\" groff -man -Tascii vobcopy.1
 .\" verarbeiten
 .\"
-.TH VOBCOPY 1 "Nov 2004" Linux "User Manuals"
+.TH VOBCOPY 1 "Dez 2007" Linux "User Manuals"
 .SH NAME
 vobcopy \- kopiert (rippt) Dateien von einer (Video-) DVD auf die Festplatte
 .SH SYNTAX
@@ -13,16 +13,18 @@ vobcopy \- kopiert (rippt) Dateien von einer (Video-) DVD auf die Festplatte
 .B ] [-f] [-F
 .I Beschleunigungsfaktor
 .B ] [-h] [-i
-.I Eingabe-Verzeichnis
+.I Eingabeverzeichnis
 .B ] [-l] [-m] [-n
 .I Titel-Nummer
 .B ] [-o
-.I Ausgabe-Verzeichnis
+.I Ausgabeverzeichnis
 .B ] [-q] [-O
-.I Einzelne Datei zu kopieren
+.I einzelne zu kopierende Datei 
 .B ] [-t
 .I Name
-.B ] [-v [-v]] [-I] [-V] [-1
+.B ] [-v [-v]] [-I] [-V] [-L
+.I Logdatei-Pfad
+.B ] [-1
 .I zusätzliches Ausgabeverzeichnis 1
 .B ] [-2
 .I zusätzliches Ausgabeverzeichnis 2
@@ -37,56 +39,57 @@ kopiert DVD .vob-Dateien (Video-Object-Dateien) auf die Festplatte
 (dank libdvdread) und schreibt sie
 in Datei(en) mit dem Namen der DVD. Es prüft auf ausreichend freien
 Festplattenplatz auf der Ziel-Partition und vergleicht die kopierte Größe
-mit der Größe auf der DVD (für den Fall, daß die Größe falsch ist behält die 
+mit der Größe auf der DVD (für den Fall, dass die Größe falsch ist behält die 
 Datei die Endung .partial). Es sollte auf jeden Fall auf Linux
 arbeiten aber auch auf *bsd und Solaris funktionieren. Mac OS X auch.
 .BR CSS-Angelegenheiten:
-Aufgrund Legalitäten enthält vobcopy keinen Code zum Entschlüsseln von
-CSS "erweiterten" DVDs. CSS wird von der Filmindustrie als "Kopierschutz"
-angepriesen wobei es sich eher um einen "Anschau-schutz" handelt da es DVD
-Material unanschaubar macht auf unlizensierten Abspielgeräten. Einige Leute
+Aufgrund Legalitäten enthält vobcopy keinen Code zum Entschlüsseln von um
+CSS "erweiterte" DVDs. CSS wird von der Filmindustrie als "Kopierschutz"
+angepriesen, wobei es sich eher um einen "Anschauschutz" handelt, da es DVD
+Material unanschaubar auf unlizensierten Abspielgeräten macht. Einige Leute
 haben jedoch diese CSS Entschlüsselungs-Routinen geknackt und eine dieser
 Routinen ist als Erweiterung zu libdvdread (siehe Seite) erhältlich.
 .BR vobcopy
-Aufruf ohne Optionen wird der Titel  mit den meisten Kapiteln in Dateien 
+Bei Aufruf ohne Optionen wird der Titel  mit den meisten Kapiteln in Dateien 
 von 2GB Größe in das aktuelle Verzeichnis kopiert.
 .SH OPTIONEN
 .IP "-b, --begin GRÖSSE[bkmg]"
 beginnt den Kopiervorgang erst ab der angegebenen Adresse. Die Größe 
-der Adresse kann mit den Abkürzungen b für 512-Byte-Blöcke, k für Kilo-Bytes, 
-m für Mega- und g für Giga-Bytes angegeben werden. 
-Beispiel: vobcopy -b 500m beginnt bei 500MB nach dem Anfang der Datei zu kopieren 
-bis zum Ende.
+der Adresse kann mit den Abkürzungen b für 512-Byte-Blöcke, k für Kilobytes, 
+m für Mega- und g für Gigabytes angegeben werden. 
+Beispiel: vobcopy -b 500m beginnt bei 500MB nach dem Anfang der Datei 
+bis zum Ende zu kopieren.
 .IP "-e, --end GRÖSSE[bkmg]"
-ähnlich wie -b, diese Option gibt eine Größe vor dem Ende der Datei an, 
+ähnlich wie -b gibt diese Option eine Größe vor dem Ende der Datei an, 
 an der der Kopiervorgang stoppt.
 .IP "-f, --force"
 erzwingt die Ausgabe in das angegebene Verzeichnis, auch wenn vobcopy denkt, 
-dort ist nicht genügend freier Platz vorhanden
+dass dort ist nicht genügend freier Platz vorhanden ist.
 .IP "-F, --fast Beschleunigungsfaktor"
 beschleunigt das Kopieren um einen Faktor (experimentell).
-Der Beschleunigungsfaktor kann von 1 bis 64 betragen
+Der Beschleunigungsfaktor kann 1 bis 64 betragen
 .IP "-h, --help"
 Gibt die verfügbaren Optionen aus
 .IP "-i, --input-dir EINGABE-VERZEICHNIS"
-gibt das Eingabeverzeichnis an (das Verzeichnis, auf daß die DVD
+gibt das Eingabeverzeichnis an (das Verzeichnis, auf das die DVD
 gemountet ist).
 .IP "-l, --large-file"
-schreibe alle Daten in eine große Datei ( > 2GB, benötigt Unterstützung für große Dateien (LFS))
-IP "-m, --mirror"
+schreibt alle Daten in eine große Datei ( > 2GB, benötigt Unterstützung für große Dateien (LFS))
+.IP "-m, --mirror"
 Spiegelt die gesamte DVD auf die Festplatte. Es wird ein Unterverzeichnis mit dem 
-DVD-Namen erzeugt, und die gesamte Dateistruktur des Video-Teils wird darunter 
+DVD-Namen erzeugt und die gesamte Dateistruktur des Videoteils wird darunter 
 kopiert. 
 .IP "-n, --title-number TITEL-NUMMER"
 gibt an, welcher Titel kopiert werden soll. Auf der 
 DVD heißt der erste Titel vts_01_x.vob (meist der Hauptfilm).
 .IP "-o, --output-dir AUSGABE-VERZEICHNIS"
 gibt das Ausgabeverzeichnis für die Kopien an. Der Wert "stdout" oder "-" 
-gibt zur Standardausgabe aus. Nützlich für die Ausgabe nach /dev/null ;-) 
-Tipp: Wenn du vergisst, umzuleiten, wird dein Terminal überflutet werden, 
+gibt auf der Standardausgabe aus. Nützlich für die Ausgabe nach /dev/null ;-) 
+Tipp: Wenn du vergisst umzuleiten, wird dein Terminal überflutet werden, 
 in diesem Fall tippe "reset" und Enter, um das Terminal zu retten.
 .IP "-q, --quiet"
-alle Informations- und Fehlerausschriften von vobcopy werden in die Datei /tmp/vobcopy.bla anstatt in die Standardfehlerausgabe geschrieben
+alle Informations- und Fehlerausschriften von vobcopy werden in die Datei 
+/tmp/vobcopy_XXXXXX anstatt in die Standardfehlerausgabe geschrieben
 .IP "-O, --onefile single_file(s)_to_rip"
 gibt (eine) einzelne Datei(en) für das Kopieren an. Teile von Namen können 
 angegeben werden und alle Dateien, die die Namensteile enthalten, werden 
@@ -94,12 +97,17 @@ kopiert. Dateinamen können als mit Komma getrennte Liste angegeben werden.
 Beispiel: -O video_ts.vob,bup kopiert die Datei video_ts.vob und alle Dateien,
 deren Namen bup enthält.
 .IP "-t, --name NAME"
-du kannst damit der Ausgabedatei einen eigenen Namen geben, wenn dir der von der DVD nicht gefällt. -t hallo erzeugt also ein hallo.vob. (stdout oder "-" sind nun nicht mehr unterstützt) Wenn du Namen mit Leerzeichen wie "Huh ich mag den Film" angeben willst, schließe den Namen in Anführungszeichen ein.
+Damit kann man der Ausgabedatei einen eigenen Namen geben, wenn einem der von 
+der DVD nicht gefällt. -t hallo erzeugt also ein hallo.vob. (stdout oder "-" sind nun 
+nicht mehr unterstützt) Wenn du Namen mit Leerzeichen wie "Huh ich mag den Film" 
+angeben willst, schließe den Namen in Anführungszeichen ein.
 .IP "-v, --verbose"
 schreibt noch mehr Informationen aus.
 .IP "-v -v"
 schreibt die Ausschriften in eine Logdatei unter /tmp/, um einen Fehlerreport 
 zu erzeugen. 
+.IP "-L LOGDATEI-PFAD"
+weist vobcopy an die Logdatei statt in den Standardpfad in den LOGDATEI-PFAD zu legen.
 .IP "-I, --info"
 gibt Informationen über die Titel, Kapitel und Teile der DVD aus.
 .IP "-V, --version"
@@ -108,14 +116,15 @@ gibt die Versionsnummer von vobcopy aus.
 Wenn die DVD einfach nicht in das erste Ausgabeverzeichnis passen will 
 (mit -o angegeben), geht die Ausgabe in das hier angegebene Verzeichnis 
 (und die folgenden 2ten, 3ten und 4ten) weiter -> die Dateien werden geteilt, 
-je nachdem wieviel Platz in jedem der Verzeichnisse noch blieb
+je nachdem wie viel Platz in jedem der Verzeichnisse noch blieb.
 Gib den Pfad _direkt_ hinter "-1" an, _kein_ Leerzeichen dazwischen lassen, 
 wenn Probleme auftreten, möglicherweise ist das auch bei -o nötig...)
 .SH FEHLER
-Vobcopy ist weiterhin unter Entwicklung, also könnt ihr noch einige Neuerungen 
-erwarten
+Vobcopy ist weiterhin unter Entwicklung, also können noch einige Neuerungen 
+erwarten werden.
 Es *können* Probleme auf Systemen auftreten, die keine Unterstützung für große 
-Dateien haben (LFS). Wenn welche auftreten, bitte Rückmeldung an mich
+Dateien haben (LFS). Wenn welche auftreten, sollten diese bitte an mich gemeldet 
+werden.
 .SH AUTHOR
 Robos <robos@muon.de>
 

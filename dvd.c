@@ -1,4 +1,3 @@
-
 /*  This file is part of vobcopy.
  *
  *  vobcopy is free software; you can redistribute it and/or modify
@@ -16,43 +15,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  */
 
-
-#include <stdio.h>
-#include <fcntl.h>
-#include <string.h>
-#include <unistd.h>
-#include <ctype.h>
-#include <sys/stat.h>
-#if ( defined(__unix__) || defined(unix) ) && !defined(USG) && !defined(__linux__) || (defined(__APPLE__) && defined(__GNUC__)) || defined(__NetBSD__)
-#include <sys/param.h>  
-#define USE_GETMNTINFO
-#if !defined(__NetBSD__) || (__NetBSD_Version__ < 200040000)
-#include <sys/mount.h>
-#define USE_STATFS_FOR_DEV
-#define GETMNTINFO_USES_STATFS
-#else
-#include <sys/statvfs.h>
-#define USE_STATVFS_FOR_DEV
-#define GETMNTINFO_USES_STATVFS
-#endif
-#endif
 #include "vobcopy.h"
-#if (defined(__sun__))
-#include <stdlib.h>
-#include <sys/mnttab.h>
-#endif
-
-#if (defined(__linux__))
-#include <mntent.h>
-#endif
-
-
-#include <errno.h>
-extern int errno;
-
-/*for solaris, if we need to include some cdrom related stuff
-#include <sys/cdio.h>
-although I can't think what <linux/cdrom.h> was included for... */
 
 /* included from cdtitle.c (thx nils *g)
  * get the Title
@@ -61,7 +24,7 @@ although I can't think what <linux/cdrom.h> was included for... */
 int get_dvd_name(const char *device, char *title)
 {
 
-#if defined(__sun__)
+#if defined( __sun )
   /* title is actually in the device name */
   char *new_title;
   new_title = strstr( device, "d0/" ) + strlen( "d0/" );
@@ -78,9 +41,9 @@ int get_dvd_name(const char *device, char *title)
   if ( !(filehandle = open(device, O_RDONLY, 0)) )       
   {
       /* open failed */
-      fprintf( stderr, "[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n");
-      fprintf( stderr, "[Error] opening of the device failed\n");
-      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+      fprintf( stderr, "[Error] Something went wrong while getting the dvd name  - please specify path as /cdrom or /dvd (mount point) or use -t\n");
+      fprintf( stderr, "[Error] Opening of the device failed\n");
+      fprintf( stderr, "[Error] Error: %s\n", strerror( errno ) );
       return -1;
   }
   
@@ -90,9 +53,9 @@ int get_dvd_name(const char *device, char *title)
   {
       /* seek failed */
       close( filehandle );
-      fprintf( stderr, "[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n");
-      fprintf(stderr, "[Error] couldn't seek into the drive\n");
-      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+      fprintf( stderr, "[Error] Something went wrong while getting the dvd name - please specify path as /cdrom or /dvd (mount point) or use -t\n");
+      fprintf( stderr, "[Error] Couldn't seek into the drive\n");
+      fprintf( stderr, "[Error] Error: %s\n", strerror( errno ) );
       return -1;
   }
   
@@ -102,7 +65,7 @@ int get_dvd_name(const char *device, char *title)
   {
       close(filehandle);
       fprintf( stderr, "[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n" );
-      fprintf(stderr, "[Error] only read %d bytes instead of 2048\n", bytes_read);
+      fprintf( stderr, "[Error] only read %d bytes instead of 2048\n", bytes_read);
       fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
       return -1;
   }
@@ -139,14 +102,14 @@ int get_dvd_name(const char *device, char *title)
 /* returns <0 if error                            */
 int get_device( char *path, char *device )
 {
-#if ( !defined( __sun__ ) )
+
+#if ( !defined( __sun ) )
   FILE	*tmp_streamin;
   char	tmp_bufferin[ MAX_STRING ];
   char  tmp_path[ 256 ];
   int   l = 0;
 
 #endif
-  struct mnttab* mount_entry;
 
 #if (defined(__linux__))
   struct mntent* lmount_entry;
@@ -173,7 +136,8 @@ int get_device( char *path, char *device )
   }
 
   /* remove video_ts if given */
-  if( ( pointer = strstr( path, "/video_ts" ) ) || ( pointer = strstr( path, "/VIDEO_TS" ) ) )
+  if( ( pointer = strstr( path, "/video_ts" ) ) || 
+      ( pointer = strstr( path, "/VIDEO_TS" ) ) )
   {
       *pointer = '\0';
   }
@@ -189,7 +153,8 @@ int get_device( char *path, char *device )
     /*
      *look through /etc/mtab to see if it's actually mounted
      */
-#if defined(USE_STATFS_FOR_DEV) || defined(USE_STATVFS_FOR_DEV)
+#if ( defined( USE_STATFS_FOR_DEV ) || defined( USE_STATVFS_FOR_DEV ) ) 
+
 #ifdef USE_STATFS_FOR_DEV
     if( !statfs( path, &buf ) )
 #else
@@ -214,43 +179,35 @@ int get_device( char *path, char *device )
        fprintf( stderr, "[Error] Error while reading filesystem info" );
        return -1;
       }
-#elif ( defined( __sun__ ) )
+#elif ( defined( __sun ) )
 
-    mount_entry = malloc ( sizeof( struct mnttab ) );
-    if ( mount_entry == NULL )
-      {
-	fprintf( stderr, "Could not allocate memory for mnttab!\n" );
-	fprintf( stderr, "Looks like you are using solaris.\n" );
-	return -1;
-      }
-    /* ok, good idea to open mnttab now */
+    struct mnttab mount_entry;
+    int           mntcheck;
  
     if ( ( mnttab_fp = fopen( "/etc/mnttab", "r" ) ) == NULL )
       {
 	fprintf( stderr, " [Error] Could not open mnttab for searching!\n" );
 	fprintf( stderr, " [Error] error: %s\n", strerror( errno ) );
-	free( mount_entry );
 	return -1;
       }
-    int mntcheck;
-    while ( ( mntcheck = getmntent( mnttab_fp, mount_entry ) ) == 0 )
+
+    while ( ( mntcheck = getmntent( mnttab_fp, &mount_entry ) ) == 0 )
       {
 	/* check to see if our path is this entry */
-	if ( strcmp( path, mount_entry->mnt_mountp ) == 0 )
+	if ( strcmp( path, mount_entry.mnt_mountp ) == 0 )
 	  {
 	    char *new_device, *mnt_special;
-	    if ( strstr( mount_entry->mnt_special, "/dsk/" ) == NULL )
+	    if ( strstr( mount_entry.mnt_special, "/dsk/" ) == NULL )
 	      {
 		fprintf( stderr, "[Error] %s doesn't look like a disk device to me",
-			 mount_entry->mnt_special );
-		free( mount_entry );
+			 mount_entry.mnt_special );
 		return -1;
 	      }
 	    /* we actually want the raw device name */
 
-	    mnt_special = malloc( strlen( mount_entry->mnt_special ) + 1 );
-	    new_device = malloc( strlen( mount_entry->mnt_special ) + 2 );
-	    strcpy( mnt_special, mount_entry->mnt_special );
+	    mnt_special = malloc( strlen( mount_entry.mnt_special ) + 1 );
+	    new_device = malloc( strlen( mount_entry.mnt_special ) + 2 );
+	    strcpy( mnt_special, mount_entry.mnt_special );
 	    strcpy( new_device, mnt_special );
 	    strcpy( strstr( new_device, "/dsk/" ), "" );
 	    strcat( new_device, "/rdsk/" );
@@ -259,7 +216,6 @@ int get_device( char *path, char *device )
 	    strncpy( device, new_device, 255 );
 	    free( mnt_special );
 	    free( new_device );
-	    free( mount_entry );
 	    mounted = TRUE;
 	    break;
 	  }
@@ -268,13 +224,11 @@ int get_device( char *path, char *device )
       {
          fprintf( stderr, "[Error] Encountered error in reading mnttab file\n" );
          fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
-	 free( mount_entry );
          return -1;
       }
     else if ( mntcheck == -1 )
       {
          fprintf( stderr, "[Error] Did not find mount %s in mnttab!\n", path );
-	 free( mount_entry );
          return -1;
       }
 #else
@@ -287,7 +241,7 @@ this is the code for the other-OSs, not solaris*/
 	while ((lmount_entry = getmntent(tmp_streamin))){
 	    if (strcmp(lmount_entry->mnt_dir, path) == 0){
 		/* Found the mount point */
-		fprintf ( stderr, "Device %s mount on %s\n", lmount_entry->mnt_dir,
+		fprintf ( stderr, "[Info] Device %s mount on %s\n", lmount_entry->mnt_dir,
 			lmount_entry->mnt_fsname);
 		strcpy(device, lmount_entry->mnt_fsname);
 		mounted = TRUE;
@@ -295,6 +249,12 @@ this is the code for the other-OSs, not solaris*/
 	    }
 	}
 	endmntent(tmp_streamin);
+	if (mounted) 
+            {
+		/* device was set from /etc/mtab, no need to further check
+		 * /etc/fstab */
+		return mounted;
+            }
     }
 #endif
 
@@ -324,7 +284,7 @@ this is the code for the other-OSs, not solaris*/
       }  
 #endif
 
-#if defined( __sun__ )
+#if defined( __sun )
   }
 #else
 
@@ -383,7 +343,7 @@ this is the code for the other-OSs, not solaris*/
       }
     else
       {
-	fprintf( stderr, "Could not read /etc/fstab!" );
+	fprintf( stderr, "[Error] Could not read /etc/fstab!" );
 	fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
 	device[0] = '\0';
 	return -1;
@@ -399,7 +359,7 @@ this is the code for the other-OSs, not solaris*/
 /* returns 0 if successful and NOT mounted        */
 /*         1 if successful and mounted            */
 /* returns <0 if error                            */
-int get_device_oyo( char *path, char *device )
+int get_device_on_your_own( char *path, char *device )
 { /*oyo*/
 #ifdef USE_GETMNTINFO
   int i, n, dvd_count = 0;
@@ -409,7 +369,7 @@ int get_device_oyo( char *path, char *device )
   struct statvfs *mntbuf;
 #endif
 
-  if( ( n = getmntinfo( &mntbuf, MNT_WAIT ) ) > 0 )
+  if( ( n = getmntinfo( &mntbuf, 0 ) ) > 0 )
     {
       for( i = 0; i < n; i++ )
         {
@@ -437,98 +397,60 @@ int get_device_oyo( char *path, char *device )
       return -1;
     }
 
-#elif (defined(__sun__))
-//#elif (defined(__sun__))
-/*need to look in /etc/mnttab for /cdrom since this is the place where solaris mounts it normally
-  the normal filesystem it uses there is udfs*/
+#elif ( defined( __sun ) )
 
-  FILE	*tmp_streamin;
-  char	tmp_bufferin[MAX_STRING];
-/*  char  tmp_path[20]; */
-  int   l = 0, dvd_count = 0;
-  char *k;
-  /*
-   *read the device out of /etc/mnttab solely
-   */
+    /* Completely rewritten search of a mounted DVD on Solaris, much
+     cleaner. No more parsing of strings -- lb */
 
- if( (tmp_streamin = fopen("/etc/mnttab","r")))
-   {
-/*      strcpy(tmp_path, "iso9660"); */
-     memset( tmp_bufferin, 0, MAX_STRING * sizeof(char));
-     while( fgets( tmp_bufferin, MAX_STRING, tmp_streamin )) 
-     {
-/*        if(strstr( tmp_bufferin, tmp_path)) */
-       if(strstr( tmp_bufferin, "/cdrom" ) )
-	 {
-	   dvd_count++; /*count every cd we find */
-	   /*
-	     extract the device
-	   */
+    // the mnttab file
+    FILE         *mnttab_fp;
+    // The mount entry found
+    struct mnttab mountEntry;
+    // The mount search fields
+    struct mnttab udfsMount;
+    // Number of found entries
+    int           dvd_count = 0;
+    // Result of the mount search
+    int           result    = 0;
 
-	   if( ( k = strstr( tmp_bufferin, "/dev/" ) ) == NULL )
-	     {
-	       fprintf( stderr, "[Error] Weird, no /dev/ entry found where /cdrom gets mentioned in /etc/mnttab\n" );
-	       return -1;
-	     }
 
-	   while(isgraph( (int) *(k) ))
-	     {
-	       device[l] = *(k);
-	       if( device[l] == ',' )
-		 break;
-	       l++;
-	       k++;
-	     }
-	   device[l] = '\0';
+    /* We're looking for any udfs-mounted FS
+       Note that this is not always a DVD */
+    udfsMount.mnt_mountp  = NULL;
+    udfsMount.mnt_special = NULL;
+    udfsMount.mnt_fstype  = "udfs";
+    udfsMount.mnt_mntopts = NULL;
+    udfsMount.mnt_time    = NULL;
 	   
-
-	   k = strstr( tmp_bufferin, " " );
-
-	   /*traverse the gap*/
-
-	   if( isgraph( (int) *(k) ))
-	     k++;
-	   while(!(isgraph( (int) *(k) ))) 
-	     k++;
-
-	   /*
-	     extract the path the device has been mounted to
-	   */
-	   l=0;
-
-	   while(isgraph( (int) *(k) ))
-	     {
-	       path[l] = *(k);
-	       k++;
-	       l++;
+    /* Try to open the mnttab info */
+    if (( mnttab_fp = fopen( "/etc/mnttab", "r" ) ) == NULL) {
+      fprintf( stderr, "[Error] Could not open mnttab for searching!\n" );
+      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+      return -1;
 	     }
-	   path[l] = '\0';
 
+    // Get the matching mount points
+    // If there is a match, handle it
+    while ((result = getmntany(mnttab_fp, &mountEntry, &udfsMount)) == 0) {
+      dvd_count++;
 	 }
-       memset(tmp_bufferin, 0, MAX_STRING * sizeof(char));
-       l = 0; /*for the next run
-		       we take the last entry in /etc/mtab since that has been 
-		       mounted the last and we assume that this is the
-		       dvd. 
-		     */
-     }
-     fclose(tmp_streamin);
 
-     if(dvd_count == 0)
-       { /* no cd found? Then user should mount it */
+    // If the last result is not -1, there was a problem -- exit
+    if (result != -1)
+      return -1;
+   
+    // no cd found? Then user should mount it
+    if (dvd_count == 0) {
 	 fprintf(stderr, "[Error] There seems to be no cd/dvd mounted. Please do that..\n");
 	 return -1;
        }
-   }
- else
-   {
-     fprintf(stderr, "[Error] Could not read /etc/mnttab!");
-     return -1;
-   }
 
+    // Copy the device name and mount points to the output variables
+    strcpy(path,   mountEntry.mnt_mountp);
+    strcpy(device, mountEntry.mnt_special);
 
+#else /* End ifdef(__sun) */
 
-#else
   FILE	*tmp_streamin;
   char	tmp_bufferin[MAX_STRING];
 /*  char  tmp_path[20]; */
@@ -545,7 +467,10 @@ int get_device_oyo( char *path, char *device )
      while( fgets( tmp_bufferin, MAX_STRING, tmp_streamin ) ) 
      {
 /*        if(strstr( tmp_bufferin, tmp_path)) */
-       if(strstr( tmp_bufferin, "iso9660" ) || strstr( tmp_bufferin, "udf" ) || strstr( tmp_bufferin, "cdrom" ) || strstr( tmp_bufferin, "dvd" ) )
+       if (strstr( tmp_bufferin, "iso9660" ) || 
+           strstr( tmp_bufferin, "udf" )     || 
+           strstr( tmp_bufferin, "cdrom" )   || 
+           strstr( tmp_bufferin, "dvd" ) )
 	 {
 	   dvd_count++; /*count every cd we find */
 	   /*
@@ -635,74 +560,36 @@ int get_device_oyo( char *path, char *device )
 
 /******************* get the whole vob size via stat() ******************/
 
-off_t get_vobsize( int title, char *provided_input_dir ) 
+off_t get_vob_size( int title, char *provided_input_dir ) 
 {
-      char  path_to_vobs[278], path_to_vobs1[278], path_to_vobs2[278], path_to_vobs3[278];
-      char  temp[278], temp1[3], stat_path[278];
+      char  path_to_vobs[278], 
+            path_to_vobs1[278], 
+            path_to_vobs2[278], 
+            path_to_vobs3[278];
+      char  temp[278], 
+            temp1[3], 
+            stat_path[278];
       int   subvob;
       FILE  *tmp_streamin1;
       struct stat buf;
       off_t  vob_size = 0;     
 
-      sprintf( temp,"%d", title ); /*which title-vob */
-      
+   
       /* first option: path/vts_xx_yy.vob */
-      strcpy( path_to_vobs, provided_input_dir );
-      strcat( path_to_vobs, "/vts_" );
-      if (title < 10)
-	{
-	  strcat( path_to_vobs, "0" );
-	  strcat( path_to_vobs, temp );
-	}
-      else
-	{
-	  strcat( path_to_vobs, temp );
-	}
-      
+      sprintf( path_to_vobs, "%s/vts_%.2d", provided_input_dir, title ); /*which title-vob */      
       /* second option: path/VTS_XX_YY.VOB */
-      strcpy( path_to_vobs1, provided_input_dir );
-      strcat( path_to_vobs1, "/VTS_" );
-      if ( title < 10 )
-	{
-	  strcat( path_to_vobs1, "0" );
-	  strcat( path_to_vobs1, temp );
-	}
-      else
-	{
-	  strcat( path_to_vobs1, temp );
-	}
-      
+      sprintf( path_to_vobs1, "%s/VTS_%.2d", provided_input_dir, title ); /*which title-vob */      
       /* third option: path/VIDEO_TS/VTS_XX_YY.VOB */
-      strcpy( path_to_vobs2, provided_input_dir );
-      strcat( path_to_vobs2, "/VIDEO_TS/VTS_" );
-      if ( title < 10 )
-	{
-	  strcat( path_to_vobs2, "0" );
-	  strcat( path_to_vobs2, temp );
-	}
-      else
-	{
-	  strcat( path_to_vobs2, temp );
-	}
-
+      sprintf( path_to_vobs2, "%s/VIDEO_TS/VTS_%.2d", provided_input_dir, title ); /*which title-vob */      
       /* fourth option: path/video_ts/vts_xx_yy.vob */
-      strcpy( path_to_vobs3, provided_input_dir );   
-      strcat( path_to_vobs3, "/video_ts/vts_" );
-      if ( title < 10 )
-	{
-	  strcat( path_to_vobs3, "0" );
-	  strcat( path_to_vobs3, temp );
-	}
-      else
-	{
-	  strcat( path_to_vobs3, temp );
-	}
-
+      sprintf( path_to_vobs3, "%s/video_ts/vts_%.2d", provided_input_dir, title ); /*which title-vob */      
+   
+   
       /*
        * extract the size of the files on dvd using stat
        */
-      strcpy( stat_path, path_to_vobs );
-      strcat( stat_path, "_1.vob" );
+      sprintf( stat_path, "%s_1.vob", path_to_vobs );
+      
       if( ( tmp_streamin1 = fopen( stat_path, "r" ) ) != NULL ) /*check if this path is correct*/
 	{
 	  fclose ( tmp_streamin1 );
@@ -710,22 +597,15 @@ off_t get_vobsize( int title, char *provided_input_dir )
 	  while( !stat( stat_path, &buf ) )
 	    {
 	      /* adjust path for next subvob */
-//	       single_vob_size[ title ][ subvob ] = buf.st_size; 
 	       subvob++;
-	      strcpy( stat_path, path_to_vobs );
-	      strcat( stat_path, "_" );
-	      sprintf( temp1, "%d", subvob );
-	      strcat( stat_path, temp1 );
-	      strcat( stat_path, ".vob" );
-	      
+           sprintf( stat_path, "%s_%d.vob", path_to_vobs, subvob );	    
+	       
 	      vob_size += buf.st_size;
-/* 	      fprintf(stderr,"debug: vob_size: %lli\n",vob_size); */
-/* 	      fprintf(stderr,"debug: vob_size: %lli\n",buf.st_size); */
-	    }
+	    }	   
+	   return ( off_t ) vob_size;
 	}
       
-      strcpy( stat_path, path_to_vobs1 );
-      strcat( stat_path, "_1.VOB" );
+      sprintf( stat_path, "%s_1.VOB", path_to_vobs1 );
       if( ( tmp_streamin1 = fopen( stat_path, "r" ) ) != NULL ) /*check if this path is correct */
 	{
 	  fclose ( tmp_streamin1 );
@@ -734,20 +614,14 @@ off_t get_vobsize( int title, char *provided_input_dir )
 	    {
 	      /* adjust path for next subvob */
 	      subvob++;
-	      strcpy( stat_path, path_to_vobs1 );
-	      strcat( stat_path, "_" );
-	      sprintf( temp1, "%d", subvob );
-	      strcat( stat_path, temp1 );
-	      strcat( stat_path, ".VOB" );
-	      
+          sprintf( stat_path, "%s_%d.VOB", path_to_vobs1, subvob );	    
+	       
 	      vob_size += buf.st_size;
-/* 	      fprintf(stderr,"debug: vob_size: %lli\n",vob_size); */
-/* 	      fprintf(stderr,"debug: vob_size: %lli\n",buf.st_size); */
 	    }
+   	   return ( off_t ) vob_size;
 	}
       
-      strcpy( stat_path, path_to_vobs2 );
-      strcat( stat_path, "_1.VOB" );
+      sprintf( stat_path, "%s_1.VOB", path_to_vobs2 );
       if( ( tmp_streamin1 = fopen( stat_path, "r" ) ) != NULL ) /*check if this path is correct */
 	{
 	  fclose ( tmp_streamin1 );
@@ -756,19 +630,14 @@ off_t get_vobsize( int title, char *provided_input_dir )
 	    {
 	      /* adjust path for next subvob */
 	      subvob++;
-	      strcpy( stat_path, path_to_vobs2 );
-	      strcat( stat_path, "_" );
-	      sprintf( temp1, "%d", subvob );
-	      strcat( stat_path, temp1 );
-	      strcat( stat_path, ".VOB" );
-	     
+          sprintf( stat_path, "%s_%d.VOB", path_to_vobs2, subvob );	     
+	       
 	      vob_size += buf.st_size;
-/* 	      fprintf(stderr,"debug: vob_size: %lli\n",vob_size); */
-/* 	      fprintf(stderr,"debug: vob_size: %lli\n",buf.st_size); */
 	    }
+   	   return ( off_t ) vob_size;
 	}
-      strcpy( stat_path, path_to_vobs3 );
-      strcat( stat_path, "_1.vob" );
+   
+      sprintf( stat_path, "%s_1.vob", path_to_vobs3 );
       if( ( tmp_streamin1 = fopen( stat_path, "r" ) ) != NULL ) /*check if this path is correct */
 	{
 	  fclose ( tmp_streamin1 );
@@ -777,19 +646,14 @@ off_t get_vobsize( int title, char *provided_input_dir )
 	    {
 	      /* adjust path for next subvob */
 	      subvob++;
-	      strcpy( stat_path, path_to_vobs3 );
-	      strcat( stat_path, "_" );
-	      sprintf( temp1, "%d", subvob );
-	      strcat( stat_path, temp1 );
-	      strcat( stat_path, ".vob" );
-	      
+          sprintf( stat_path, "%s_%d.vob", path_to_vobs3, subvob );	      
 	      vob_size += buf.st_size;
-/* 	      fprintf(stderr,"debug: vob_size: %lli\n",vob_size); */
-/* 	      fprintf(stderr,"debug: vob_size: %lli\n",buf.st_size); */
 	    }
+          return ( off_t ) vob_size; 
 	}
 
-      return ( off_t ) vob_size; /* think that (off_t) is not really needed here?
+      /*none of the above seemed to have caught it, so this is the error return */
+      return ( off_t ) 0; /* think that (off_t) is not really needed here?
 				  as it is defined as off_t and the function is
 				  also defined as off_t */
 }

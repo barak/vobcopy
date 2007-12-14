@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii vobcopy.1
 .\"
-.TH VOBCOPY 1 "Nov 2004" Linux "User Manuals"
+.TH VOBCOPY 1 "Dec 2007" Linux "User Manuals"
 .SH NAME
 vobcopy \- copy (rip) files from a dvd to the harddisk
 .SH SYNOPSIS
@@ -21,7 +21,9 @@ vobcopy \- copy (rip) files from a dvd to the harddisk
 .I single_file(s)_to_rip
 .B ] [-t
 .I name
-.B ] [-v [-v]] [-I] [-V] [-1
+.B ] [-v [-v]] [-I] [-V] [-L
+.I logfile-path
+.B ] [-1
 .I aux_output_dir1
 .B ] [-2
 .I aux_output_dir2
@@ -72,11 +74,11 @@ write data into one file (needs large file support (LFS))
 .IP "-m, --mirror"
 mirrors the whole dvd to harddisk. It will create a directory named after the dvd and copy the ifo, bup and vob files there. The title-vobs are decrypted during this. 
 .IP "-n, --title-number TITLE-NUMBER"
-specify which title vobcopy shall copy (default is 1). On the dvd, vts_01_x.vob specify the first title (mostly main film).
+specify which title vobcopy shall copy (default is title with most chapters). On the dvd, vts_01_x.vob specify the first title (mostly this is the main feature).
 .IP "-o, --output-dir OUTPUT-DIR"
-specify the output-directory of the data. "stdout" or "-" redirect to stdout. Useful for pipeing it to /dev/null ;-) If you forget to pipe it to some place, your terminal will get garbled, so remember that typing "reset" and then Enter will rescue you.
+specify the output-directory of the data. "stdout" or "-" redirect to stdout. Useful for piping it to /dev/null ;-) If you forget to pipe it to some place, your terminal will get garbled, so remember that typing "reset" and then Enter will rescue you.
 .IP "-q, --quiet"
-all info- and error-messages of vobcopy will end up in /tmp/vobcopy.bla instead of stderr
+all info- and error-messages of vobcopy will end up in /tmp/vobcopy_XXXXXX instead of stderr (XXXXXX is replaced with a random string)
 .IP "-O, --onefile single_file(s)_to_rip"
 specify which single file(s) to rip. Parts of names can be given and all 
 files which include the part will be copied. Files can be listed with comma 
@@ -89,6 +91,8 @@ prints more information about whats going on (more verbose).
 .IP "-v -v"
 prints the information given on command line into a log-file in /tmp/ for 
 inclusion into a bugreport.
+.IP "-L LOGFILE-PATH"
+tells vobcopy where to put the logfile instead of the default.
 .IP "-I, --info"
 prints information about the titles, chapters and angles on the dvd.
 .IP "-V, --version"

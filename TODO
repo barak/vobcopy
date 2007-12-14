@@ -1,4 +1,26 @@
 TODO:
+  - if an iso is mounted loop-back then vobcopy is unable to find the /dev/
+    entry in /etc/mtab and resorts to /etc/fstab where something wrong is
+    written - hence vobcopy doesn't find the device. A new command line option?!
+
+  - continue if a part of the image is already there (from a previous try).
+    Should be doable with the -b code.
+
+  - "uname -m" on my machine, you would get: x86_64
+    (where I've changed the .../lib to .../lib64 in three places), then the
+    program compiles cleanly  
+    DONE
+  
+  - some code to prognose when the rip will be ready.
+
+  - check more return values of libdvdread calls.
+
+
+  - when copying over an existing file/dir vobcopy makes some trouble (i.e. 
+    it asks to overwrite bla.vob, starts writing to bla.vob.partial and at the
+    end isn't capable of overwriting bla.vob when it tries to move the 
+    .partial.
+
   - error handling with the errno and strerror function
 
 THOUGHT-ABOUT FEATURES

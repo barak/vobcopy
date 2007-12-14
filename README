@@ -1,14 +1,14 @@
 Hi!
 Well, I like mplayer (www.mplayerhq.hu) a lot! Conversion and all that. But
 - for a quick copy of a dvd to harddisk I didn't find the right tools under
-linux at that time (something similar to vobdec under win). So, I hacked 
+linux (back then - something similar to vobdec under win). So, I hacked 
 together a copy program using heavily the libdvdread library (which is 
 really great).
 It should also now work on FreeBSD (many thanks to Takeshi HIYAMA!!) and
 Solaris (also many thanks to Erik Hovland!!) and a little on MacOSX (either
 straight from this source or get it via fink - that really works)
 
-What you need in advance is libdvdread installed. This will only copy
+What you need in advance is libdvdread(-devel) installed. This will only copy
 css-unencrypted dvd's (take a GOOD look
 at http://freshmeat.net/projects/libdvdread). 
 There are also rpm and deb packages available! 

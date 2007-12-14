@@ -1,3 +1,27 @@
+vobcopy (1.0.2-1) unstable; urgency=low
+
+  * Fix possible symlink attack caused by insecure temporary file
+    handling by using mkstemp (CVE-2007-5718; closes: #448319).
+  * Bump standards Version to 3.7.3, no changes needed
+  * Build dependency from "libdvdread3-dev | libdvdread2-dev" to libdvdread-dev
+  * Fix man page typo s/pipeing/piping/ (closes: #367142)
+  * Add upstream TODO file to docs
+  * Add upstream Release-Notes to docs
+  * Change to debhelper compatibility level 5
+  * Tidy up rules file
+  * New upstream release (closes: #381553, #449534)
+    - wrong device name from /etc/fstab instead of /etc/mtab (closes: #345324)
+    - -L option documented in man page (closes: #451144)
+    - -F produces files that are too big (closes: #349682)
+    - inconsistent regarding default of -n (closes: #341742)
+    - checks for free space but it doesn't warn (closes: #341734)
+    - vobcopy: German manual page corrections (closes: #345326)
+    - -m and -n mutually exclusive (closes: #341735)
+    - Off by one error fixed (closes: #451145)
+    - Fix error when filenames end with ;? (closes: #319721)
+
+ -- Stephen Birch <sgbirch@imsmail.org>  Tue, 14 Dec 2007 16:23:25 +0000
+
 vobcopy (0.5.14-2) unstable; urgency=low
 
   * Put libdvdread3 ahead of libdvdread2 in control file
@@ -52,4 +76,34 @@ vobcopy (0.5.10-0) unstable; urgency=low
   * Clean up copying file a little, add reference to GPL file
 
  -- Stephen Birch <sgbirch@imsmail.org>  Thu, 26 Feb 2004 15:12:31 +0000
+
+vobcopy (0.5.7-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Robos <robos@muon.de>  Fri, 15 Mar 2003 23:27:23 +0200 
+
+vobcopy (0.5.6-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Robos <robos@muon.de>  Sun, 9 Feb 2003 23:27:23 +0200 
+
+vobcopy (0.5.5-1) unstable; urgency=low
+
+  * New upstream relase. vobcopy now works under SunOS.
+
+ -- Philippe Normand (phil) <sweafty@free.fr>  Sun,  3 Nov 2002 19:20:37 +0100
+
+vobcopy (0.5.1-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Philippe Normand (phil) <sweafty@free.fr>  Wed, 17 Jul 2002 18:09:23 +0200
+
+vobcopy (0.5.0-1) unstable; urgency=low
+
+  * Initial Release.
+
+ -- Philippe Normand (phil) <sweafty@free.fr>  Mon, 15 Jul 2002 18:27:23 +0200
 
