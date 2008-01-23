@@ -1,3 +1,11 @@
+Release-Notes for 1.1.0 (Su 13. Jan 23:24:00 CEST 2008)
+This release fixes the debian bug #448319 which got retitled CVE-2007-5718.
+Hey, my first CVE! Well, I consider this to be a relatively harmless bug.
+Also, I fixed some stuff so vobcopy should now compile and work fine on 
+MacOSX, at least 10.5, since this is what I have right now.
+Spaces in the name get changed/stepped over or so, don't recall.
+
+
 Release-Notes for 1.0.2 (Su 24. Jun 02:19:04 CEST 2007):
 Small fixes all in all: fix segfault with log file writing routine and
 some other small fixes. Also a small experimental patch which steps

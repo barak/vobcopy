@@ -5,7 +5,7 @@ linux (back then - something similar to vobdec under win). So, I hacked
 together a copy program using heavily the libdvdread library (which is 
 really great).
 It should also now work on FreeBSD (many thanks to Takeshi HIYAMA!!) and
-Solaris (also many thanks to Erik Hovland!!) and a little on MacOSX (either
+Solaris (also many thanks to Erik Hovland!!) and on MacOSX (either
 straight from this source or get it via fink - that really works)
 
 What you need in advance is libdvdread(-devel) installed. This will only copy
@@ -102,8 +102,8 @@ vobcopy -i /path/to/the/mounted/dvd/
 vobcopy -I
 	will give you some infos on the dvd data and on the output directory
 vobcopy -v -v 
-	will write a log-file to /tmp/ which you can send to me as a bugreport
-	(along with a few words by you about the problem)
+	will write a log-file to the current directory. You can send me this 
+	as a bugreport 	(along with a few words by you about the problem)
 vobcopy -b
 	begins to copy from the specified offset-size. Modifiers like b for 
 	512-bytes, k for kilo-bytes, m for mega- and g for giga-bytes can be 
@@ -119,11 +119,12 @@ vobcopy -t name
 	(deprecated, use -o instead now)
 	
 vobcopy -q
-	all info and error messages of vobcopy go to /tmp/vobcopy.bla
-	instead of stderr
+	all info and error messages of vobcopy go to vobcopy.bla in the current
+	directory instead of stderr. Good when you want to pipe the output of
+	vobcopy to some other program, e.g. bbtools or mplayer.
 	
 The options can be combined and arranged as you like.
-It worked for me, hope with you too.
+It worked for me, hope for you too.
 Have fun!
 Robos (robos@muon.de)
 

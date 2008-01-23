@@ -48,6 +48,9 @@ rm -fr %{buildroot}
 %doc Changelog COPYING README Release-Notes TODO alternative_programs.txt
 
 %changelog 
+* Sun Jan 13 2008 Robos  <robos@muon.de>
+- 1.1.0: -see changelog
+
 * Sun Jun 24 2007 Robos  <robos@muon.de>
 - 1.0.2: -see changelog
 

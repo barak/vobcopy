@@ -1,3 +1,15 @@
+vobcopy (1.1.0-1) unstable; urgency=low
+
+  * New upstream release
+    - New symlink attack solution by upstream to solve CVE-2007-5718
+      The upstream solution creates temp files in the current working
+      directory
+    - MacOSX (at least 10.5) compiles again
+    - Use safe string copy routines to avoid buffer overflow exploits
+    - Other small fixes by upstream
+
+ -- Stephen Birch <sgbirch@imsmail.org>  Wed, 23 Jan 2008 12:00:14 +0000
+
 vobcopy (1.0.2-1) unstable; urgency=low
 
   * Fix possible symlink attack caused by insecure temporary file

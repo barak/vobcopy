@@ -1,4 +1,4 @@
-/* vobcopy 1.0.x
+/* vobcopy 1.1.0
  *
  * Copyright (c) 2001 - 2007 robos@muon.de
  * Lots of contribution and cleanup from rosenauer@users.sourceforge.net
@@ -17,9 +17,9 @@
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with vobcopy; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ * You should have received a copy of the GNU General Public License along
+ * with vobcopy; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 /* CONTRIBUTORS (direct or through source "borrowing")
@@ -27,6 +27,7 @@
  * Billy Biggs <vektor@dumbterm.net> - took some of his play_title.c code 
  * and implemeted it here 
  * Håkan Hjort <d95hjort@dtek.chalmers.se> and Billy Biggs - libdvdread
+ * Stephen Birch <sgbirch@imsmail.org> - debian packaging
  */
 
 
@@ -55,6 +56,8 @@
 extern int errno;
 char              name[300];
 bool              overwrite_flag = FALSE;
+
+
 /* --------------------------------------------------------------------------*/
 /* MAIN */
 /* --------------------------------------------------------------------------*/
@@ -62,10 +65,10 @@ bool              overwrite_flag = FALSE;
 int main ( int argc, char *argv[] )
 {
   int               streamout, block_count, blocks, file_block_count;
-//  char              name[300], op;
   char              op;
-  char              dvd_path[255], logfile_name[20];
-  char              logfile_path[280] = {0};  /* need room for -L path + "/vobfile_XXXXXX" */
+  char              dvd_path[255], logfile_name[20],logfile_path[280]="\0"; /* TODO: fill logfile_path with all zeros so that
+ " if strncpy() finds the source too long IT DOES NOT TERMINATE the sink, so the following strcat() is undefined 
+and potentially fatal."  - Thanks Leigh!*/
   char              dvd_name[35], vobcopy_call[255], provided_dvd_name[35];
   char              *size_suffix;
   char              pwd[255],provided_output_dir[255],provided_input_dir[255];
@@ -74,6 +77,7 @@ int main ( int argc, char *argv[] )
   int               i = 0,j = 0, l = 0, argc_i = 0, alternate_dir_count = 0;
   int               partcount = 0, get_dvd_name_return, options_char = 0;
   int               dvd_count = 0, verbosity_level = 0, paths_taken = 0, fast_factor = 1;
+  int               watchdog_minutes = 0;
   long long unsigned int          seek_start = 0, stop_before_end = 0, temp_var;
   off_t             pwd_free, vob_size = 0, disk_vob_size = 0;
   off_t             offset = 0, free_space = 0;
@@ -143,6 +147,7 @@ int main ( int argc, char *argv[] )
         {"name", 1, 0, 't'},
         {"verbose", 0, 0, 'v'},
         {"version", 0, 0, 'V'},
+        {"watchdog", 1, 0, 'w'},
         /*                    {"test", 1, 0, 'test'}, */
         {0, 0, 0, 0}
       };
@@ -157,10 +162,10 @@ int main ( int argc, char *argv[] )
     {
 #ifdef HAVE_GETOPT_LONG
       options_char = getopt_long( argc, argv,
-                                  "1:2:3:4:a:b:c:e:i:n:o:qO:t:vfF:lmhL:VI",
+                                  "1:2:3:4:a:b:c:e:i:n:o:qO:t:vfF:lmhL:Vw:I",
                                   long_options ,&option_index);
 #else
-      options_char = getopt( argc, argv, "1:2:3:4:a:b:c:e:i:n:o:qO:t:vfF:lmhL:VI-" );
+      options_char = getopt( argc, argv, "1:2:3:4:a:b:c:e:i:n:o:qO:t:vfF:lmhL:Vw:I-" );
 #endif
 
       if ( options_char == -1 ) break;
@@ -302,7 +307,7 @@ int main ( int argc, char *argv[] )
             }
           fprintf( stderr, "[Hint] You use -i. Normally this is not necessary, vobcopy finds the input dir by itself. This option is only there if vobcopy makes trouble.\n" );
           fprintf( stderr, "[Hint] If vobcopy makes trouble, please mail me so that I can fix this (robos@muon.de). Thanks\n" );
-          strncpy( provided_input_dir, optarg, 255 );
+          safestrncpy( provided_input_dir, optarg, sizeof(provided_input_dir)-1 );
           if( strstr( provided_input_dir, "/dev" ) )
             {
               fprintf( stderr, "[Error] Please don't use -i /dev/something in this version, only the next version will support this again.\n" );
@@ -313,9 +318,7 @@ int main ( int argc, char *argv[] )
 
 #if defined( HAS_LARGEFILE )
         case'l': /*large file output*/
-          //max_filesize_in_blocks = 4500000000000000;
-//	   max_filesize_in_blocks = 17179869184; //16 GB
-          max_filesize_in_blocks = 8388608; //16 GB /2048 (block)
+          max_filesize_in_blocks = 8388608; /*16 GB /2048 (block) */
           /* 2^63 / 2048 (not exactly) */
           large_file_flag = TRUE;
           break;
@@ -341,7 +344,7 @@ int main ( int argc, char *argv[] )
             {
               fprintf( stderr, "[Hint] Erm, the number comes behind -n ... \n" );
             }
-          strncpy( provided_output_dir, optarg, 255 );
+          safestrncpy( provided_output_dir, optarg, sizeof(provided_output_dir)-1 );
           if ( !strcasecmp( provided_output_dir, "stdout" ) || !strcasecmp( provided_output_dir, "-" ) )
             {
               stdout_flag = TRUE;
@@ -373,7 +376,7 @@ int main ( int argc, char *argv[] )
             {
               fprintf( stderr, "[Hint] Erm, the number comes behind -n ... \n" );
             }
-          strncpy( alternate_output_dir[ options_char-49 ], optarg, 255 );
+          safestrncpy( alternate_output_dir[ options_char-49 ], optarg, sizeof(alternate_output_dir[ options_char-49 ])-1 );
           provided_output_dir_flag = TRUE;
           alternate_dir_count++;
           force_flag = TRUE;
@@ -383,7 +386,7 @@ int main ( int argc, char *argv[] )
           		     maybe even stdout output */
           if ( strlen( optarg ) > 33 )
             printf( "[Hint] The max title-name length is 33, the remainder got discarded" );
-          strncpy( provided_dvd_name, optarg, 33 );
+          safestrncpy( provided_dvd_name, optarg, sizeof(provided_dvd_name)-1 );
           provided_dvd_name_flag = TRUE;
           if ( !strcasecmp( provided_dvd_name,"stdout" ) || !strcasecmp( provided_dvd_name,"-" ) )
             {
@@ -403,13 +406,28 @@ int main ( int argc, char *argv[] )
               exit(1);
             }
           sscanf( optarg, "%i", &fast_factor );
-          if( fast_factor > BLOCK_COUNT ) //atm is BLOCK_COUNT == 64
+          if( fast_factor > BLOCK_COUNT ) /*atm is BLOCK_COUNT == 64 */
             {
               fprintf( stderr, "[Hint] The largest value for -F is %d at the moment - used that one...\n", BLOCK_COUNT );
               fast_factor = BLOCK_COUNT;
             }
 
           fast_switch = TRUE;
+          break;
+
+        case'w': /*sets a watchdog timer to cap the amount of time spent
+                             grunging about on a heavily protected disc */
+          if ( !isdigit( (int) *optarg ) )
+            {
+              fprintf( stderr, "[Error] The thing behind -w has to be a number! \n" );
+              exit(1);
+            }
+          sscanf( optarg, "%i", &watchdog_minutes );
+          if( watchdog_minutes < 1 )
+            {
+              fprintf( stderr, "[Hint] Negative minutes aren't allowed - disabling watchdog.\n" );
+              watchdog_minutes = 0;
+            }
           break;
 
         case'I': /*info, doesn't do anything, but simply prints some infos
@@ -420,15 +438,17 @@ int main ( int argc, char *argv[] )
         case'L': /*logfile-path (in case your system crashes every time you
           		     call vobcopy (and since the normal logs get written to 
           		     /tmp and that gets cleared at every reboot... )*/
-          strncpy( logfile_path, optarg, 255 );
+          strncpy(logfile_path, optarg, sizeof(logfile_path)-2);  /* -s so room for '/' */
+          strcat(logfile_path, "/");
+          logfile_path[sizeof(logfile_path)-1] = '\0';
+
           verbose_flag = TRUE;
           verbosity_level = 2;
           break;
 
         case'O': /*only one file will get copied*/
           onefile_flag = TRUE;
-          /*couldn't this be done like this: strncpy( onefile, optarg, sizeof( onefile ) - 1 ); and __shouldn't strncpy be made this way always! */
-          strncpy( onefile, optarg, 254 );
+          safestrncpy( onefile, optarg, sizeof(onefile)-1 );
           i = 0; /*this i here could be bad... */
           while( onefile[ i ] )
             {
@@ -471,38 +491,142 @@ int main ( int argc, char *argv[] )
         }
     }
 
-  /* If the user didnt specify a logfile_path using -L then we do it here */
-  if (logfile_path[0] == '\0') strcpy(logfile_path, "/tmp");
-
   fprintf( stderr, "Vobcopy "VERSION" - GPL Copyright (c) 2001 - 2007 robos@muon.de\n" );
   fprintf( stderr, "[Hint] All lines starting with \"libdvdread:\" are not from vobcopy but from the libdvdread-library\n" );
 
-  if( quiet_flag || verbosity_level > 1)
+  /*get the current working directory*/
+  if ( provided_output_dir_flag )
+    {
+      strcpy( pwd, provided_output_dir );
+    }
+  else
+    {
+      if ( getcwd( pwd, 255 ) == NULL )
+        {
+          fprintf( stderr, "\n[Error] Hmm, the path length of your current directory is really large (>255)\n" );
+          fprintf( stderr, "[Hint] Change to a path with shorter path length pleeeease ;-)\n" );
+          exit( 1 );
+        }
+    }
+
+  add_end_slash( pwd );
+
+  if( quiet_flag )
     {
       int temp;
-      int i;
+      char tmp_path[268];
 
-      /* logfile_path was initialized by -L or to "/tmp" & has room for this strcat operation */
-      strcat(logfile_path, "/vobcopy_XXXXXX");
-      if ( temp = mkstemp ( logfile_path ) == -1 )
-      {
-        printf( "[Error] Re-direct of stderr to %s: %s\n", logfile_path, strerror(errno));
-        exit( 1 );
-      }
+      strcpy( tmp_path, pwd );
+      strcat( tmp_path, "vobcopy.bla" );
+      fprintf( stderr, "[Hint] Quiet mode - All messages will now end up in %s\n", tmp_path );
+      if ( ( temp = open( tmp_path , O_CREAT | O_EXCL ) ) == -1 )
+	{
+	  printf( "[Error] Error: %s\n", strerror( errno ) );
+	  if ( errno == EEXIST )
+	    {
+	      printf( "\n[Error] The file %s already exists. Since overwriting it can be seen as a security problem I stop here.\n", tmp_path );
+	      printf( "[Hint] Use -f to override or simply delete that file\n" );
+	      if ( !force_flag )
+		exit( 1 );
+	    }
+	  else
+	    {
+	      printf( "[Error] Aaah! Re-direct of stderr to %s didn't work! If -f is not used I stop here... \n", tmp_path );
+	      printf( "[Hint] Use -f to continue (at your risk of stupid ascii text ending up in your VOBs)\n" );
+	      if ( !force_flag )
+		exit( 1 );
+	    }
+	}
       else
-      {
-        close( temp );
-      }
+	{
+	  close( temp );
+	}
+   
+      if ( chmod( tmp_path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH ) == -1 )
+        {
+	  printf( "[Error] Error: %s\n", strerror( errno ) );
+          printf( "[Error] Changing mode of %s didn't work! If -f is not used I stop here... \n", tmp_path );
+          printf( "[Hint] Use -f to continue (at your risk of stupid ascii text ending up in your VOBs)\n" );
+          if ( !force_flag )
+            exit( 1 );
+        }
 
-      fprintf( stderr, "[Hint] All messages will now end up in %s\n", logfile_path );
 
-      if ( freopen(logfile_path , "a" , stderr ) == NULL )
-      {
-        printf( "[Error] Aaah! Re-direct of stderr to %s didn't work! If -f is not used I stop here... \n", logfile_path );
-        printf( "[Hint] Use -f to continue (at your risk of stupid ascii text ending up in your vobs\n" );
-        if ( !force_flag )
+      /*reopen the already tested file and attach stderr to it*/
+      if ( freopen( tmp_path , "a" , stderr ) == NULL )
+        {
+	  printf( "[Error] Error: %s\n", strerror( errno ) );
+          printf( "[Error] Aaah! Re-direct of stderr to %s didn't work! If -f is not used I stop here... \n", tmp_path );
+          printf( "[Hint] Use -f to continue (at your risk of stupid ascii text ending up in your VOBs)\n" );
+          if ( !force_flag )
+            exit( 1 );
+        }
+    }
+
+
+  if( verbosity_level > 1 ) /* this here starts writing the logfile */
+    {
+      int temp;
+      fprintf( stderr, "[Info] Uhu, super-verbose\n" );
+
+      if( strlen( logfile_path ) < 3 )
+	strcpy( logfile_path, pwd );
+      strcpy( logfile_name, "vobcopy_" );
+      strcat( logfile_name, VERSION );
+      strcat( logfile_name, ".log" );
+      strcat( logfile_path, logfile_name );
+      if ( ( temp = open ( logfile_path , O_CREAT | O_EXCL ) ) == -1 )
+	{
+	  printf( "[Error] Error: %s\n", strerror( errno ) );
+	  if ( errno == EEXIST )
+	    {
+	      printf( "\n[Error] The file %s already exists. Since overwriting it can be seen as a security problem I stop here. \n", logfile_path );
+	      printf( "[Hint] Use -f to override or simply delete that file\n" );
+	      if ( !force_flag )
+		exit( 1 );
+	    }
+	  else
+	    {
+	      printf( "[Error] Aaah! Re-direct of stderr to %s didn't work! If -f is not used I stop here... \n", logfile_path );
+	      if ( !force_flag )
+		exit( 1 );
+	    }
+	}
+      else
+	{
+	  close( temp );
+	}
+
+      if ( chmod( logfile_path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH ) == -1 )
+        {
+	  printf( "[Error] Error: %s\n", strerror( errno ) );
+          printf( "[Error] Changing mode of %s didn't work! If -f is not used I stop here... \n", logfile_path );
+          printf( "[Hint] Use -f to try to continue anyway\n" );
+          if ( !force_flag )
+            exit( 1 );
+        }
+
+
+      fprintf( stderr, "[Info] The log-file is written to %s\n", logfile_path );
+      fprintf( stderr, "[Hint] Make sure that vobcopy doesn't have to ask questions (like overwriting of old files), these questions end up in the log file so you don't see them...\n" );
+      fprintf( stderr, "[Hint] If you don't like that position, use -L /path/to/logfile/ instead of -v -v\n" );
+
+      if ( freopen( logfile_path, "a" , stderr ) == NULL )
+        {
+	  printf( "[Error] Error: %s\n", strerror( errno ) );
+          printf( "[Error] Aaah! Re-direct of stderr to %s didn't work! \n", logfile_path );
+          /* oh no! redirecting of stderr failed, do best to quit gracefully */
           exit( 1 );
-      }
+        }
+
+      strcpy( vobcopy_call, argv[0] );
+      for( argc_i = 1; argc_i != argc; argc_i++ )
+        {
+          strcat( vobcopy_call, " " );
+          strcat( vobcopy_call, argv[argc_i] );
+        }
+      fprintf( stderr, "--------------------------------------------------------------------------------\n" );
+      fprintf( stderr, "[Info] Called: %s\n", vobcopy_call );
     }
 
   /*sanity check: -m and -n are mutually exclusive... */
@@ -524,7 +648,7 @@ int main ( int argc, char *argv[] )
           fprintf( stderr, "\n[Error] Bloody path to long '%s'\n", argv[optind] );
           exit( 1 );
         }
-      strncpy( provided_input_dir, argv[optind],255 );
+      safestrncpy( provided_input_dir, argv[optind],sizeof(provided_input_dir)-1 );
     }
 
   if ( provided_input_dir_flag ) /*the path has been given to us */
@@ -578,7 +702,7 @@ int main ( int argc, char *argv[] )
     }
   else
     {
-      strncpy( dvd_name, provided_dvd_name, 33 );
+      safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name)-1 );
     }
 
   /* The new part taken from play-title.c*/
@@ -706,7 +830,6 @@ int main ( int argc, char *argv[] )
   /*
    * get the whole vob size via stat( ) manually
    */
-//  if( mounted )
   if( mounted && !mirror_flag )
     {
       vob_size = ( get_vob_size( titleid, provided_input_dir ) ) -
@@ -732,29 +855,20 @@ int main ( int argc, char *argv[] )
    * see man statfs for more info
    */
 
-  /*get the current working directory*/
-  if ( provided_output_dir_flag )
-    {
-      strcpy( pwd, provided_output_dir );
-    }
-  else
-    {
-      if ( getcwd( pwd, 255 ) == NULL )
-        {
-          fprintf( stderr, "\n[Error] Hmm, the path length of your current directory is really large (>255)\n" );
-          fprintf( stderr, "[Hint] Change to a path with shorter path length pleeeease ;-)\n" );
-          exit( 1 );
-        }
-    }
-
-  add_end_slash( pwd );
-
   pwd_free = get_free_space( pwd,verbosity_level );
 
   if( fast_switch )
     block_count = fast_factor;
   else
     block_count = 1;
+
+  install_signal_handlers();
+
+  if( watchdog_minutes )
+    {
+      fprintf( stderr, "\n[Info] Setting watchdog timer to %d minutes\n", watchdog_minutes );
+      alarm( watchdog_minutes * 60 );
+    }
 
   /***
     this is the mirror section
@@ -769,7 +883,7 @@ int main ( int argc, char *argv[] )
         /* no dirs behind -1, -2 ... since its all in one dir */
         {
           char video_ts_dir[263];
-          char number[8], nr[4];
+          char number[8];
           char input_file[280];
           char output_file[255];
           int  i, start, title_nr = 0;
@@ -778,7 +892,7 @@ int main ( int argc, char *argv[] )
           int k = 0;
           char d_name[256];
 
-          strncpy( name, pwd, 255 );
+          safestrncpy( name, pwd,  sizeof(name)-34 ); /*  255 */
           strncat( name, dvd_name, 33 );
 
           if( !stdout_flag )
@@ -791,7 +905,7 @@ int main ( int argc, char *argv[] )
 
               fprintf( stderr,"[Info] Writing files to this dir: %s\n", name );
             }
-//TODO: substitute with open_dir function
+	  /*TODO: substitute with open_dir function */
           strcpy( video_ts_dir, provided_input_dir );
           strcat( video_ts_dir, "video_ts"); /*it's either video_ts */
           dir = opendir( video_ts_dir );     /*or VIDEO_TS*/
@@ -816,7 +930,7 @@ int main ( int argc, char *argv[] )
             {/*main mirror loop*/
 
               k = 0;
-              strncpy( output_file, name, 255 );
+              safestrncpy( output_file, name, sizeof(output_file)-1 );
               /*in dvd specs it says it must be uppercase VIDEO_TS/VTS...
               but iso9660 mounted dvd's sometimes have it lowercase */
               while( directory->d_name[k] )
@@ -845,7 +959,7 @@ int main ( int argc, char *argv[] )
                           int len_begin;
                           len_begin = tokenpos1 - tokenpos;
                           /*                                      printf(" debug: len = %d tokenpos = %d tokenpos1 = %d\n", len_begin, tokenpos, tokenpos1 ); */
-                          strncpy( tmp, tokenpos, len_begin );
+                          safestrncpy( tmp, tokenpos, len_begin );
                           tokenpos = tokenpos1 + 1;
                           /*                                      printf(" debug: tokenpos = %d tokenpos1 = %d\n", tokenpos, tokenpos1 ); */
                           tmp[ len_begin ] = '\0';
@@ -896,7 +1010,6 @@ next: /*for the goto - ugly, I know... */
                       /*TODO: add [a]ppend  and seek thought stream till point of append is there */
                       while ( 1 )
                         {
-//		      op=fgetc( stdin );
                           while ((op = fgetc (stdin)) == EOF)
                             usleep (1);
                           fgetc ( stdin ); /* probably need to do this for second
@@ -942,7 +1055,6 @@ next: /*for the goto - ugly, I know... */
                       /*TODO: add [a]ppend  and seek thought stream till point of append is there */
                       while ( 1 )
                         {
-//		      op=fgetc( stdin );
                           while ((op = fgetc (stdin)) == EOF)
                             usleep (1);
                           fgetc ( stdin ); /* probably need to do this for second
@@ -1102,10 +1214,10 @@ next: /*for the goto - ugly, I know... */
                     {
                       off_t culm_single_vob_size = 0;
                       int a, subvob;
-//			 printf( "debug: title = %d \n", title_nr );
+/*			 printf( "debug: title = %d \n", title_nr ); */
 
                       subvob = ( directory->d_name[7] - 48 );
-//			 printf( "debug: subvob = %d \n", subvob );
+/*			 printf( "debug: subvob = %d \n", subvob ); */
 
                       for( a = 1; a < subvob; a++ )
                         {
@@ -1126,20 +1238,22 @@ next: /*for the goto - ugly, I know... */
                             fprintf( stderr, "[Info] Vob %d %d (%s) has a size of %lli\n", title_nr, subvob, input_file, buf.st_size );
                         }
 
-                      start = ( culm_single_vob_size / DVD_VIDEO_LB_LEN ); /* this here seeks d_name[7]
-                      //                          start = ( ( ( directory->d_name[7] - 49 ) * 512 * 1024 ) - ( directory->d_name[7] - 49 ) ); /* this here seeks d_name[7] 
-                                                    (which is the 3 in vts_01_3.vob) Gigabyte (which is equivalent to 512 * 1024 blocks 
-                                                    (a block is 2kb) in the dvd stream in order to reach the 3 in the above example.
-                      			 * NOT! the sizes of the "1GB" files aren't 1GB... */
+                      start = ( culm_single_vob_size / DVD_VIDEO_LB_LEN ); 
+/*                          start = ( ( ( directory->d_name[7] - 49 ) * 512 * 1024 ) - ( directory->d_name[7] - 49 ) );  */
+/* this here seeks d_name[7] 
+  (which is the 3 in vts_01_3.vob) Gigabyte (which is equivalent to 512 * 1024 blocks 
+  (a block is 2kb) in the dvd stream in order to reach the 3 in the above example.
+  * NOT! the sizes of the "1GB" files aren't 1GB... 
+*/
                     }
 
                   /*this copies the data to the new file*/
                   if( verbosity_level > 1)
                     fprintf( stderr, "[Info] Start of %s at %d blocks \n", output_file, start );
                   file_block_count = block_count;
-                  int tries = 0, skipped_blocks = 0; //TODO: nicht hier
                   for( i = start; ( i - start ) * DVD_VIDEO_LB_LEN < file_size; i += file_block_count)
                     {
+		      int tries = 0, skipped_blocks = 0; 
                       /* Only read and write as many blocks as there are left in the file */
                       if ( ( i - start + file_block_count ) * DVD_VIDEO_LB_LEN > file_size )
                         {
@@ -1147,7 +1261,6 @@ next: /*for the goto - ugly, I know... */
                         }
 
                       /*		      DVDReadBlocks( dvd_file, i, 1, bufferin );this has to be wrong with the 1 there...*/
-//                               blocks = DVDReadBlocks( dvd_file, i, file_block_count, bufferin );
 
                       while( ( blocks = DVDReadBlocks( dvd_file, i, file_block_count, bufferin ) ) <= 0 && tries < 10 )
                         {
@@ -1159,8 +1272,7 @@ next: /*for the goto - ugly, I know... */
                             }
                           if( verbosity_level >= 1 )
                             fprintf( stderr, "[Warn] Had to skip %d blocks!  ", skipped_blocks );
-                          //                              fprintf( stderr, "[Debug] tries=%d\n", tries );
-                          //                              blocks = DVDReadBlocks( dvd_file, i, file_block_count, bufferin );
+/*                             fprintf( stderr, "[Debug] tries=%d\n", tries ); */
                           tries++;
                         }
 
@@ -1189,12 +1301,12 @@ next: /*for the goto - ugly, I know... */
                         }
 
                     }
-//this is just so that at the end it actually says 100.0% all the time...
-//TODO: if it is correct to always assume it's 100% is a good question....
+/*this is just so that at the end it actually says 100.0% all the time... */
+/*TODO: if it is correct to always assume it's 100% is a good question.... */
                   fprintf( stderr, "%4.0fMB of %4.0fMB written ",
                            ( ( tmp_i+1 )*DVD_VIDEO_LB_LEN )/( 1024*1024 ),
                            ( tmp_file_size+2048 )/( 1024*1024 ) );
-                  fprintf( stderr,"( 100.0% ) \r" );
+                  fprintf( stderr,"( 100.0%% ) \r" );
 
                   start=i;
                   fprintf( stderr, "\n" );
@@ -1355,7 +1467,6 @@ next: /*for the goto - ugly, I know... */
 
           while ( 1 )
             {
-//	      op=fgetc( stdin );
               while ((op = fgetc (stdin)) == EOF)
                 usleep (1);
               if( op == 'y' )
@@ -1484,7 +1595,6 @@ watching, and it's their dog."
               /*TODO: add [a]ppend  and seek thought stream till point of append is there */
               while ( 1 )
                 {
-//		      op=fgetc( stdin );
                   while ((op = fgetc (stdin)) == EOF)
                     usleep (1);
                   fgetc ( stdin ); /* probably need to do this for second time it comes around this loop */
@@ -1531,7 +1641,6 @@ watching, and it's their dog."
               fprintf( stderr, "\n[Error] File '%s' already exists, [o]verwrite, [a]ppend, [q]uit? \n", name );
               while ( 1 )
                 {
-//		    op=fgetc( stdin );
                   while ((op = fgetc (stdin)) == EOF)
                     usleep (1);
                   fgetc ( stdin ); /* probably need to do this for second time it
@@ -1660,8 +1769,8 @@ watching, and it's their dog."
               fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
               exit( 1 );
             }
-//this is just so that it says 100% at the end. Dirty....
-          fprintf( stderr, "%4.0fMB of %4.0fMB written ( 100.0 %)\r",
+	  /*this is just so that it says 100% at the end. Dirty.... */
+          fprintf( stderr, "%4.0fMB of %4.0fMB written ( 100.0 %%)\r",
                    ( float ) offset/512,
                    ( float ) ( file_size_in_blocks - seek_start - stop_before_end )/512 );
 
@@ -1782,11 +1891,11 @@ int add_end_slash( char *path )
 off_t get_free_space( char *path, int verbosity_level )
 {
 
-#ifdef USE_STATFS
-  struct statfs     buf1;
-#else
-  struct statvfs    buf1;
-#endif
+  #ifdef USE_STATFS
+    struct statfs     buf1;
+  #else 
+    struct statvfs    buf1;
+  #endif
   /*   ssize_t temp1, temp2; */
   long temp1, temp2;
   off_t sum;
@@ -1923,6 +2032,7 @@ void usage( char *program_name )
            "[-e <skip-size-at-end[bkmg]>]\n"
            "[-O <single_file_name1,single_file_name2, ...>] \n"
            "[-q (quiet)]\n"
+           "[-w <watchdog-minutes>]\n"
            "[-F <fast-factor:1..64>]\n", program_name );
 
 #if defined( HAS_LARGEFILE )
@@ -1960,8 +2070,8 @@ void re_name( char *output_file )
           fprintf( stderr, "[Error] Could not remove old filename: %s \n", output_file );
           fprintf( stderr, "[Hint] This: %s is a hardlink to %s. Dunno what to do... \n", new_output_file, output_file );
         }
-      //            else
-      //                fprintf( stderr, "[Info] Removed \".partial\" from %s since it got copied in full \n", output_file );
+      /*            else
+                      fprintf( stderr, "[Info] Removed \".partial\" from %s since it got copied in full \n", output_file ); */
     }
   else
     {
@@ -1980,10 +2090,9 @@ void re_name( char *output_file )
         {
           /*this here is a stdio function which simply overwrites an existing file. Bad but I don't want to include another test...*/
           rename( output_file, new_output_file );
-          //                fprintf( stderr, "[Info] Removed \".partial\" from %s since it got copied in full \n", output_file );
+          /*                fprintf( stderr, "[Info] Removed \".partial\" from %s since it got copied in full \n", output_file ); */
         }
     }
-  /* test, test... */
   if( strstr( name, ".partial" ) )
     name[ strlen( name ) - 8 ] = 0;
 
@@ -2005,7 +2114,6 @@ int makedir( char *name )
           while ( 1 )
             {
               char op;
-//                            op=fgetc( stdin );
               while ((op = fgetc (stdin)) == EOF)
                 usleep (1);
               fgetc ( stdin ); /* probably need to do this for second time it
@@ -2034,3 +2142,44 @@ int makedir( char *name )
     }
   return 0;
 }
+
+void install_signal_handlers()
+{
+  struct sigaction action;
+
+  action.sa_flags = 0;
+  action.sa_handler = watchdog_handler;
+  sigemptyset(&action.sa_mask);
+  sigaction(SIGALRM, &action, NULL);
+
+  action.sa_flags = 0;
+  action.sa_handler = shutdown_handler;
+  sigemptyset(&action.sa_mask);
+  sigaction(SIGTERM, &action, NULL);
+}
+
+void watchdog_handler( int signal )
+{
+  fprintf( stderr, "\n[Info] Timer expired - shooting myself in the head.\n" );
+  kill( getpid(), SIGTERM );
+}
+
+void shutdown_handler( int signal )
+{
+  fprintf( stderr, "\n[Info] Terminate signal received, exiting.\n" );
+  _exit( 2 );
+}
+
+/* safe strcncpy, adds null terminator */
+char *safestrncpy(char *dest, const char *src, size_t n)
+{
+  dest[n] = '\0';
+  return strncpy(dest, src, n-1);
+}
+
+#if defined(__APPLE__) && defined(__GNUC__)
+int fdatasync( int value )
+{
+  return 0;
+}
+#endif
