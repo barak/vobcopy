@@ -1,0 +1,142 @@
+From: "Barak A. Pearlmutter" <barak+git@cs.nuim.ie>
+Date: Sun, 1 Jan 2012 19:11:10 +0100
+Subject: [PATCH] man dash hyphen slash en
+
+silence lintian warning about hyphens vs dashes in English man page
+---
+ vobcopy.1 |   82 ++++++++++++++++++++++++++++++------------------------------
+ 1 files changed, 41 insertions(+), 41 deletions(-)
+
+diff --git a/vobcopy.1 b/vobcopy.1
+index e3774ad..6f34152 100644
+--- a/vobcopy.1
++++ b/vobcopy.1
+@@ -5,31 +5,31 @@
+ .SH NAME
+ vobcopy \- copy (rip) files from a dvd to the harddisk
+ .SH SYNOPSIS
+-.B vobcopy [-b
++.B vobcopy [\-b
+ .I size[bkmg]
+-.B ] [-e
++.B ] [\-e
+ .I size[bkmg]
+-.B ] [-f] [-F
++.B ] [\-f] [\-F
+ .I fast_factor
+-.B ] [-h] [-i
++.B ] [\-h] [\-i
+ .I input-dir
+-.B ] [-l] [-m] [-M][-n
++.B ] [\-l] [\-m] [\-M][\-n
+ .I title-number
+-.B ] [-o
++.B ] [\-o
+ .I output-dir
+-.B ] [-q] [-O
++.B ] [\-q] [\-O
+ .I single_file(s)_to_rip
+-.B ] [-t
++.B ] [\-t
+ .I name
+-.B ] [-v [-v]] [-x] [-I] [-V] [-L
++.B ] [\-v [\-v]] [\-x] [\-I] [\-V] [\-L
+ .I logfile-path
+-.B ] [-1
++.B ] [\-1
+ .I aux_output_dir1
+-.B ] [-2
++.B ] [\-2
+ .I aux_output_dir2
+-.B ] [-3
++.B ] [\-3
+ .I aux_output_dir3
+-.B ] [-4
++.B ] [\-4
+ .I aux_output_dir4
+ .B ]
+ .SH DESCRIPTION
+@@ -56,54 +56,54 @@ backups of all your DVDs...
+ without any options will copy the title with the most chapters into files of 
+ 2GB size into the current working directory.
+ .SH OPTIONS
+-.IP "-b, --begin SIZE[bkmg]"
+-begins to copy from the specified offset-size. Modifiers like b for 512-bytes, k for kilo-bytes, m for mega- and g for giga-bytes can be appended to the number. Example: vobcopy -b 500m will start to copy from 500MB onward till the end.
+-.IP "-e, --end SIZE[bkmg]"
+-similar to -b, this options lets you specify some size to stop before the end.
+-.IP "-f, --force"
++.IP "\-b, \-\-begin SIZE[bkmg]"
++begins to copy from the specified offset-size. Modifiers like b for 512-bytes, k for kilo-bytes, m for mega- and g for giga-bytes can be appended to the number. Example: vobcopy \-b 500m will start to copy from 500MB onward till the end.
++.IP "\-e, \-\-end SIZE[bkmg]"
++similar to \-b, this options lets you specify some size to stop before the end.
++.IP "\-f, \-\-force"
+ force the output to the specified directory even if vobcopy thinks there is not
+ enough free space
+-.IP "-F, --fast fast_factor"
++.IP "\-F, \-\-fast fast_factor"
+ speed up the copying (experimental). fast_factor is in the range 1 to 64
+-.IP "-h, --help"
++.IP "\-h, \-\-help"
+ print the command line options available
+-.IP "-i, --input-dir INPUT-DIR"
++.IP "\-i, \-\-input\-dir INPUT-DIR"
+ provide vobcopy with the path to the mounted dvd drive
+-.IP "-l, --large-file"
++.IP "\-l, \-\-large\-file"
+ write data into one file (needs large file support (LFS))
+-.IP "-M, --longest"
++.IP "\-M, \-\-longest"
+ choose the title with the longest playing time. With some DVDs this gets the main title better than the most chapter method, with others it's worse.
+-.IP "-m, --mirror"
++.IP "\-m, \-\-mirror"
+ mirrors the whole dvd to harddisk. It will create a directory named after the dvd and copy the ifo, bup and vob files there. The title-vobs are decrypted during this. 
+-.IP "-n, --title-number TITLE-NUMBER"
++.IP "\-n, \-\-title\-number TITLE-NUMBER"
+ specify which title vobcopy shall copy (default is title with most chapters). On the dvd, vts_01_x.vob specify the first title (mostly this is the main feature).
+-.IP "-o, --output-dir OUTPUT-DIR"
+-specify the output-directory of the data. "stdout" or "-" redirect to stdout. Useful for pipeing it to /dev/null ;-) If you forget to pipe it to some place, your terminal will get garbled, so remember that typing "reset" and then Enter will rescue you.
+-.IP "-q, --quiet"
++.IP "\-o, \-\-output\-dir OUTPUT-DIR"
++specify the output-directory of the data. "stdout" or "\-" redirect to stdout. Useful for pipeing it to /dev/null ;-) If you forget to pipe it to some place, your terminal will get garbled, so remember that typing "reset" and then Enter will rescue you.
++.IP "\-q, \-\-quiet"
+ all info- and error-messages of vobcopy will end up in the current directory in vobcopy.bla instead of stderr
+-.IP "-O, --onefile single_file(s)_to_rip"
++.IP "\-O, \-\-onefile single_file(s)_to_rip"
+ specify which single file(s) to rip. Parts of names can be given and all 
+ files which include the part will be copied. Files can be listed with comma 
+-separation. Example: -O video_ts.vob,bup will copy the single file video_ts.vob and all files containing bup
+-.IP "-t, --name NAME"
+-you can give the file a name if you don't like the one from dvd. -t hallo will result in hallo.vob. (stdout or "-" are deprecated now)
++separation. Example: \-O video_ts.vob,bup will copy the single file video_ts.vob and all files containing bup
++.IP "\-t, \-\-name NAME"
++you can give the file a name if you don't like the one from dvd. \-t hallo will result in hallo.vob. (stdout or "\-" are deprecated now)
+ If you want to give it names like "Huh I like this movie", do it in quotation marks.
+-.IP "-v, --verbose"
++.IP "\-v, \-\-verbose"
+ prints more information about whats going on (more verbose).
+-.IP "-v -v"
++.IP "\-v \-v"
+ prints the information given on command line into a log-file in the current directory for 
+ inclusion into a bugreport.
+-.IP "-x"
++.IP "\-x"
+ overwrite all existing files without further questions.
+-.IP "-L LOGFILE-PATH"
++.IP "\-L LOGFILE-PATH"
+ tells vobcopy where to put the logfile instead of the default.
+-.IP "-I, --info"
++.IP "\-I, \-\-info"
+ prints information about the titles, chapters and angles on the dvd.
+-.IP "-V, --version"
++.IP "\-V, \-\-version"
+ prints version number.
+-.IP "-1, --1st_alt_output_dir AUXILIARY-OUTPUT-DIR1"
+-if the data doesn't fit on the first output-directory (specified behind -o)
+-writing will continue here (and after -2 there and -3 and -4) -> the files will be split according to the remaining free space (try specifying the path _directly_ behind -1, _no_ space in between if you have troubles, this might be even necessary at -o...)
++.IP "\-1, \-\-1st_alt_output_dir AUXILIARY-OUTPUT-DIR1"
++if the data doesn't fit on the first output-directory (specified behind \-o)
++writing will continue here (and after \-2 there and \-3 and \-4) -> the files will be split according to the remaining free space (try specifying the path _directly_ behind \-1, _no_ space in between if you have troubles, this might be even necessary at \-o...)
+ .SH BUGS
+ Vobcopy is still under development. So expect some.
+ There *might* be problems for users who's system is not large-file ready. If so, please get back to me.
+-- 
