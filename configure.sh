@@ -1,0 +1,219 @@
+echo "THIS CONFIGURE SCRIPT IS STILL HIGHLY EXPERIMENTAL!
+If you think you found a bug, please mail me, thanks! robos@muon.de"
+
+#This is the makefile generator for vobcopy, 
+#The original makefile was  written by rosenauer. These things 
+#below here are variable definitions. They get substituted in the (CC) and 
+#stuff places.
+
+#!/bin/sh
+#hope this thing works across all systems, otherwise mail me please:
+#robos@muon.de
+
+#args check *new*
+#declare -i i=0
+if [ $# != 0 ]
+then 
+     while [ $# != 0 ]
+     do
+       
+       if $(echo $1 | grep "prefix=" - >/dev/null 2>&1)
+       then
+       	   prefix=$(echo $1 | sed s/--prefix=//)
+	   prefix_provided=true
+           echo "prefix = $prefix"
+       fi
+       
+       if $(echo $1 | grep "bindir=" - >/dev/null 2>&1)
+       then
+       	   bindir=$(echo $1 | sed s/--bindir=//)
+	   bindir_provided=true
+       	   echo "bindir here: $bindir"
+       fi
+
+       if $(echo $1 | grep "mandir=" - >/dev/null 2>&1)
+       then
+       	   mandir=$(echo $1 | sed s/--mandir=//)
+	   mandir_provided=true
+       	   echo "with mandir here: $mandir"
+       fi
+
+       if $(echo $1 | grep "with-lfs" - >/dev/null 2>&1)
+       then
+  	   echo "with large-file support"
+ 	   LFS="LFS    = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE"
+	   lfs_provided=true
+       fi
+
+       if $(echo $1 | grep "with-dvdread-libs=" - >/dev/null 2>&1)
+       then
+       	   libs_dir=$(echo $1 | sed s/--with-dvdread-libs=//)
+	   libs_dir_provided=true
+       	   echo "with dvdread-libs here: $libs_dir"
+       fi
+       
+       if $(echo $1 | grep "help" - >/dev/null 2>&1)
+       then
+           echo "--prefix=PREFIX                install architecture-independent files in PREFIX [/usr/local]"
+	   echo "--bindir=DIR                   user executables in DIR [PREFIX/bin]"
+	   echo "--mandir=DIR                   man documentation in DIR [PREFIX/bin]"
+           echo "--with-dvdread-libs=DIR        directory where dvdread lib (dvd_reader.h) is installed"
+	   echo "--with-lfs                     Enable large File System support"
+           exit 1
+       fi
+       shift 1
+     done
+fi
+
+if [ -z $prefix_provided ]
+then
+     prefix=/usr/local
+fi
+
+if [ -z $mandir_provided ]
+then
+     mandir=\${PREFIX}/man
+fi
+
+if [ -z $bindir_provided ]
+then
+     bindir=\${PREFIX}/bin
+fi
+
+
+#see if libdvdread is installed
+if [ -z $libs_dir_provided ]
+then
+    if !( test -e /usr/local/include/dvdread ) 
+    then
+	if !( test -e /usr/include/dvdread )
+		then
+		echo "Do you have libdvdread installed? I (the script) can't
+find it"
+     		echo "Please provide the path to dvdreader.h after
+./configure --with-dvdread-libs="
+	    	echo "And please mail me the location so that I can fix the
+makefile to robos@muon.de, thanks!"
+		exit 1
+	else 
+	     echo "libdvdread found"
+	     libs_dir=/usr/
+#	     libs_dir=/usr/include	     
+	fi	
+    else 
+    	 echo "libdvdread found"
+	 libs_dir=/usr/local/
+#	 libs_dir=/usr/local/include	 
+    fi
+else
+# Remove the following if...fi if the program complains about non-existing
+# headers when they really are there...
+    if !( test -e $libs_dir/include/dvdread )
+    then
+        echo "You specified that libdvdread is installed at $libs_dir. However"
+	echo "I (the script) am unable to find the header files at"
+	echo "$libs_dir/include/dvdread."
+	echo "If they really are there, edit the configure.sh and remove"
+	echo "this check."
+	exit 1
+    fi
+fi
+
+
+#I hope this is a test to see if the system is largefile ready
+if [ -z $lfs_provided ]
+then
+   if grep "ftello64" /usr/include/stdio.h >/dev/null 2>&1
+   then
+    	echo "largefile support found"
+    	LFS="LFS    = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE"	
+   else
+    	echo "no large-file support found (by me, the stupid script)"
+	echo "large file support is necessary if you want to output files 
+	larger than 2GB"
+	echo "please append --with-lfs to ./configure, else lfs is disabled"
+	LFS="LFS    ="
+   fi
+fi
+
+       
+#FreeBSD needs libgnugetopt
+if [ `uname -s` = FreeBSD ]; then
+	LDFLAGS="LDFLAGS += -ldvdread -L/usr/local/lib -lgnugetopt"
+else
+	LDFLAGS="LDFLAGS += -ldvdread -L$libs_dir/lib"
+fi
+
+#see if a Makefile is present - and kill it ;-)
+if test -e ./Makefile
+then
+	rm -f ./Makefile
+fi
+
+#write the Makefile
+touch Makefile
+
+echo "
+#This is the makefile for vobcopy, mainly written by rosenauer. These things 
+#below here are variable definitions. They get substituted in the (CC) and 
+#stuff places.
+CC     = gcc
+#PREFIX += /usr/local
+#BINDIR = \${PREFIX}/bin
+#MANDIR = \${PREFIX}/man
+PREFIX += $prefix
+BINDIR = $bindir
+MANDIR = $mandir
+$LFS
+CFLAGS += -I$libs_dir/include
+$LDFLAGS
+
+#This specifies the conversion from .c to .o 
+.c.o:
+	\$(CC) \$(LFS) \$(CFLAGS) -c \$<
+
+#Here is implicitly said that for vobcopy to be made *.o has to be made first
+#make is kinda intelligent in that aspect.
+vobcopy: vobcopy.o dvd.o 
+	\$(CC) -o vobcopy vobcopy.o dvd.o \${LDFLAGS}
+
+disable_lfs:
+	\$(CC) \$(CFLAGS) -c vobcopy.c
+	\$(CC) \$(CFLAGS) -c dvd.c
+	\$(CC) -o vobcopy vobcopy.o dvd.o -ldvdread
+
+debug:
+	\$(CC) -c vobcopy.c -Wall -ggdb -pedantic \$(CFLAGS) \$(LFS)
+	\$(CC) -c dvd.c     -Wall -ggdb -pedantic \$(CFLAGS) \$(LFS)
+	\$(CC) -o vobcopy vobcopy.o dvd.o -ldvdread
+
+deb:
+        
+	echo \"this here is really really experimental...\"
+	dpkg-buildpackage -rfakeroot -us -uc -tc
+		
+
+clean :
+	rm -f vobcopy vobcopy.o dvd.o
+
+distclean :
+	rm -f vobcopy.o dvd.o *~
+
+install:
+#	mkdir -p \$(MANDIR)/man1
+#	cp vobcopy   \$(BINDIR)/vobcopy
+#	cp vobcopy.1 \$(MANDIR)/man1/vobcopy.1
+	install -d -m 755 \$(BINDIR)
+	install -d -m 755 \$(MANDIR)/man1
+	install -d -m 755 \$(MANDIR)/de/man1
+	install -m 755 vobcopy \$(BINDIR)/vobcopy
+	install -m 644 vobcopy.1 \$(MANDIR)/man1/vobcopy.1
+	install -m 644 vobcopy.1.de \$(MANDIR)/de/man1/vobcopy.1
+
+uninstall:
+	rm -f \$(BINDIR)/vobcopy
+	rm -f \$(MANDIR)/man1/vobcopy.1
+	rm -f \$(MANDIR)/de/man1/vobcopy.1	
+" > Makefile
+
+echo "Next thing type \"make\" and then \"make install\""

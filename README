@@ -1,0 +1,129 @@
+Hi!
+Well, I like mplayer (www.mplayerhq.hu) a lot! Conversion and all that. But
+- for a quick copy of a dvd to harddisk I didn't find the right tools under
+linux at that time (something similar to vobdec under win). So, I hacked 
+together a copy program using heavily the libdvdread library (which is 
+really great).
+It should also now work on FreeBSD (many thanks to Takeshi HIYAMA!!) and
+Solaris (also many thanks to Erik Hovland!!) and a little on MacOSX (either
+straight from this source or get it via fink - that really works)
+
+What you need in advance is libdvdread installed. This will only copy
+css-unencrypted dvd's (take a GOOD look
+at http://freshmeat.net/projects/libdvdread). 
+There are also rpm and deb packages available! 
+
+**IMPORTANT**
+	I receive nearly NO bugreports, so either vobcopy (and therefore I) 
+	are near-perfect (yeah, right) or your problems have a real slim chance
+	of getting fixed. Bugreporting is *really* simple, add "-v -v" to your 
+	vobcopy call to have vobcopy create a bugreport file you can mail me at
+	robos@muon.de along with a small description of your system (OS,
+	hardware, ...) and the problem.
+	I did receive some questions which I answer in the FAQ. Take a look
+	there before you mail me a bugreport. 
+	
+It should compile then via:
+(Configure: ./configure.sh
+	    is a self-written configure script. Try it. It isn't necessary
+	    but it tries to find some things. If it fails skip it :)
+
+For rpm based systems the commands should be something link this:
+The src.rpm should rebuild cleanly on any RPM-based distro with
+"rpmbuild --rebuild vobcopy-0.5.8-1.src.rpm" (or replace "rpmbuild" with
+"rpm" on older distributions), so it's distribution-neutral.
+Alternatively this will build the binary package for them automagically:
+rpmbuild -ta vobcopy-0.5.8.tar.gz
+
+Compile:
+	make
+	(if you want to disable large file support during compilation, use
+	make disable_lfs 
+	instead)
+Install:
+	as root: make install
+
+
+Handling:
+vobcopy	(without any options)
+	should copy the correct /path/to/dvd/video_ts/vts_0x_01.vob to 
+	vts_0x_yy.vob to the directory you are invoking vobcopy from.
+	(vobcopy takes the title with the most chapters by default if no title
+	is specified)
+ 	The vobs will be merged up to 2 gigs and then a new file will be 
+	started. So what you get is:
+	name-of-moviex-1.vob (2 gig size) name-of-moviex-2.vob ...
+	During copying there is a .partial appended to the filename to
+	indicate that the files are not done yet. If for some reason the
+	sizes don't match the one on dvd the .partial will stay to indicate 
+	that something is wrong.
+
+For more infos on the options see "man vobcopy"
+	Newest addition:
+vobcopy -O <filename of single files you want to copy, more than one have to
+	be separated by comma>
+	e.g. -O video_ts.vob,vts_01_01.ifo,vts_01_01.vob
+	or -O bup,ifo will copy all files containing ifo and bup in their names
+	
+vobcopy -F <fast_factor= 1..64> (--fast)
+	Speed up the copying (experimental)
+	(in my case it went from 10:43 min to 9:40 with 1x to 10x, so not 
+	THAT much, maybe with faster drives...)
+	
+vobcopy -m (or --mirror, long-options are possible now)
+	Mirror the content of /dvd/video_ts/ to a dir named after the dvd.
+
+	Optionally you can provide which vts_xx_01 (which title) should be 
+	copied via
+vobcopy -n 3
+	will copy vts_03_xx.vob to harddisk.
+vobcopy -o /tmp/, "-" or "stdout"
+	will copy the output to /tmp/, or to stdout for piping to another program
+	(like bbtools, see the vobcopy page)
+vobcopy -1/tmp1/
+	will continue to write the data to this directory if the first one 
+	(behind -o) is full. Additionally there are -2, -3 and -4 available.
+	(watch out that there are no spaces behind the number and the dir, 
+	might not work otherwise) 
+vobcopy -l 
+	will copy the data into only one really large file (probably larger
+	than 2 GB). This large-file-support has to be met by your system. No 
+	autodetection yet.
+vobcopy -h
+	gives you the available command options (help)
+
+If parts of vobcopy work buggy you can override some things:
+vobcopy -f
+	force vobcopy to write to the destination directory even if vobcopy 
+	thinks there is not enough free space. 
+vobcopy -i /path/to/the/mounted/dvd/
+	if vobcopy fails to autodetect the mounted dvd you can provide the path
+	like that.
+vobcopy -I
+	will give you some infos on the dvd data and on the output directory
+vobcopy -v -v 
+	will write a log-file to /tmp/ which you can send to me as a bugreport
+	(along with a few words by you about the problem)
+vobcopy -b
+	begins to copy from the specified offset-size. Modifiers like b for 
+	512-bytes, k for kilo-bytes, m for mega- and g for giga-bytes can be 
+	appended to the number. Example: vobcopy -b 500m will start to copy 
+	from 500MB onward till the end.
+vobcopy -e size[bkmg]
+	similar to -b, this options lets you specify some size to stop before 
+	the end.	
+vobcopy -V 
+	prints the version number of vobcopy
+vobcopy -t name
+	changes the name of the output file or writes to stdout for pipeing
+	(deprecated, use -o instead now)
+	
+vobcopy -q
+	all info and error messages of vobcopy go to /tmp/vobcopy.bla
+	instead of stderr
+	
+The options can be combined and arranged as you like.
+It worked for me, hope with you too.
+Have fun!
+Robos (robos@muon.de)
+

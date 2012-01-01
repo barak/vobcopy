@@ -1,0 +1,29 @@
+Packaging for Debian project taken over with permission of upstream
+(robos) by Stephen Birch <sgbirch@imsmail.org> on Feb 7, 2004.
+
+This package was debianized by Philippe Normand (phil) <sweafty@free.fr> on
+Mon, 15 Jul 2002 18:27:23 +0200.
+
+It was downloaded from http://lpn.rnbhq.org/projects/c/c.shtml
+
+Upstream Author: Robos <robos@muon.de>
+
+Copyright:
+
+This software is copyright (c) 2001, 2002 Robos <robos@muon.de> Lots
+of contribution and cleanup from rosenauer@users.sourceforge.net
+
+vobcopy is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or (at your
+option) any later version.
+
+vobcopy is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.
+
+See /usr/share/common-licenses/GPL for more details.
+
+You should have received a copy of the GNU General Public License
+along with vobcopy; if not, write to the Free Software Foundation,
+Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA

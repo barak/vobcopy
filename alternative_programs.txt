@@ -1,0 +1,28 @@
+Copying of dvd to harddisk, ripping the vobs to harddisk with tools like:
+dvdbackup
+http://dvd.chevelless230.com/dvdbackup.html
+mplayer -dvd 1 -dumpstream (http://www.mplayerhq.hu)
+play_title (from libdvdread guys,
+http://linuxvideo.org/cvs/viewcvs.cgi/libdvdread/src/play_title.c)	
+tccat from the transcode package
+(http://www.theorie.physik.uni-goettingen.de/~ostreich/transcode/)
+csscat (if you can find it somewhere...)
+vobcopy from www.linux-programming-newbie.org 
+All of these tools are something similar to vobdec/DVDEcyptor under win
+(think so, my vobcopy at least is ;-) 
+Robos
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

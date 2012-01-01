@@ -1,0 +1,16 @@
+Source: vobcopy
+Section: utils
+Priority: optional
+Maintainer: Stephen Birch <sgbirch@imsmail.org>
+Build-Depends: debhelper (>> 3.0.0), libdvdread2-dev | libdvdread3-dev
+Standards-Version: 3.6.1
+
+Package: vobcopy
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: A tool to copy DvD VOBs to hard disk
+ vobcopy copies DVD .vob files to harddisk and merges them into file(s) 
+ with the name extracted from the DVD. It checks for enough free space 
+ on the destination drive and compares the copied size to the size on DVD
+ (in case something went wrong during the copying). You can also mirror the
+ dvd movie content and copy single files you specify.

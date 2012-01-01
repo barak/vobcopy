@@ -1,0 +1,59 @@
+TODO:
+  - error handling with the errno and strerror function
+
+THOUGHT-ABOUT FEATURES
+  - being able to specify
+     - which title
+     - which chapter
+     - which angle 
+     - which language(s)
+     - which subtitle(s)
+     to copy
+  - print the total playing time of that title
+ 
+
+use EPM to package vobcopy
+
+Users comments|bug-reports:
+only -i /dev/rdisk works on osx
+
+if user uses -i then (maybe) force vobcopy to use this dir and not
+check the device accordingly.
+
+
+BUGREPORTS:
+
+Perhaps a verification needs to be added, to catch the situations when
+the user specifies a non-existing directory? (and either create it or
+abort with "no such directory", instead of claiming there's no free
+space)
+
+
+Hello, i use vobcopy in the mirror manner (vobcopy -m) and since it
+works
+well in 5.8, i have to tell you that a bug has been introduced since.
+In 5.10 vobcopy -m generate error like that : "cannot seek at xxxxx",
+and
+finaly the result is not readable by xine, ogle or vlc. In fact it
+began to
+read the movie correctly, but at the first change of vob file, xine (or
+others) craches.
+
+
+ Was ist festgestellt
+habe:
+1. -i /mnt/cd hat nicht funktioniert, aber -i /dev/acd0.
+2. -e hat keine Wirkung. Ich habe verschiedene Werte ausprobiert, um
+nur wenige MB zu kopieren, trotzdem hat vobcopy weiter kopiert.
+
+Ich habe FreeBSD 5.2.
+
+
+
+Bug reporten. Zumindest bei mir geht die Fortschrittsanzeige nicht
+ganz bis
+auf 100%, selbst wenn schon die naechste Datei angefangen wird, sondern
+bleibt kurz davor stehen. Der letzte Schritt wird also nicht mehr
+angezeigt.
+
+grafisches frontend mit dem was knoppix-install macht (knx-hddinstall)

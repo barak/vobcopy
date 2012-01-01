@@ -1,0 +1,2 @@
+?package(vobcopy):needs="text" section="Apps/Tools"\
+  title="vobcopy" command="/usr/bin/vobcopy"
