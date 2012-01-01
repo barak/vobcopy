@@ -773,7 +773,7 @@ and potentially fatal."  - Thanks Leigh!*/
 
   if( longest_title_flag ) /*no title specified (-n ) */
     {
-      titleid = get_longest_title( &dvd );
+      titleid = get_longest_title( dvd );
       fprintf( stderr, _("[Info] longest title %d.\n"), titleid );
     }
 
