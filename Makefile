@@ -2,6 +2,7 @@
 #This is the makefile for vobcopy, mainly written by rosenauer. These things 
 #below here are variable definitions. They get substituted in the (CC) and 
 #stuff places.
+DESTDIR = 
 CC     ?= gcc
 #PREFIX += /usr/local
 #BINDIR = ${PREFIX}/bin
@@ -9,9 +10,10 @@ CC     ?= gcc
 PREFIX += /usr/local
 BINDIR = ${PREFIX}/bin
 MANDIR = ${PREFIX}/man
+DOCDIR = ${PREFIX}/share/doc/vobcopy
 LFS    = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
-CFLAGS += -I/usr//include
-LDFLAGS += -ldvdread -L/usr//lib
+CFLAGS += -I/usr/local//include
+LDFLAGS += -ldvdread -L/usr/local//lib
 
 #This specifies the conversion from .c to .o 
 .c.o:
@@ -48,15 +50,22 @@ install:
 #	mkdir -p $(MANDIR)/man1
 #	cp vobcopy   $(BINDIR)/vobcopy
 #	cp vobcopy.1 $(MANDIR)/man1/vobcopy.1
-	install -d -m 755 $(BINDIR)
-	install -d -m 755 $(MANDIR)/man1
-	install -d -m 755 $(MANDIR)/de/man1
-	install -m 755 vobcopy $(BINDIR)/vobcopy
-	install -m 644 vobcopy.1 $(MANDIR)/man1/vobcopy.1
-	install -m 644 vobcopy.1.de $(MANDIR)/de/man1/vobcopy.1
+	install -d -m 755 $(DESTDIR)/$(BINDIR)
+	install -d -m 755 $(DESTDIR)/$(MANDIR)/man1
+	install -d -m 755 $(DESTDIR)/$(MANDIR)/de/man1
+	install -d -m 755 $(DESTDIR)/$(DOCDIR)
+	install -m 755 vobcopy $(DESTDIR)/$(BINDIR)/vobcopy
+	install -m 644 vobcopy.1 $(DESTDIR)/$(MANDIR)/man1/vobcopy.1
+	install -m 644 vobcopy.1.de $(DESTDIR)/$(MANDIR)/de/man1/vobcopy.1
+	install -m 644 COPYING Changelog README Release-Notes TODO $(DESTDIR)/$(DOCDIR)
 
 uninstall:
-	rm -f $(BINDIR)/vobcopy
-	rm -f $(MANDIR)/man1/vobcopy.1
-	rm -f $(MANDIR)/de/man1/vobcopy.1	
+	rm -f $(DESTDIR)/$(BINDIR)/vobcopy
+	rm -f $(DESTDIR)/$(MANDIR)/man1/vobcopy.1
+	rm -f $(DESTDIR)/$(MANDIR)/de/man1/vobcopy.1	
+	rm -f $(DESTDIR)/$(DOCDIR)/{COPYING,Changelog,README,Release-Notes,TODO}
+	rmdir --parents $(DESTDIR)/$(BINDIR) 2>/dev/null
+	rmdir --parents $(DESTDIR)/$(MANDIR)/man1 2>/dev/null
+	rmdir --parents $(DESTDIR)/$(MANDIR)/de/man1 2>/dev/null
+	rmdir --parents $(DESTDIR)/$(DOCDIR) 2>/dev/null
 

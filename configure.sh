@@ -37,6 +37,12 @@ then
        	   echo "with mandir here: $mandir"
        fi
 
+       if [ "$1" != "${1#--docdir=}" ]; then
+       	   docdir="${1#--docdir=}"
+	   docdir_provided=true
+       	   echo "with docdir here: $docdir"
+       fi
+
        if [ "$1" != "${1#--with-lfs}" ]; then
   	   echo "with large-file support"
  	   LFS="LFS    = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE"
@@ -53,6 +59,7 @@ then
 	   echo "--prefix=PREFIX                install architecture-independent files in PREFIX [/usr/local]"
 	   echo "--bindir=DIR                   user executables in DIR [PREFIX/bin]"
 	   echo "--mandir=DIR                   man documentation in DIR [PREFIX/bin]"
+	   echo "--docdir=DIR                   package documentation in DIR [PREFIX/share/doc/vobcopy]"
            echo "--with-dvdread-libs=DIR        directory where dvdread lib (dvd_reader.h) is installed"
 	   echo "--with-lfs                     Enable large File System support"
            exit 1
@@ -69,6 +76,11 @@ fi
 if [ -z $mandir_provided ]
 then
      mandir=\${PREFIX}/man
+fi
+
+if [ -z $docdir_provided ]
+then
+     docdir=\${PREFIX}/share/doc/vobcopy
 fi
 
 if [ -z $bindir_provided ]
@@ -166,6 +178,7 @@ echo "
 #This is the makefile for vobcopy, mainly written by rosenauer. These things 
 #below here are variable definitions. They get substituted in the (CC) and 
 #stuff places.
+DESTDIR = 
 CC     ?= gcc
 #PREFIX += /usr/local
 #BINDIR = \${PREFIX}/bin
@@ -173,6 +186,7 @@ CC     ?= gcc
 PREFIX += $prefix
 BINDIR = $bindir
 MANDIR = $mandir
+DOCDIR = $docdir
 $LFS
 CFLAGS += -I$libs_dir/include
 $LDFLAGS
@@ -212,17 +226,24 @@ install:
 #	mkdir -p \$(MANDIR)/man1
 #	cp vobcopy   \$(BINDIR)/vobcopy
 #	cp vobcopy.1 \$(MANDIR)/man1/vobcopy.1
-	install -d -m 755 \$(BINDIR)
-	install -d -m 755 \$(MANDIR)/man1
-	install -d -m 755 \$(MANDIR)/de/man1
-	install -m 755 vobcopy \$(BINDIR)/vobcopy
-	install -m 644 vobcopy.1 \$(MANDIR)/man1/vobcopy.1
-	install -m 644 vobcopy.1.de \$(MANDIR)/de/man1/vobcopy.1
+	install -d -m 755 \$(DESTDIR)/\$(BINDIR)
+	install -d -m 755 \$(DESTDIR)/\$(MANDIR)/man1
+	install -d -m 755 \$(DESTDIR)/\$(MANDIR)/de/man1
+	install -d -m 755 \$(DESTDIR)/\$(DOCDIR)
+	install -m 755 vobcopy \$(DESTDIR)/\$(BINDIR)/vobcopy
+	install -m 644 vobcopy.1 \$(DESTDIR)/\$(MANDIR)/man1/vobcopy.1
+	install -m 644 vobcopy.1.de \$(DESTDIR)/\$(MANDIR)/de/man1/vobcopy.1
+	install -m 644 COPYING Changelog README Release-Notes TODO \$(DESTDIR)/\$(DOCDIR)
 
 uninstall:
-	rm -f \$(BINDIR)/vobcopy
-	rm -f \$(MANDIR)/man1/vobcopy.1
-	rm -f \$(MANDIR)/de/man1/vobcopy.1	
+	rm -f \$(DESTDIR)/\$(BINDIR)/vobcopy
+	rm -f \$(DESTDIR)/\$(MANDIR)/man1/vobcopy.1
+	rm -f \$(DESTDIR)/\$(MANDIR)/de/man1/vobcopy.1	
+	rm -f \$(DESTDIR)/\$(DOCDIR)/{COPYING,Changelog,README,Release-Notes,TODO}
+	rmdir --parents \$(DESTDIR)/\$(BINDIR) 2>/dev/null
+	rmdir --parents \$(DESTDIR)/\$(MANDIR)/man1 2>/dev/null
+	rmdir --parents \$(DESTDIR)/\$(MANDIR)/de/man1 2>/dev/null
+	rmdir --parents \$(DESTDIR)/\$(DOCDIR) 2>/dev/null
 " > Makefile
 
 echo "Next thing type \"make\" and then \"make install\""

@@ -1,5 +1,21 @@
 Changelog for vobcopy:
 For more infos on the options see "man vobcopy"
+1.2.0:  Some new features!
+	-Progress bar and speed enhancements/system load reduction
+	coming with it - many thanks to Eric Kilfoil!
+	-Vobcopy can now "rip" from an iso image on hdd or a directory
+	containing a VIDEO_TS directory. People seem to need this for
+	streaming dvd content to a ps3 via fuppes. That part seem to
+	be buggy though, works 50/50. Will look further into that.
+	-Option -M to rip the title with the longest playing time.
+	-Other small corrections I think.
+
+1.1.2:  German l12n in the program
+	added [x]overwrite all option
+	small fixes, e.g. for *bsd
+
+1.1.1:	Apply patch by Petr Salinger for GNU/kFreeBSD
+
 1.1.0:	Fixes debian bug #448319/CVE-2007-5718
 	MacOSX (at least 10.5) compiles again
 	other small fixes 

@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii vobcopy.1
 .\"
-.TH VOBCOPY 1 "Jan 2008" Linux "User Manuals"
+.TH VOBCOPY 1 "Jun 2009" Linux "User Manuals"
 .SH NAME
 vobcopy \- copy (rip) files from a dvd to the harddisk
 .SH SYNOPSIS
@@ -13,7 +13,7 @@ vobcopy \- copy (rip) files from a dvd to the harddisk
 .I fast_factor
 .B ] [-h] [-i
 .I input-dir
-.B ] [-l] [-m] [-n
+.B ] [-l] [-m] [-M][-n
 .I title-number
 .B ] [-o
 .I output-dir
@@ -21,7 +21,7 @@ vobcopy \- copy (rip) files from a dvd to the harddisk
 .I single_file(s)_to_rip
 .B ] [-t
 .I name
-.B ] [-v [-v]] [-I] [-V] [-L
+.B ] [-v [-v]] [-x] [-I] [-V] [-L
 .I logfile-path
 .B ] [-1
 .I aux_output_dir1
@@ -49,7 +49,7 @@ as it makes DVDs unviewable with unlicensed players.
 Some people have hacked CSS decryption routines, and one of those is
 available as a libdvdread counterpart. So if you have such a DVD, have a
 look at the libdvdread page. If you are positive that it's allowed
-where you live, you can just install the library and make decrypted
+where you live, you can just install that mentioned library and make decrypted
 backups of all your DVDs...
 
 .BR vobcopy
@@ -71,6 +71,8 @@ print the command line options available
 provide vobcopy with the path to the mounted dvd drive
 .IP "-l, --large-file"
 write data into one file (needs large file support (LFS))
+.IP "-M, --longest"
+choose the title with the longest playing time. With some DVDs this gets the main title better than the most chapter method, with others it's worse.
 .IP "-m, --mirror"
 mirrors the whole dvd to harddisk. It will create a directory named after the dvd and copy the ifo, bup and vob files there. The title-vobs are decrypted during this. 
 .IP "-n, --title-number TITLE-NUMBER"
@@ -91,6 +93,8 @@ prints more information about whats going on (more verbose).
 .IP "-v -v"
 prints the information given on command line into a log-file in the current directory for 
 inclusion into a bugreport.
+.IP "-x"
+overwrite all existing files without further questions.
 .IP "-L LOGFILE-PATH"
 tells vobcopy where to put the logfile instead of the default.
 .IP "-I, --info"

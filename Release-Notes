@@ -1,10 +1,20 @@
-Release-Notes for 1.1.0 (Su 13. Jan 23:24:00 CEST 2008)
-This release fixes the debian bug #448319 which got retitled CVE-2007-5718.
-Hey, my first CVE! Well, I consider this to be a relatively harmless bug.
-Also, I fixed some stuff so vobcopy should now compile and work fine on 
-MacOSX, at least 10.5, since this is what I have right now.
-Spaces in the name get changed/stepped over or so, don't recall.
+Release-Notes for 1.2.0 (Mo 8. Jun 21:48:19 CEST 2009):
+Progress bar and speed enhancements/system load reduction coming with it 
+- many thanks to Eric Kilfoil! Also vobcopy can now "rip" from an iso 
+image on hdd or a directory containing a VIDEO_TS directory. People seem 
+to need this for streaming dvd content to a ps3 via fuppes. That part seem 
+to be buggy though, works 50/50. Will look further into that. Added
+another option: -M to rip the title with the longest playing time.
+Both methods, choosing the main title by longest playing time and most
+chapters, can be wrong - please try both if one fails. I will
+implement a message indicating that the methods recommend different
+"main" titles shortly. Other small corrections are also in I think.
 
+Release-Notes for 1.1.2 (Mi 8. Okt 00:18:17 CEST 2008):
+Added german l12n to the messages in vobcopy (if it works..., please
+let me know if not). Also some small fixes for *bsd and other fixes.
+And introduced in vobcopy to [x]overwrite all existing files or -x to
+start that way from the command line.
 
 Release-Notes for 1.0.2 (Su 24. Jun 02:19:04 CEST 2007):
 Small fixes all in all: fix segfault with log file writing routine and

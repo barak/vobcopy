@@ -2,7 +2,7 @@
 .\" groff -man -Tascii vobcopy.1
 .\" verarbeiten
 .\"
-.TH VOBCOPY 1 "Jan 2007" Linux "User Manuals"
+.TH VOBCOPY 1 "Jun 2009" Linux "User Manuals"
 .SH NAME
 vobcopy \- kopiert (rippt) Dateien von einer (Video-) DVD auf die Festplatte
 .SH SYNTAX
@@ -14,7 +14,7 @@ vobcopy \- kopiert (rippt) Dateien von einer (Video-) DVD auf die Festplatte
 .I Beschleunigungsfaktor
 .B ] [-h] [-i
 .I Eingabeverzeichnis
-.B ] [-l] [-m] [-n
+.B ] [-l] [-m] [-m][-n
 .I Titel-Nummer
 .B ] [-o
 .I Ausgabeverzeichnis
@@ -22,7 +22,7 @@ vobcopy \- kopiert (rippt) Dateien von einer (Video-) DVD auf die Festplatte
 .I einzelne zu kopierende Datei 
 .B ] [-t
 .I Name
-.B ] [-v [-v]] [-I] [-V] [-L
+.B ] [-v [-v]] [-x] [-I] [-V] [-L
 .I Logdatei-Pfad
 .B ] [-1
 .I zusätzliches Ausgabeverzeichnis 1
@@ -48,9 +48,9 @@ CSS "erweiterte" DVDs. CSS wird von der Filmindustrie als "Kopierschutz"
 angepriesen, wobei es sich eher um einen "Anschauschutz" handelt, da es DVD
 Material unanschaubar auf unlizensierten Abspielgeräten macht. Einige Leute
 haben jedoch diese CSS Entschlüsselungs-Routinen geknackt und eine dieser
-Routinen ist als Erweiterung zu libdvdread (siehe Seite) erhältlich.
+Routinen ist als Erweiterung zu libdvdread (siehe deren Webseite) erhältlich.
 .BR vobcopy
-Bei Aufruf ohne Optionen wird der Titel  mit den meisten Kapiteln in Dateien 
+Beim Aufruf ohne jegliche Optionen wird der Titel mit den meisten Kapiteln in Dateien 
 von 2GB Größe in das aktuelle Verzeichnis kopiert.
 .SH OPTIONEN
 .IP "-b, --begin GRÖSSE[bkmg]"
@@ -75,6 +75,8 @@ gibt das Eingabeverzeichnis an (das Verzeichnis, auf das die DVD
 gemountet ist).
 .IP "-l, --large-file"
 schreibt alle Daten in eine große Datei ( > 2GB, benötigt Unterstützung für große Dateien (LFS))
+.IP "-M, --longest"
+wählt den Titel mit der längsten Spielzeit. Bei manchen DVDs wird der Hauptfilm besser gefunden als mit der Methode der meisten Kapitel, bei manchen schlechter.
 .IP "-m, --mirror"
 Spiegelt die gesamte DVD auf die Festplatte. Es wird ein Unterverzeichnis mit dem 
 DVD-Namen erzeugt und die gesamte Dateistruktur des Videoteils wird darunter 
@@ -105,7 +107,9 @@ angeben willst, schließe den Namen in Anführungszeichen ein.
 schreibt noch mehr Informationen aus.
 .IP "-v -v"
 schreibt die Ausschriften in eine Logdatei im aktuellen Verzeichis um einen Fehlerreport 
-zu erzeugen. 
+zu erzeugen.
+.IP "-x"
+überschreibt alle existierenden Dateien ohne weitere Rückfragen.
 .IP "-L LOGDATEI-PFAD"
 weist vobcopy an die Logdatei statt in den Standardpfad in den LOGDATEI-PFAD zu legen.
 .IP "-I, --info"
