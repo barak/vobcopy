@@ -1,5 +1,9 @@
 Changelog for vobcopy:
 For more infos on the options see "man vobcopy"
+1.1.0:	Fixes debian bug #448319/CVE-2007-5718
+	MacOSX (at least 10.5) compiles again
+	other small fixes 
+
 1.0.2:  I fixed a segfault in the log file writing routine. Otherwise
 	small fixes and experimental "step over the bad part" code.
 

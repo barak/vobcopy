@@ -1,0 +1,7 @@
+Adam Blazczak for solaris 9 fixes
+Dave Yeo for OS/2 fixes
+Richard Handel for \40 -> Space fix
+Nico Golde for off-by-one fix
+Steven Birch for the debian packages
+Götz Waschk for the rpm packages
+and quite a lot of other people I forgot!

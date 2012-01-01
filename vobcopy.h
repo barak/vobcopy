@@ -1,4 +1,4 @@
-#define VERSION "1.0.2"
+#define VERSION "1.1.0"
 
 #define DVDCSS_VERBOSE 1
 #define BLOCK_COUNT 64
@@ -16,10 +16,10 @@
 #include <unistd.h>
 #include <dirent.h> /*for readdir*/
 #include <errno.h>
+#include <signal.h>
 
 #if ( defined( __unix__ ) || defined( unix )) && !defined( USG )
 #include <sys/param.h>
-#else
 #endif
 
 #if defined( __GNUC__ ) && \
@@ -32,16 +32,6 @@
 #if !( defined( BSD ) && ( BSD >= 199306 ) ) && !defined( sun )
 #include <stdint.h>
 #endif
-
-/*for/from play_title.c*/
-#include <assert.h>
-/* #include "config.h" */
-#include <dvdread/dvd_reader.h>
-#include <dvdread/ifo_types.h>
-#include <dvdread/ifo_read.h>
-/* #include <dvdread/dvd_udf.h> */
-#include <dvdread/nav_read.h>
-#include <dvdread/nav_print.h>
 
 /* I'm trying to have all supported OSes definitions clearly separated here */
 /* The appearance could probably be made more readable -- lb                */
@@ -56,12 +46,14 @@
 typedef enum  { FALSE=0, TRUE=1 }  bool;
 
 #  if ( _FILE_OFFSET_BITS == 64 )
-
 #define HAS_LARGEFILE 1
-
 #  endif
 
+#define off_t off64_t      
+
 #else /* Solaris */
+
+/*#define off_t __off64_t  THIS HERE BREAKS OSX 10.5 */
 
 /* //////////  *BSD //////////  */
 #if ( defined( BSD ) && ( BSD >= 199306 ) )
@@ -114,14 +106,15 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 /* ////////// Darwin ////////// */
 #  if defined( __GNUC__ )
 
-#include <sys/param.h>
-#include <sys/mount.h>
+#include <sys/param.h> 
+#include <sys/mount.h> 
 
-#include <sys/vfs.h>
 #include <sys/statvfs.h>
-
-#define USE_STATFS     1
-#define HAS_LARGEFILE  1
+/*can't be both! Should be STATVFS IMHO */
+/*#define USE_STATFS     1 
+#define USE_STATVFS     1 
+#define HAS_LARGEFILE  1 */
+#define GETMNTINFO_USES_STATFS 1
 #define USE_GETMNTINFO 1
 
 #define FALSE 0
@@ -132,10 +125,10 @@ typedef int bool;
 
 /* ////////// OS X ////////// */
 #  if defined( __MACH__ )
-
-#include <unistd.h>
-#include <sys/vfs.h>
-#include <sys/statvfs.h>
+/* mac osx 10.5 does not seem to like this one here */
+/*#include <unistd.h>  
+#include <sys/vfs.h> 
+#include <sys/statvfs.h> */
 
 #  endif
 
@@ -168,9 +161,32 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 #endif
 #endif 
 
+
+/* OS/2 */
+#if defined(__EMX__)                                                                                                                                                                              
+#define __off64_t __int64_t 
+#include <sys/vfs.h>
+#include <sys/statfs.h>
+#define USE_STATFS 1
+#endif          
+
+
+
+
+#include <dvdread/dvd_reader.h>
+
+/*for/from play_title.c*/
+#include <assert.h>
+/* #include "config.h" */
+#include <dvdread/ifo_types.h>
+#include <dvdread/ifo_read.h>
+/* #include <dvdread/dvd_udf.h> */
+#include <dvdread/nav_read.h>
+#include <dvdread/nav_print.h>
+
+
 #include "dvd.h"
 
-#define off_t __off64_t
 
 void usage(char *);
 int add_end_slash( char * );
@@ -180,3 +196,11 @@ int make_output_path( char *, char *, int, char *, int, int );
 int is_nav_pack( unsigned char *buffer );
 void re_name( char *output_file );
 int makedir( char *name );
+void install_signal_handlers();
+void watchdog_handler( int signal );
+void shutdown_handler( int signal );
+char *safestrncpy(char *dest, const char *src, size_t n);
+
+#if defined(__APPLE__) && defined(__GNUC__)
+int fdatasync( int value );
+#endif

@@ -2,7 +2,7 @@
 .\" groff -man -Tascii vobcopy.1
 .\" verarbeiten
 .\"
-.TH VOBCOPY 1 "Nov 2005" Linux "User Manuals"
+.TH VOBCOPY 1 "Jan 2007" Linux "User Manuals"
 .SH NAME
 vobcopy \- kopiert (rippt) Dateien von einer (Video-) DVD auf die Festplatte
 .SH SYNTAX
@@ -22,7 +22,9 @@ vobcopy \- kopiert (rippt) Dateien von einer (Video-) DVD auf die Festplatte
 .I einzelne zu kopierende Datei 
 .B ] [-t
 .I Name
-.B ] [-v [-v]] [-I] [-V] [-1
+.B ] [-v [-v]] [-I] [-V] [-L
+.I Logdatei-Pfad
+.B ] [-1
 .I zusätzliches Ausgabeverzeichnis 1
 .B ] [-2
 .I zusätzliches Ausgabeverzeichnis 2
@@ -87,7 +89,7 @@ Tipp: Wenn du vergisst umzuleiten, wird dein Terminal überflutet werden,
 in diesem Fall tippe "reset" und Enter, um das Terminal zu retten.
 .IP "-q, --quiet"
 alle Informations- und Fehlerausschriften von vobcopy werden in die Datei 
-/tmp/vobcopy.bla anstatt in die Standardfehlerausgabe geschrieben
+vobcopy.bla im aktuellen Verzeichnis anstatt in die Standardfehlerausgabe geschrieben
 .IP "-O, --onefile single_file(s)_to_rip"
 gibt (eine) einzelne Datei(en) für das Kopieren an. Teile von Namen können 
 angegeben werden und alle Dateien, die die Namensteile enthalten, werden 
@@ -102,8 +104,10 @@ angeben willst, schließe den Namen in Anführungszeichen ein.
 .IP "-v, --verbose"
 schreibt noch mehr Informationen aus.
 .IP "-v -v"
-schreibt die Ausschriften in eine Logdatei unter /tmp/, um einen Fehlerreport 
+schreibt die Ausschriften in eine Logdatei im aktuellen Verzeichis um einen Fehlerreport 
 zu erzeugen. 
+.IP "-L LOGDATEI-PFAD"
+weist vobcopy an die Logdatei statt in den Standardpfad in den LOGDATEI-PFAD zu legen.
 .IP "-I, --info"
 gibt Informationen über die Titel, Kapitel und Teile der DVD aus.
 .IP "-V, --version"

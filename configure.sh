@@ -1,3 +1,8 @@
+#!/bin/sh
+#hope this thing works across all systems, otherwise mail me please:
+#robos@muon.de
+
+
 echo "THIS CONFIGURE SCRIPT IS STILL HIGHLY EXPERIMENTAL!
 If you think you found a bug, please mail me, thanks! robos@muon.de"
 
@@ -6,9 +11,6 @@ If you think you found a bug, please mail me, thanks! robos@muon.de"
 #below here are variable definitions. They get substituted in the (CC) and 
 #stuff places.
 
-#!/bin/sh
-#hope this thing works across all systems, otherwise mail me please:
-#robos@muon.de
 
 #args check *new*
 #declare -i i=0
@@ -144,6 +146,13 @@ elif [ `uname -m` = x86_64 ]; then #for ia64/AMD64 libraries
 else
 	LDFLAGS="LDFLAGS += -ldvdread -L$libs_dir/lib"
 fi
+
+#Solaris 9 needs -lrt 
+if [ `uname -a | grep "SunOS solaris 5.9" ` ]; then
+	LDFLAGS="+LDFLAGS += -ldvdread -lrt -L/usr//lib"
+fi
+
+
 
 #see if a Makefile is present - and kill it ;-)
 if [ -e ./Makefile ]; then

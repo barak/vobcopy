@@ -79,3 +79,633 @@ bleibt kurz davor stehen. Der letzte Schritt wird also nicht mehr
 angezeigt.
 
 grafisches frontend mit dem was knoppix-install macht (knx-hddinstall)
+
+
+
+
+----------------------------------------------------------------------
+CHECKED
+
+
+Adam Blazczak <adzio@hotmail.com>
+
+Here's the account of my experiences with compiling vobcopy-1.0.1 on Solaris                                                                                                                         
+9, I hope you find the following information useful.                                                                                                                                                 
+                                                                                                                                                                                                     
+$ uname -a                                                                                                                                                                                           
+SunOS solaris 5.9 Generic_118559-11 i86pc i386 i86pc                                                                                                                                                 
+                                                                                                                                                                                                     
+configure.sh doesn't work at all.. it's not a biggie, as Makefile works                                                                                                                              
+mostly out of the box with minor adjustment (below) with gcc 3.4.6                                                                                                                                   
+                                                                                                                                                                                                     
+$ ./configure.sh                                                                                                                                                                                     
+THIS CONFIGURE SCRIPT IS STILL HIGHLY EXPERIMENTAL!                                                                                                                                                  
+If you think you found a bug, please mail me, thanks! robos@muon.de                                                                                                                                  
+./configure.sh: test: argument expected                                                                                                                                                              
+                                                                                                                                                                                                     
+Below are the code changes I needed to make it all compile properly. If you                                                                                                                          
+decide to add these to the repository, you might want to amend the changes                                                                                                                           
+(possibly make the addition of -lrt and inttypes.h conditional) to let the                                                                                                                           
+other platforms continue to compile without issues.                                                                                                                                                  
+                                                                                                                                                                                                     
+Regards,                                                                                                                                                                                             
+Adam                                                                                                                                                                                                 
+                                                                                                                                                                                                     
+$ diff -u Makefile.orig Makefile                                                                                                                                                                     
+--- Makefile.orig       Sun Apr 15 19:16:29 2007                                                                                                                                                     
++++ Makefile    Sun Apr 15 19:24:37 2007                                                                                                                                                             
+@@ -11,7 +11,7 @@                                                                                                                                                                                    
+MANDIR = ${PREFIX}/man                                                                                                                                                                               
+LFS    = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE                                                                                                                            
+CFLAGS += -I/usr//include                                                                                                                                                                            
+-LDFLAGS += -ldvdread -L/usr//lib                                                                                                                                                                    
++LDFLAGS += -ldvdread -lrt -L/usr//lib                                                                                                                                                               
+                                                                                                                                                                                                     
+#This specifies the conversion from .c to .o                                                                                                                                                         
+                                                                                                                                                                                                     
+$ diff -u vobcopy.h.orig vobcopy.h                                                                                                                                                                   
+--- vobcopy.h.orig      Sun Apr 15 18:42:47 2007                                                                                                                                                     
++++ vobcopy.h   Sun Apr 15 19:05:41 2007                                                                                                                                                             
+@@ -36,6 +36,7 @@                                                                                                                                                                                    
+/*for/from play_title.c*/                                                                                                                                                                            
+#include <assert.h>                                                                                                                                                                                  
+/* #include "config.h" */                                                                                                                                                                            
++#include <inttypes.h>                                                                                                                                                                               
+#include <dvdread/dvd_reader.h>                                                                                                                                                                      
+#include <dvdread/ifo_types.h>                                                                                                                                                                       
+#include <dvdread/ifo_read.h>                                                                                                                                                                        
+@@ -61,8 +62,12 @@                                                                                                                                                                                   
+                                                                                                                                                                                                     
+#  endif                                                                                                                                                                                             
+                                                                                                                                                                                                     
++#define off_t off64_t      
++                                                                                                                                                                                                    
+#else /* Solaris */                                                                                                                                                                                  
+                                                                                                                                                                                                     
++#define off_t __off64_t                                                                                                                                                                             
++                                                                                                                                                                                                    
+/* //////////  *BSD //////////  */                                                                                                                                                                   
+#if ( defined( BSD ) && ( BSD >= 199306 ) )                                                                                                                                                          
+                                                                                                                                                                                                     
+@@ -170,8 +175,6 @@                                                                                                                                                                                  
+                                                                                                                                                                                                     
+#include "dvd.h"                                                                                                                                                                                     
+                                                                                                                                                                                                     
+-#define off_t __off64_t                                                                                                                                                                             
+-                                                                                                                                                                                                    
+void usage(char *);       
+
+--------------------------------------------------------------------------------------------------------------
+
+
+
+From: Noah Maxwell <noah.maxwell@gmail.com>                                                                                                                                                          
+To: Robos <robos@muon.de>                                                                                                                                                                            
+Subject: dvd_rip script on my website now                                                                                                                                                            
+                                                                                                                                                                                                     
+Hey Robo's! I hope all is well with you. Just wanted to let you know I                                                                                                                               
+finally put my recent project script (dvd_rip.sh) on my website. It heavily                                                                                                                          
+uses vobcopy, and Ive gotton it to the point where it works pretty well, so                                                                                                                          
+I hope other people will find it useful as well. Please feel free to mirror                                                                                                                          
+it if you think anyone else might want to check it out:                                                                                                                                              
+                                                                                                                                                                                                     
+http://noahmaxwell.com/dvd/                                                                                                                                                                          
+                                                                                                                                                                                                     
+Thanks!
+
+-------------------------------------------------------------------------------------------------------------
+CHECK
+
+From: Dave Yeo <daveryeo@telus.net>  
+
+building vobcopy-1.0.2 on OS/2 
+
+>> Lots of errors due to __off64_t not being declared, I added                                                                                                                                       
+>> #if defined(__EMX__)                                                                                                                                                                              
+>> #define __off64_t __int64_t                                                                                                                                                                       
+>> #endif          
+
+>> to vobcopy.h                                                                                                                                                                                      
+>> Then lots of  errors like                                                                                                                                                                         
+>> vobcopy.c:1569: error: `O_LARGEFILE' undeclared (first use in this                                                                                                                                
+>> function)                                                                                                                                                                                         
+>> vobcopy.c:1569: error: (Each undeclared identifier is reported only                                                                                                                               
+>> once                                                                                                                                                                                              
+>> vobcopy.c:1569: error: for each function it appears in.)                                                                                                                                          
+>>                                                                                                                                                                                                   
+>> since large files don't need to be flagged here. Also files should be                                                                                                                             
+>> opened in binary mode. I just removed the O_LARGEFILE flags though I'm                                                                                                                            
+>> sure there is a better way.                                      
+
+
+
+>> Now I get this error which I don't know how to handle not being a                                                                                                                                 
+>> programmer.                                                                                                                                                                                       
+>> c: In function `get_free_space':                                                                                                                                                                  
+>> vobcopy.c:1799: error: storage size of `buf1' isn't known                                                                                                                                         
+>> vobcopy.c: In function `get_used_space':                                                                                                                                                          
+>> vobcopy.c:1843: error: storage size of `buf2' isn't known                                                                                                                                         
+>> make: *** [vobcopy.o] Error 1                                                                                                                                                                     
+>                                                                                                                                                                                                    
+>Well, it looks like some header file isn't included. In linux it's                                                                                                                                  
+>#include <sys/vfs.h>    /* or <sys/statfs.h> */ (straight from the man-page).                                                                                                                       
+>In there the size of statfs should be declared. Can you look into that?                                                                                                                             
+>I just did a quick check on google but it looks like os/2 doesn't have that                                                                                                                         
+>function... But that was only a very superficial look.                                                                                                                                              
+>Please take a look and if you find something get back to me.                                                                                                                                        
+                                                                                                                                                                                                     
+sys/vfs.h and sys/statfs.h are just here for Linux compatibility and                                                                                                                                 
+just include sys/types.h and sys/mount.h.                                                                                                                                                            
+sys/mount.h is where statfs is declared but no members called buf1 or                                                                                                                                
+buf2.                                                                                                                                                                                                
+This is basically a standard (Free)BSD header. You can look at it here                                                                                                                               
+http://svn.netlabs.org/libc/browser/branches/libc-0.6/src/emx/include/sy                                                                                                                             
+s/mount.h                    
+
+--------------------------------------------------------------------------------------------------------------
+CHECK
+
+From: Richard Handel <handel.richard@googlemail.com>                                                                                                                                                 
+Reply-To: richard@cbmc.co.uk                                                                                                                                                                         
+To: Robos <robos@muon.de>                                                                                                                                                                            
+Subject: Re: Vobcopy bug report                                                                                                                                                                      
+                                                                                                                                                                                                     
+[-- Anhang #1 --]                                                                                                                                                                                    
+[-- Typ: text/plain, Kodierung: 7bit, Gr3,3K --]                                                                                                                                                
+                                                                                                                                                                                                     
+Hi Robos,                                                                                                                                                                                            
+                                                                                                                                                                                                     
+I think you're right - I looked around, can't find any library                                                                                                                                       
+function to do this. I've done an alternative fix, which is a patch to                                                                                                                               
+dvd.c (attached) - this one is better (more efficient), but they both                                                                                                                                
+work, so doesn't really matter.                                                                                                                                                                      
+                                                                                                                                                                                                     
+Not sure about UTF-8, I assumed it was just an ascii space char which                                                                                                                                
+has to be escaped in /etc/mtab (since a literal space would mean 'end                                                                                                                                
+of path') - but I'm guessing, & I've not looked into it too deeply.                                                                                                                                  
+                                                                                                                                                                                                     
+Cheers,                                                                                                                                                                                              
+                                                                                                                                                                                                     
+Richard                                                                                                                                                                                              
+                                                                                                                                                                                                     
+On 12/09/2007, Robos <robos@muon.de> wrote:                                                                                                                                                          
+> On Mon, 10.09.07, Richard Handel <handel.richard@googlemail.com> wrote:                                                                                                                            
+> > Hi,                                                                                                                                                                                              
+>                                                                                                                                                                                                    
+> Hi richard,                                                                                                                                                                                        
+>                                                                                                                                                                                                    
+> > Just to let you know I found a minor bug in vobcopy, when I was doing                                                                                                                            
+> > a 'mirror copy'- it crashes when there is a space in the file name on                                                                                                                            
+> > the DVD. This is because /etc/mtab escapes spaces (they appear as                                                                                                                                
+> > '\040'), but opendir doesn't understand the name in that format.                                                                                                                                 
+> >                                                                                                                                                                                                  
+> > I've written a quick patch to vobcopy.c (diff attached for your info).                                                                                                                           
+> > I've tested it and it works (I'm using Linux, FC7), but it's not a                                                                                                                               
+> > proper fix, because:                                                                                                                                                                             
+> >                                                                                                                                                                                                  
+> > 1) maybe the fix should go in dvd.c, not vobcopy.c so it works for any                                                                                                                           
+> > call to get_device_on_your_own().                                                                                                                                                                
+> >                                                                                                                                                                                                  
+> > 2) maybe the path names in /etc/mtab can have other escape chars as                                                                                                                              
+> > well as spaces.                                                                                                                                                                                  
+> >                                                                                                                                                                                                  
+> > 3) There's probably a library function to 'unescape' a string, but I                                                                                                                             
+> > don't know what it is.                                                                                                                                                                           
+> >                                                                                                                                                                                                  
+> > 4) There's already a loop in /get_device_on_your_own() which goes                                                                                                                                
+> > through all the characters in the path - maybe it would be more                                                                                                                                  
+> > efficient to use that loop instead of creating a new one (but this                                                                                                                               
+> > depends if there's a library function to strip out the escapes).                                                                                                                                 
+> >                                                                                                                                                                                                  
+> > I don't know enough about the above points to do a proper fix, but I                                                                                                                             
+> > hope I've helped a bit if you decide you want to fix it properly.                                                                                                                                
+>                                                                                                                                                                                                    
+> Huh, that's cool. I tripped about that myself 2 days ago. I don't know      
+
+
+> either if there is already a library that does the un-escaping/spacing, but                                                                                                                        
+> I don't think so. I'll have a look at you patch and probably incorporate it,                                                                                                                       
+> I was too lazy to fight too long with c since I'm already getting rusty                                                                                                                            
+> again because of not using it that often :)                                                                                                                                                        
+> BTW: I think this is some unicode/UTF-8 thing...                                                                                                                                                   
+> Thanks a lot!                                                                                                                                                                                      
+> Cheers                                                                                                                                                                                             
+> Robos                                                                                                                                                                                              
+>                                                                                                                                                                                                    
+> > Regards,                                                                                                                                                                                         
+> >                                                                                                                                                                                                  
+> > Richard Handel                                                                                                                                                                                   
+>                                                                                                                                                                                                    
+> > *** vobcopy.c.org     2007-09-10 16:03:42.000000000 +0100                                                                                                                                        
+> > --- vobcopy.c 2007-09-10 21:37:51.000000000 +0100                                                                                                                                                
+> > ***************                                                                                                                                                                                  
+> > *** 803,808 ****                                                                                                                                                                                 
+> > --- 803,816 ----                                                                                                                                                                                 
+> >                 fprintf( stderr,"[Info] Writing files to this dir: %s\n", name );                                                                                                                
+> >               }                                                                                                                                                                                  
+> >   //TODO: substitute with open_dir function                                                                                                                                                      
+> > +           /* START PATCH (Richard Handel, 10 Sept 07) unescape space characters in path */                                                                                                     
+> > +           char* embedded_space = strstr(provided_input_dir, "\\040");                                                                                                                          
+> > +           while (embedded_space) {                                                                                                                                                             
+> > +             *embedded_space = ' ';                                                                                                                                                             
+> > +             strcpy(embedded_space + 1, embedded_space + 4);                                                                                                                                    
+> > +             embedded_space = strstr(provided_input_dir, "\\040");                                                                                                                              
+> > +           }                                                                                                                                                                                    
+> > +           /* END PATCH (Richard Handel, 10 Sept 07) */                                                                                                                                         
+> >             strcpy( video_ts_dir, provided_input_dir );                                                                                                                                          
+> >             strcat( video_ts_dir, "video_ts"); /*it's either video_ts */                                                                                                                         
+> >             dir = opendir( video_ts_dir );     /*or VIDEO_TS*/                                                                                                                                   
+>                                                                                                                                                                                                    
+>                                                                                                                                                                                                    
+> --                                                                                                                                                                                                 
+> Robos -                                                                                                                                                                                            
+> gpg --recv-keys --keyserver blackhole.pca.dfn.de 6EEADA09                                                                                                                                          
+>                                                                                                                                                                                                    
+>                                                                                                                                                                                                    
+                                                                                                                                                                                                     
+[-- Anhang #2: dvd.patch --]                                                                                                                                                                         
+[-- Typ: text/x-patch, Kodierung: base64, Gr0,7K --]                                                                                                                                            
+                                                                                                                                                                                                     
+*** dvd.c.org   2007-09-13 00:57:34.000000000 +0100                                                                                                                                                  
+--- dvd.c       2007-09-13 00:56:43.000000000 +0100                                                                                                                                                  
+***************                                                                                                                                                                                      
+*** 524,532 ****                                                                                                                                                                                     
+                                                                                                                                                                                                     
+           while(isgraph( (int) *(k) ))                                                                                                                                                              
+	                {                                                                                                                                                                                       
+			!              path[l] = *(k);                                                                                                                                                                       
+			!              k++;                                                                                                                                                                                  
+			!              l++;                                                                                                                                                                                  
+			             }                                                                                                                                                                                       
+				                path[l] = '\0';                                                                                                                                                                           
+						                                                                                                                                                                                                     
+						--- 524,534 ----                                                                                                                                                                                     
+						                                                                                                                                                                                                     
+						           while(isgraph( (int) *(k) ))                                                                                                                                                              
+						                {                                                                                                                                                                                       
+!              if (!strncmp(k, "\\040", 4)) { // replace escaped ASCII space ...                                                                                                                     
+!                path[l++] = ' '; // ... with literal space                        
+!                k+=4;                                                                                                                                                                               
+!              }                                                                                                                                                                                     
+!              else path[l++] = *(k++);                                                                                                                                                              
+             }                                                                                                                                                                                       
+	                path[l] = '\0';        
+			
+
+---------------------------------------------------------------------------------------------------------------------
+
+Ismail D  (0,2K) Security problem(s) in vobcopy  wegen cve
+
+--------------------------------------------------------------------------------------------------------------------
+
+Bug#448319: opens /tmp/vobcopy.bla insecurely, symlink attack                                                                                                                                        
+Changed Bug title to `CVE-2007-5718 insecure temporary file handling' from `opens /tmp/vobcopy.bla insecurely, symlink attack'. 
+
+--------------------------------------------------------------------------------------------------------------------
+
+From: Nico Golde <nion@debian.org>                                                                                                                                                                   
+To: Robos <robos@muon.de>                                                                                                                                                                            
+Subject: Re: security issue in vobcopy                                                                                                                                                               
+X-GPG: 0x73647cff                                                                                                                                                                                    
+X-RZG-AUTH: hvKiKtSHbeE0ghP2VIXOfz9FbKPIjAFDNRMtknfPuvqS60u3mcM1eRqaSnkWtRs=                                                                                                                         
+X-RZG-CLASS-ID: mo07                                                                                                                                                                                 
+                                                                                                                                                                                                     
+[-- PGP Ausgabe folgt (aktuelle Zeit: So 02 Dez 2007 23:13:15 CET) --]                                                                                                                               
+gpg: Signature made Di 06 Nov 2007 07:33:23 CET using DSA key ID 73647CFF                                                                                                                            
+gpg: Unterschrift kann nicht geprwerden: Schlnicht gefunden                                                                                                                   
+[-- Ende der PGP-Ausgabe --]                                                                                                                                                                         
+                                                                                                                                                                                                     
+[-- Die folgenden Daten sind signiert --]                                                                                                                                                            
+                                                                                                                                                                                                     
+Hi Robos,                                                                                                                                                                                            
+* Robos <robos@muon.de> [2007-11-06 07:20]:                                                                                                                                                          
+> On Mon, 05.11.07, Nico Golde <nion@debian.org> wrote:                                                                                                                                              
+> > did you see                                                                                                                                                                                      
+> > http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=448319                                                                                                                                          
+> > which is a security issue in vobcopy.                                                                                                                                                            
+> > Please read the following:                                                                                                                                                                       
+> > https://www.securecoding.cert.org/confluence/display/seccode/TMP30-C.+Temporary+files+must+created+with+unique+and+unpredictable+file+names                                                      
+>                                                                                                                                                                                                    
+> Someone from another distribution already made me away that someone thinks                                                                                                                         
+> this is a bug...                                                                                                                                                                                   
+> I'll try to fix "the problem" soon.                                                                                                                                                                
+                                                                                                                                                                                                     
+Errm referring to your ironic tone you don't think this is                                                                                                                                           
+an issue but you are wrong, it is ;)                                                                                                                                                                 
+                                                                                                                                                                                                     
+> Whom shall I contact with the new version?                                                                                                                                                         
+                                                                                                                                                                                                     
+The maintainers for the distributions. It would be nice                                                                                                                                              
+could contact me and Stephen Birch for Debian.                                                                                                                                                       
+Kind regards                                                                                                                                                                                         
+Nico                             
+
+
+-----------------------------------------------------------------------------------------------------------------------
+CHECK
+
+Subject: Bug#451145: off-by-one error                                                                                                                                                                
+Reply-To: Nico Golde <nion@debian.org>, 451145@bugs.debian.org                                                                                                                                       
+Resent-To: debian-bugs-dist@lists.debian.org                                                                                                                                                         
+Resent-CC: Stephen Birch <sgbirch@imsmail.org>                                                                                                                                                       
+X-Debian-PR-Message: report 451145                                                                                                                                                                   
+X-Debian-PR-Package: vobcopy                                                                                                                                                                         
+X-Debian-PR-Keywords: patch                                                                                                                                                                          
+X-Debian-PR-Source: vobcopy                                                                                                                                                                          
+From: Nico Golde <nion@debian.org>                                                                                                                                                                   
+To: submit@bugs.debian.org                                                                                                                                                                           
+X-GPG: 0x73647cff                                                                                                                                                                                    
+X-RZG-Auth: hvKiKtSHbeE0ghP2VIXOfz9FbKPIjAFDNRMtknfPuvqS60u3mcM1eRL0GjYHz1Y=                                                                                                                         
+X-RZG-Class-Id: mo07                                                                                                                                                                                 
+X-PTS-Package: vobcopy                                                                                                                                                                               
+X-PTS-Keyword: bts                                                                                                                                                                                   
+                                                                                                                                                                                                     
+[-- PGP Ausgabe folgt (aktuelle Zeit: So 02 Dez 2007 23:14:21 CET) --]                                                                                                                               
+gpg: Signature made Di 13 Nov 2007 17:54:17 CET using DSA key ID 73647CFF                                                                                                                            
+gpg: Unterschrift kann nicht geprwerden: Schlnicht gefunden                                                                                                                   
+[-- Ende der PGP-Ausgabe --]                                                                                                                                                                         
+                                                                                                                                                                                                     
+[-- Die folgenden Daten sind signiert --]                                                                                                                                                            
+                                                                                                                                                                                                     
+Package: vobcopy                                                                                                                                                                                     
+Version: 0.5.14-2                                                                                                                                                                                    
+Severity: normal                                                                                                                                                                                     
+Tags: patch                                                                                                                                                                                          
+                                                                                                                                                                                                     
+Hi,                                                                                                                                                                                                  
+from vobcopy.c:                                                                                                                                                                                      
+ 136 char              dvd_path[255], logfile_name[20],logfile_path[255];                                                                                                                            
+  ...                                                                                                                                                                                                 
+   473 strncpy( logfile_path, optarg, 255 );                                                                                                                                                           
+    474 strcat( logfile_path, "/" );                                                                                                                                                                    
+                                                                                                                                                                                                         
+    This is an off-by-one. If optarg will consist of 255 characters strcat will write                                                                                                                    
+    ony byte past the stack.                                                                                                                                                                             
+                                                                                                                                                                                                         
+    The correct code would look like:                                                                                                                                                                    
+    strncpy(logfile_path, optarg, sizeof(logfile_path)-1);                                                                                                                                               
+    strcat(logfile_path, "/");                                                                                                                                                                           
+    logfile_path[sizeof(logfile_path)-1] = '\0';                                                                                                                                                         
+                                                                                                                                                                                                         
+    Kind regards                                                                                                                                                                                         
+    Nico                                                                                                                                                                                                 
+                                                          
+    
+    -----------------------------------------------------------------------------------------------------------------------
+   CHECK 
+    
+    Looking at the vobcopy source code it turns out that there                                                                                                                                           
+    is a -L option to specify the logfile location, please add                                                                                                                                           
+    this to the manual.                                                                                                                                                                                  
+    Kind regards                                                                                                                                                                                         
+    Nico      
+    
+    
+    ----------------------------------------------------------------------------------------------------------------------
+    
+    
+    From: Jimmy Moore <jimmy.moore@gmail.com>                                                                                                                                                            
+    To: Robos <robos@muon.de>                                                                                                                                                                            
+    Subject: Re: Vobcopy                                                                                                                                                                                 
+                                                                                                                                                                                                         
+    Hi Robos,                                                                                                                                                                                            
+               Here is the forum post about it (Check out last line):                                                                                                                                    
+	                                                                                                                                                                                                            
+	       http://www.usalug.org/phpBB2/viewtopic.php?t=9271&postdays=0&postorder=asc&&start=15&sid=7342fa91d35558b6782882b2ebab9000                                                                            
+	                                                                                                                                                                                                            
+	       Also from mplayer/mencoder manual:                                                                                                                                                                   
+	                                                                                                                                                                                                            
+	       http://www.mplayerhq.hu/DOCS/HTML/en/faq.html#id2540533                                                                                                                                              
+	                                                                                                                                                                                                            
+	       I had an idea to use vobcopy, then when it failed, use mencoder, but the                                                                                                                             
+	       problem is that mencoder reads the whole title and combines everything into                                                                                                                          
+	       a single VOB file :( whereas I want the files from the DVD exactly as they                                                                                                                           
+	       were for menus etc.                                                                                                                                                                                  
+	       It does seem that dvdnav does get around the problems with Sony protection,                                                                                                                          
+	       which I believe is bad sectors or something. Also looks like dvdnav does all                                                                                                                         
+	       that dvdread does now, perhaps including some extra stuff.                                                                                                                                           
+	       I've tried using 'ddrescue' to create an ISO image of the DVD, which it does                                                                                                                         
+	       successfuly but with errors. I'm not sure if pointing vobcopy at that ISO                                                                                                                            
+	       will work, but I may try that next                                                                                                                                                                   
+	                                                                                                                                                                                                            
+	       Let me know what you think :)                                                                                                                                                                        
+	                                                                                                                                                                                                            
+	       Regards                                                                                                                                                                                              
+	                                                                                                                                                                                                            
+	       Jimmy                      
+	       
+	       ------------------------------------------------------------------------------------------------------------------
+	       
+	       From: Louis Granboulan <Louis.Granboulan@ens.fr>                                                                                                                                                     
+	       Subject: Re: vobcopy on MacOS 10.4                                                                                                                                                                   
+	       To: Udo 'Robos' Puetz <udo@muon.de>                                                                                                                                                                  
+	                                                                                                                                                                                                            
+	       >Well, sure, but I at least need a way to figure out which version I'm                                                                                                                               
+	       >compiling on and #include and such accordingly.                                                                                                                                                     
+	       I don't know how to find it simply within gcc.                                                                                                                                                       
+	       Here is a rather dirty technique                                                                                                                                                                     
+	                                                                                                                                                                                                            
+	       #include <unistd.h>                                                                                                                                                                                  
+	       #if !defined(_POSIX_ASYNCHRONOUS_IO)                                                                                                                                                                 
+	       /* MacOS 10.2 or before */                                                                                                                                                                           
+	       #elif _POSIX_VERSION == 198808L                                                                                                                                                                      
+	       /* MacOS 10.3 */                                                                                                                                                                                     
+	       #else                                                                                                                                                                                                
+	       /* MacOS 10.4 */                                                                                                                                                                                     
+	       #endif                                                                                                                                                                                               
+	                                                                                                                                                                                                            
+	       Louis     
+	       
+	       
+	       ------------------------------------------------------------------------------
+	       
+	       
+	       From: Thiemo Gehrke <tgehrke@reel-multimedia.com>                                                                                                                                                    
+	       To: Robos <robos@muon.de>                                                                                                                                                                            
+	       Subject: bug in vobcopy 1.0.0                                                                                                                                                                        
+	                                                                                                                                                                                                            
+	       Hallo,                                                                                                                                                                                               
+	                                                                                                                                                                                                            
+	       habe einen Bug gefunden:                                                                                                                                                                             
+	       gibt man -q als Parameter an und ist ein Verzeichnes mit gleichem Namen schon                                                                                                                        
+	       vorhanden, schreibt vobcopy unentwegt                                                                                                                                                                
+	       "[Hint] please choose [c]ontinue or [q]uit the next time ;-)"                                                                                                                                        
+	       in die /tmp/vobcopy.bla                                                                                                                                                                              
+	       Und zwar so lange, bis das Dateisystem voll ist.                                                                                                                                                     
+	                                                                                                                                                                                                            
+	       Es fehlt also noch eine "always continue on error" option oder dergleichen.                                                                                                                          
+	                                                                                                                                                                                                            
+	       ich hoffe, ich bin nicht der 357. der das berichtet...                                                                                                                                               
+	                                                                                                                                                                                                            
+	       gr                                                                                                                                                                                              
+	       Thiemo             
+	       
+	       
+	       ---------------------------------------------------------
+	       
+	       
+	       From: "Jared P. Cordasco" <jcordasc@cs.stevens.edu>                                                                                                                                                  
+	       To: robos@muon.de                                                                                                                                                                                    
+	       Subject: vobcopy bug report                                                                                                                                                                          
+	       Reply-By: Oct 4 2005 12:00 -0500                                                                                                                                                                     
+	                                                                                                                                                                                                            
+	       [-- Anhang #1 --]                                                                                                                                                                                    
+	       [-- Typ: text/plain, Kodierung: quoted-printable, Gr2,0K --]                                                                                                                                    
+	                                                                                                                                                                                                            
+	                                                                                                                                                                                                            
+	       Hi,                                                                                                                                                                                                  
+	                                                                                                                                                                                                            
+	       I ran into a problem with vobcopy recently and I haven't had the time to                                                                                                                             
+	       poke around and send a patch with this bug report, but I could if you'd                                                                                                                              
+	       like. The problem is that vobcopy cannot handle very large hard drives                                                                                                                               
+	       for output. As you can see below I have such a drive, mostly free:                                                                                                                                   
+	                                                                                                                                                                                                            
+	       Filesystem            Size  Used Avail Use% Mounted on                                                                                                                                               
+	       /dev/hdb1             367G   50G  315G  14% /mnt/400                                                                                                                                                 
+	                                                                                                                                                                                                            
+	       however running                                                                                                                                                                                      
+	                                                                                                                                                                                                            
+	       # vobcopy -o /mnt/400/backups/ -m                                                                                                                                                                    
+	                                                                                                                                                                                                            
+	       yields:                                                                                                                                                                                              
+	                                                                                                                                                                                                            
+	       Vobcopy 1.0.1 - GPL Copyright (c) 2001 - 2006 robos@muon.de                                                                                                                                          
+	       [Hint] All lines starting with "libdvdread:" are not from vobcopy but                                                                                                                                
+	       from the libdvdread-library                                                                                                                                                                          
+	                                                                                                                                                                                                            
+	       [Info] Path to dvd: /dev/hdd                                                                                                                                                                         
+	       [Info] Name of the dvd: RABBI_JACOB                                                                                                                                                                  
+	       *** Zero check failed in ifo_read.c:432                                                                                                                                                              
+	           for vmgi_mat->zero_3 = 0x00000000010000000000000000000000000000                                                                                                                                  
+		   [Info] There are 4 titles on this DVD.                                                                                                                                                               
+		   [Info] There are 15 chapters on the dvd.                                                                                                                                                             
+		   [Info] Most chapters has title 4 with 12 chapters.                                                                                                                                                   
+		   [Info] All titles:                                                                                                                                                                                   
+		   [Info] Title 1 has 1 chapter.                                                                                                                                                                        
+		   [Info] Title 2 has 1 chapter.                                                                                                                                                                        
+		   [Info] Title 3 has 1 chapter.                                                                                                                                                                        
+		   [Info] Title 4 has 12 chapters.                                                                                                                                                                      
+		                                                                                                                                                                                                        
+		   [Info] There are 4 angles on this dvd.                                                                                                                                                               
+		   [Info] All titles:                                                                                                                                                                                   
+		   [Info] Title 1 has 1 angle.                                                                                                                                                                          
+		   [Info] Title 2 has 1 angle.                                                                                                                                                                          
+		   [Info] Title 3 has 1 angle.                                                                                                                                                                          
+		   [Info] Title 4 has 1 angle.                                                                                                                                                                          
+		                                                                                                                                                                                                        
+		   [Info] DVD-name: RABBI_JACOB                                                                                                                                                                         
+		   [Info]  Disk free: -2099069 MB                                                                                                                                                                       
+		   [Info]  Vobs size: 3900 MB                                                                                                                                                                           
+		   [Error] Not enough free space on the destination dir. Please choose                                                                                                                                  
+		   another one or -f                                                                                                                                                                                    
+		   [Error] or dirs behind -1, -2 ... are NOT allowed with -m!                                                                                                                                           
+		                                                                                                                                                                                                        
+		   However, when I append '-v -v' to get the log file, the log file is                                                                                                                                  
+		   *different* than the above output in that it shows free disk space as                                                                                                                                
+		   0MB. I've attached that log file.                                                                                                                                                                    
+		                                                                                                                                                                                                        
+		   If you want, I'll poke around and send you a patch as I'm sure its                                                                                                                                   
+		   simple enough to fix. Just let me know.                              
+		   
+		   
+		   -----------------------------------------------------------
+	       
+	       
+From: Keith Brings <ceo@noizu.biz>                                                                                                                                                                   
+Reply-To: ceo@noizu.biz                                                                                                                                                                              
+To: robos@muon.de                                                                                                                                                                                    
+Subject: vobcopy quirks / and fixes.                                                                                                                                                                 
+                                                                                                                                                                                                     
+                                                                                                                                                                                                     
+   I just finished modifying your source to get everything to run on solaris express build 60 64bit.                                                                                                 
+                                                                                                                                                                                                        
+     I only had to make a few minor tweaks but making a note of them might help simplify install for someone even newer to the *nix world than me.0                                                     
+                                                                                                                                                                                                          
+                                                                                                                                                                                                          
+                                                                                                                                                                                                          
+     Make file:                                                                                                                                                                                           
+                                                                                                                                                                                                          
+     1. On your make file the deb: entry stops the make with a "unexpected end of line" error. I just took the deb: section out and make ran find.                                                        
+                                                                                                                                                                                                          
+     2.  CC =? gcc also produced a crash, I'm not sure of the scripting syntax or what this was suppose to do but CC = gcc, or CC = cc works fine.                                                        
+                                                                                                                                                                                                          
+                                                                                                                                                                                                          
+     source code.                                                                                                                                                                                         
+                                                                                                                                                                                                          
+     3. dvd.c & vobcopy.c require #include <stdint.h? before calling vobcopy.h (before calling dvd-read's headers)                                                                                        
+                                                                                                                                                                                                          
+                                                                                                                                                                                                          
+     4. dvd.c get_dvd_name()    was killing the program and calling a segmentation_failed core dump.                                                                                                      
+                                                                                                                                                                                                          
+         I suspect that solaris/intel treats  dvd devices differently than solaris/sparc.  Any who the dvd name isnt in the device name but just removing the #if defined( __sun ) line and using the non 
+	 +__sun version of the function worked fine.                                                                                                                                                          
+	                                                                                                                                                                                                      
+	 5. __off64_t                                                                                                                                                                                         
+	                                                                                                                                                                                                      
+	   I may just have compiler set-up issues but                                                                                                                                                         
+	   #define off_t __off64_t  in vobcopy.h was flagged later on as undefined.                                                                                                                             
+	   replacing that line with #define off_t off64_t  worked fine.                                                                                                                                         
+	                                                                                                                                                                                                        
+	                                                                                                                                                                                                        
+	   I'm sorry I cant be more helpful on why these fixes worked for me, i'm new to linux and especially linux programming but, hopefully they help.                                                       
+	                                                                                                                                                                                                        
+	      And feel free to give me some favorable mention if they do help. ^-^ minute changes though they be.                                                                                               
+	                                                                                                                                                                                                           
+	                                                                                                                                                                                                           
+	        - Sincerly,                                                                                                                                                                                        
+		  Keith Noizu                                     
+
+--------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,46 @@
+Q1) I receive "Do you have libdvdread installed? I don't think so..." when I
+    try to compile vobcopy.
+A)  Did you install the -dev packages of libdvdread (and libdvdcss)? These
+    include the header files needed for compilation.
+    
+Q2) When I call "vobcopy -i /dev/something" I receive strange errors.
+A)  Um, you have to mount the dvd and give the mount-point to -i, so
+    something like -i /cdrom, /dev files aren't allowed!
+    
+Q3) It takes me ages to rip something.
+A)  Well, take a look into /var/log/messages. If you see something like this 
+    Sep 29 04:02:03 some kernel: hdc: cdrom_decode_status: status=0x51 {
+    DriveReady SeekComplete Error }
+    Sep 29 04:02:03 some kernel: hdc: cdrom_decode_status: error=0x30
+    Sep 29 04:02:04 some kernel: hdc: cdrom_decode_status: status=0x51 {
+    DriveReady SeekComplete Error }
+    Sep 29 04:02:04 some kernel: hdc: cdrom_decode_status: error=0x30
+    Sep 29 04:02:04 some kernel: hdc: ATAPI reset complete
+    
+    you have found the reason. I cannot explain what this means, but I guess
+    that the dvd is kinda broken. Explanation by someone from TAG
+    (linuxgazette.com):
+    HD access is assumed to be fast. So many kernel drivers lock interrupts
+    for the moment of access. If the access suddenly takes seconds instead of 
+    micro s the system gets temporarily hung. The access does take long because
+    the drive will try several accesses, resetting head alignment, reaccessing,
+    ..... then only reporting back with the error. This only allows the kernel
+    to go on with normal proceedure.
+
+
+Q4) Can I rip something that already sits on my harddisk, either as a iso file or
+    as a directory?
+    
+A)  No, sorry. Libdvdread needs to figure out the title-keys. It might be able to
+    also do this on stuff already on the harddisk, but I don't know how and hence
+    vobcopy can't do it. If you know how, give me a hint!
+    
+
+Q5) Vobcopy stops copying in the middle. This is somewhat reproducibel.
+
+A)  I've seen this too. It seems the movie studios implemented a new kind of copy
+    protection system (mostly by going against the rules set forth in the "red book"
+    standard). Vobcopy relies on libdvdread to read the dvd, and unfortunately develop-
+    ment on libdvdread has mostly ceased. So, libdvdread and therefore vobcopy can't
+    read it. Look into alternative-programs.txt to find a ripper that might do it.
+    

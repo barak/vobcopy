@@ -28,7 +28,7 @@ int get_dvd_name(const char *device, char *title)
   /* title is actually in the device name */
   char *new_title;
   new_title = strstr( device, "d0/" ) + strlen( "d0/" );
-  strncpy( title, new_title, 255 );
+  strncpy( title, new_title, sizeof(title)-1 );
 #else
   int  filehandle = 0;
   int  i = 0, last = 0;
@@ -48,7 +48,6 @@ int get_dvd_name(const char *device, char *title)
   }
   
   /* seek to title of first track, which is at (track_no * 32768) + 40 */
-//  if ( 32808 != lseek( filehandle, 32808, SEEK_SET ) ) 
   if ( 32768 != lseek( filehandle, 32768, SEEK_SET ) )      
   {
       /* seek failed */
@@ -60,7 +59,6 @@ int get_dvd_name(const char *device, char *title)
   }
   
   /* read title */
-//  if ( (bytes_read = read(filehandle, title, 32)) != 32) 
   if ( (bytes_read = read(filehandle, tmp_buf, 2048)) != 2048 )      
   {
       close(filehandle);
@@ -71,7 +69,6 @@ int get_dvd_name(const char *device, char *title)
   }
   
   strncpy( title, &tmp_buf[40], 32 ); 
-//   memcpy(title, help + 40, 32);
    
   /* make sure string is terminated */
   title[32] = '\0';
@@ -115,12 +112,17 @@ int get_device( char *path, char *device )
   struct mntent* lmount_entry;
 #endif
 
+#if ( defined( __sun ) )
   FILE  *mnttab_fp;
+  char *mnt_special;
+  int mntcheck;
+  char *new_device;
+#endif
+
   char  *pointer;
-  char *new_device, *mnt_special;
   char  *k;
   bool  mounted = FALSE;
-  int mntcheck;
+
 #ifdef USE_STATFS_FOR_DEV
   struct statfs buf;
 #endif
@@ -213,7 +215,7 @@ int get_device( char *path, char *device )
 	    strcat( new_device, "/rdsk/" );
 	    strcat( new_device,
 		    strstr( mnt_special, "/dsk/" ) + strlen( "/dsk/" ) );
-	    strncpy( device, new_device, 255 );
+	    strncpy( device, new_device, sizeof(device)-1 );
 	    free( mnt_special );
 	    free( new_device );
 	    mounted = TRUE;
@@ -402,15 +404,15 @@ int get_device_on_your_own( char *path, char *device )
     /* Completely rewritten search of a mounted DVD on Solaris, much
      cleaner. No more parsing of strings -- lb */
 
-    // the mnttab file
+    /* the mnttab file */
     FILE         *mnttab_fp;
-    // The mount entry found
+    /* The mount entry found */
     struct mnttab mountEntry;
-    // The mount search fields
+    /* The mount search fields */
     struct mnttab udfsMount;
-    // Number of found entries
+    /* Number of found entries */
     int           dvd_count = 0;
-    // Result of the mount search
+    /* Result of the mount search */
     int           result    = 0;
 
 
@@ -429,23 +431,23 @@ int get_device_on_your_own( char *path, char *device )
       return -1;
 	     }
 
-    // Get the matching mount points
-    // If there is a match, handle it
+    /* Get the matching mount points */
+    /* If there is a match, handle it */
     while ((result = getmntany(mnttab_fp, &mountEntry, &udfsMount)) == 0) {
       dvd_count++;
 	 }
 
-    // If the last result is not -1, there was a problem -- exit
+    /* If the last result is not -1, there was a problem -- exit */
     if (result != -1)
       return -1;
    
-    // no cd found? Then user should mount it
+    /* no cd found? Then user should mount it */
     if (dvd_count == 0) {
 	 fprintf(stderr, "[Error] There seems to be no cd/dvd mounted. Please do that..\n");
 	 return -1;
        }
 
-    // Copy the device name and mount points to the output variables
+    /* Copy the device name and mount points to the output variables */
     strcpy(path,   mountEntry.mnt_mountp);
     strcpy(device, mountEntry.mnt_special);
 
@@ -522,14 +524,23 @@ int get_device_on_your_own( char *path, char *device )
 	   */
 	   l=0;
 
-	   while(isgraph( (int) *(k) ))
-	     {
-	       path[l] = *(k);
-	       k++;
-	       l++;
-	     }
-	   path[l] = '\0';
 
+
+	     while(isgraph( (int) *(k) ))
+                                   {
+                                          if (!strncmp(k, "\\040", 4)) 
+                                          { /* replace escaped ASCII space ... */
+                                                   path[l++] = ' '; /* ... with literal space */
+                                                   k+=4;
+                                          }
+                                          else 
+                                          {
+                                                   path[l] = *(k);
+                                                   k++;
+                                                   l++;
+                                          }
+                                   }
+	     path[l] = '\0';
 	 }
        memset( tmp_bufferin, 0, MAX_STRING * sizeof( char ) );
        l = 0; /*for the next run
@@ -566,9 +577,7 @@ off_t get_vob_size( int title, char *provided_input_dir )
             path_to_vobs1[278], 
             path_to_vobs2[278], 
             path_to_vobs3[278];
-      char  temp[278], 
-            temp1[3], 
-            stat_path[278];
+      char  stat_path[278];
       int   subvob;
       FILE  *tmp_streamin1;
       struct stat buf;
