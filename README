@@ -15,7 +15,7 @@ There are also rpm and deb packages available!
 
 **IMPORTANT**
 	I receive nearly NO bugreports, so either vobcopy (and therefore I) 
-	are near-perfect (yeah, right) or your problems have a real slim chance
+	are near-perfect (yeah, right ;-) or your problems have a real slim chance
 	of getting fixed. Bugreporting is *really* simple, add "-v -v" to your 
 	vobcopy call to have vobcopy create a bugreport file you can mail me at
 	robos@muon.de along with a small description of your system (OS,
@@ -45,11 +45,8 @@ Install:
 
 
 Handling:
-vobcopy	(without any options)
-	should copy the correct /path/to/dvd/video_ts/vts_0x_01.vob to 
-	vts_0x_yy.vob to the directory you are invoking vobcopy from.
-	(vobcopy takes the title with the most chapters by default if no title
-	is specified)
+vobcopy	(without _any_ options)
+	will copy the title with the most chapters to the current directory.
  	The vobs will be merged up to 2 gigs and then a new file will be 
 	started. So what you get is:
 	name-of-moviex-1.vob (2 gig size) name-of-moviex-2.vob ...
@@ -60,6 +57,15 @@ vobcopy	(without any options)
 
 For more infos on the options see "man vobcopy"
 	Newest addition:
+	
+vobcopy -M will rip the title with the longest playing time. Normal
+	mode without any options is with the most chapters. Both
+	methods can be wrong so please try both. I will implement a
+	message when the methods deliver different "main" titles shortly.
+	
+vobcopy -x will not ask any questions if you want to overwrite
+	pre-existing files but will simply do so.
+	
 vobcopy -O <filename of single files you want to copy, more than one have to
 	be separated by comma>
 	e.g. -O video_ts.vob,vts_01_01.ifo,vts_01_01.vob
@@ -123,6 +129,9 @@ vobcopy -q
 	directory instead of stderr. Good when you want to pipe the output of
 	vobcopy to some other program, e.g. bbtools or mplayer.
 	
+vobcopy -x
+	overwrite all existing files without further question
+
 The options can be combined and arranged as you like.
 It worked for me, hope for you too.
 Have fun!

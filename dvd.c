@@ -11,11 +11,11 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with vobcopy; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
+ *  along with vobcopy; if not,  see <http://www.gnu.org/licenses/>.
  */
 
 #include "vobcopy.h"
+#include <dvdread/ifo_read.h>
 
 /* included from cdtitle.c (thx nils *g)
  * get the Title
@@ -41,9 +41,9 @@ int get_dvd_name(const char *device, char *title)
   if ( !(filehandle = open(device, O_RDONLY, 0)) )       
   {
       /* open failed */
-      fprintf( stderr, "[Error] Something went wrong while getting the dvd name  - please specify path as /cdrom or /dvd (mount point) or use -t\n");
-      fprintf( stderr, "[Error] Opening of the device failed\n");
-      fprintf( stderr, "[Error] Error: %s\n", strerror( errno ) );
+      fprintf( stderr, _("[Error] Something went wrong while getting the dvd name  - please specify path as /cdrom or /dvd (mount point) or use -t\n"));
+      fprintf( stderr, _("[Error] Opening of the device failed\n"));
+      fprintf( stderr, _("[Error] Error: %s\n"), strerror( errno ) );
       return -1;
   }
   
@@ -52,9 +52,9 @@ int get_dvd_name(const char *device, char *title)
   {
       /* seek failed */
       close( filehandle );
-      fprintf( stderr, "[Error] Something went wrong while getting the dvd name - please specify path as /cdrom or /dvd (mount point) or use -t\n");
-      fprintf( stderr, "[Error] Couldn't seek into the drive\n");
-      fprintf( stderr, "[Error] Error: %s\n", strerror( errno ) );
+      fprintf( stderr, _("[Error] Something went wrong while getting the dvd name - please specify path as /cdrom or /dvd (mount point) or use -t\n"));
+      fprintf( stderr, _("[Error] Couldn't seek into the drive\n"));
+      fprintf( stderr, _("[Error] Error: %s\n"), strerror( errno ) );
       return -1;
   }
   
@@ -62,9 +62,9 @@ int get_dvd_name(const char *device, char *title)
   if ( (bytes_read = read(filehandle, tmp_buf, 2048)) != 2048 )      
   {
       close(filehandle);
-      fprintf( stderr, "[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n" );
-      fprintf( stderr, "[Error] only read %d bytes instead of 2048\n", bytes_read);
-      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+      fprintf( stderr, _("[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n") );
+      fprintf( stderr, _("[Error] only read %d bytes instead of 2048\n"), bytes_read);
+      fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
       return -1;
   }
   
@@ -82,13 +82,20 @@ int get_dvd_name(const char *device, char *title)
   }
   if( 0 == last )
       {
-          fprintf( stderr, "[Hint] The dvd has no name, will choose a nice one ;-), else use -t\n" );
+          fprintf( stderr, _("[Hint] The dvd has no name, will choose a nice one ;-), else use -t\n") );
           strcpy( title, "insert_name_here\0" );
       }
   else
       title[ last + 1 ] = '\0';
 
 #endif
+
+  for( i=0; i< strlen(title);i++ )
+    {
+      if( title[i] == ' ')
+        title[i] = '_';
+    }
+
   return 0;
 }
 
@@ -178,7 +185,7 @@ int get_device( char *path, char *device )
       }
     else
       {
-       fprintf( stderr, "[Error] Error while reading filesystem info" );
+       fprintf( stderr, _("[Error] Error while reading filesystem info") );
        return -1;
       }
 #elif ( defined( __sun ) )
@@ -188,8 +195,8 @@ int get_device( char *path, char *device )
  
     if ( ( mnttab_fp = fopen( "/etc/mnttab", "r" ) ) == NULL )
       {
-	fprintf( stderr, " [Error] Could not open mnttab for searching!\n" );
-	fprintf( stderr, " [Error] error: %s\n", strerror( errno ) );
+	fprintf( stderr, _(" [Error] Could not open mnttab for searching!\n") );
+	fprintf( stderr, _(" [Error] error: %s\n"), strerror( errno ) );
 	return -1;
       }
 
@@ -201,7 +208,7 @@ int get_device( char *path, char *device )
 	    char *new_device, *mnt_special;
 	    if ( strstr( mount_entry.mnt_special, "/dsk/" ) == NULL )
 	      {
-		fprintf( stderr, "[Error] %s doesn't look like a disk device to me",
+		fprintf( stderr, _("[Error] %s doesn't look like a disk device to me"),
 			 mount_entry.mnt_special );
 		return -1;
 	      }
@@ -224,13 +231,13 @@ int get_device( char *path, char *device )
       }
     if ( mntcheck > 0 )
       {
-         fprintf( stderr, "[Error] Encountered error in reading mnttab file\n" );
-         fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+         fprintf( stderr, _("[Error] Encountered error in reading mnttab file\n") );
+         fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
          return -1;
       }
     else if ( mntcheck == -1 )
       {
-         fprintf( stderr, "[Error] Did not find mount %s in mnttab!\n", path );
+         fprintf( stderr, _("[Error] Did not find mount %s in mnttab!\n"), path );
          return -1;
       }
 #else
@@ -243,8 +250,7 @@ this is the code for the other-OSs, not solaris*/
 	while ((lmount_entry = getmntent(tmp_streamin))){
 	    if (strcmp(lmount_entry->mnt_dir, path) == 0){
 		/* Found the mount point */
-		fprintf ( stderr, "[Info] Device %s mount on %s\n", lmount_entry->mnt_dir,
-			lmount_entry->mnt_fsname);
+	      fprintf ( stderr, "[Info] Device %s mounted on %s\n", lmount_entry->mnt_fsname, lmount_entry->mnt_dir);
 		strcpy(device, lmount_entry->mnt_fsname);
 		mounted = TRUE;
 		break;
@@ -280,8 +286,8 @@ this is the code for the other-OSs, not solaris*/
       }
     else
       {
-	fprintf( stderr, "[Error] Could not read /etc/mtab!\n" );
-	fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+	fprintf( stderr, _("[Error] Could not read /etc/mtab!\n") );
+	fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
 	return -1;
       }  
 #endif
@@ -313,7 +319,7 @@ this is the code for the other-OSs, not solaris*/
 
 		if( ( k = strstr( tmp_bufferin, "/dev/" ) ) == NULL )
 		  {
-		    fprintf( stderr, "[Error] Weird, no /dev/ entry found in the line where iso9660 or udf gets mentioned in /etc/fstab\n" );
+		    fprintf( stderr, _("[Error] Weird, no /dev/ entry found in the line where iso9660 or udf gets mentioned in /etc/fstab\n") );
 		    return -1;
 		  }
 		l=0;
@@ -329,7 +335,7 @@ this is the code for the other-OSs, not solaris*/
 		if( isdigit( ( int) device[l-1] ) )
 	          {
                  if( strstr( device, "hd" ) )
-	              fprintf(stderr, "[Hint] Hmm, the last char in the device path (%s) that gets mounted to %s is a number.\n", device, path);
+	              fprintf( stderr, _("[Hint] Hmm, the last char in the device path (%s) that gets mounted to %s is a number.\n"), device, path);
 	          }
 		device[l] = '\0';
 	      }
@@ -338,15 +344,15 @@ this is the code for the other-OSs, not solaris*/
           fclose( tmp_streamin );
 	  if( !strstr( device, "/dev" ) )
 	    {
-	      fprintf(stderr, "[Error] Could not find the provided path (%s), typo?\n",path);
+	      fprintf( stderr, _("[Error] Could not find the provided path (%s), typo?\n"),path);
 	      device[0] = '\0';
 	      return -1;
 	    }
       }
     else
       {
-	fprintf( stderr, "[Error] Could not read /etc/fstab!" );
-	fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+	fprintf( stderr, _("[Error] Could not read /etc/fstab!") );
+	fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
 	device[0] = '\0';
 	return -1;
       }
@@ -389,13 +395,13 @@ int get_device_on_your_own( char *path, char *device )
         }
       if(dvd_count == 0)
         { /* no cd found? Then user should mount it */
-	  fprintf(stderr, "[Error] There seems to be no cd/dvd mounted. Please do that..\n");
+	  fprintf( stderr, _("[Error] There seems to be no cd/dvd mounted. Please do that..\n"));
 	  return -1;
         }
     }
   else
     {
-      fprintf(stderr, "[Error] An error occured while getting mounted file system information\n");
+      fprintf( stderr, _("[Error] An error occured while getting mounted file system information\n"));
       return -1;
     }
 
@@ -426,8 +432,8 @@ int get_device_on_your_own( char *path, char *device )
 	   
     /* Try to open the mnttab info */
     if (( mnttab_fp = fopen( "/etc/mnttab", "r" ) ) == NULL) {
-      fprintf( stderr, "[Error] Could not open mnttab for searching!\n" );
-      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+      fprintf( stderr, _("[Error] Could not open mnttab for searching!\n") );
+      fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
       return -1;
 	     }
 
@@ -443,7 +449,7 @@ int get_device_on_your_own( char *path, char *device )
    
     /* no cd found? Then user should mount it */
     if (dvd_count == 0) {
-	 fprintf(stderr, "[Error] There seems to be no cd/dvd mounted. Please do that..\n");
+	 fprintf( stderr, _("[Error] There seems to be no cd/dvd mounted. Please do that..\n"));
 	 return -1;
        }
 
@@ -481,8 +487,9 @@ int get_device_on_your_own( char *path, char *device )
 
 	   if( ( k = strstr( tmp_bufferin, "/dev/" ) ) == NULL )
 	     {
-	       fprintf( stderr, "[Error] Weird, no /dev/ entry found in the line where iso9660, udf or cdrom gets mentioned in /etc/mtab\n" );
-	       return -1;
+	       fprintf( stderr, _("[Error] Weird, no /dev/ entry found in the line where iso9660, udf or cdrom gets mentioned in /etc/mtab\n") );
+	       dvd_count--;
+	       continue;
 	     }
 
 	   while(isgraph( (int) *(k) ))
@@ -497,7 +504,7 @@ int get_device_on_your_own( char *path, char *device )
 	   if(isdigit((int)device[l-1]))
 	     {
                  if( strstr( device, "hd" ) )
-                    fprintf(stderr, "[Hint] Hmm, the last char in the device path %s is a number.\n", device );
+                    fprintf( stderr, _("[Hint] Hmm, the last char in the device path %s is a number.\n"), device );
 	     }
 	   
 	   /*The syntax of /etc/fstab and mtab seems to be something like this:
@@ -553,14 +560,14 @@ int get_device_on_your_own( char *path, char *device )
 
      if(dvd_count == 0)
        { /* no cd found? Then user should mount it */
-	 fprintf(stderr, "[Error] There seems to be no cd/dvd mounted. Please do that..\n");
+	 fprintf( stderr, _("[Error] There seems to be no cd/dvd mounted. Please do that..\n"));
 	 return -1;
        }
    }
  else
    {
-     fprintf(stderr, "[Error] Could not read /etc/mtab!");
-     fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+     fprintf( stderr, _("[Error] Could not read /etc/mtab!"));
+     fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
      return -1;
    }
 #endif
@@ -667,3 +674,107 @@ off_t get_vob_size( int title, char *provided_input_dir )
 				  also defined as off_t */
 }
 
+/*dvdtime2msec, converttime and get_longest_title are copy-paste'd from lsdvd*/
+
+int dvdtime2msec(dvd_time_t *dt)
+{
+  double frames_per_s[4] = {-1.0, 25.00, -1.0, 29.97};
+  double fps = frames_per_s[(dt->frame_u & 0xc0) >> 6];
+  long   ms;
+  ms  = (((dt->hour &   0xf0) >> 3) * 5 + (dt->hour   & 0x0f)) * 3600000;
+  ms += (((dt->minute & 0xf0) >> 3) * 5 + (dt->minute & 0x0f)) * 60000;
+  ms += (((dt->second & 0xf0) >> 3) * 5 + (dt->second & 0x0f)) * 1000;
+  
+  if(fps > 0)
+    ms += ((dt->frame_u & 0x30) >> 3) * 5 + (dt->frame_u & 0x0f) * 1000.0 / fps;
+  
+  return ms;
+}
+
+
+void converttime(playback_time_t *pt, dvd_time_t *dt)
+{
+  double frames_per_s[4] = {-1.0, 25.00, -1.0, 29.97};
+  double fps = frames_per_s[(dt->frame_u & 0xc0) >> 6];
+  
+  pt->usec = pt->usec + ((dt->frame_u & 0x30) >> 3) * 5 + (dt->frame_u & 0x0f) * 1000.0 / fps;
+  pt->second = pt->second + ((dt->second & 0xf0) >> 3) * 5 + (dt->second & 0x0f);
+  pt->minute = pt->minute + ((dt->minute & 0xf0) >> 3) * 5 + (dt->minute & 0x0f);
+  pt->hour = pt->hour + ((dt->hour &   0xf0) >> 3) * 5 + (dt->hour   & 0x0f);
+  
+  if ( pt->usec >= 1000 ) { pt->usec -= 1000; pt->second++; }
+  if ( pt->second >= 60 ) { pt->second -= 60; pt->minute++; }
+  if ( pt->minute > 59 ) { pt->minute -= 60; pt->hour++; }
+}
+
+
+int get_longest_title( dvd_reader_t *dvd )
+{
+/*   dvd_reader_t *dvd; */
+  ifo_handle_t *ifo_zero, **ifo; 
+  pgcit_t *vts_pgcit;
+  vtsi_mat_t *vtsi_mat;
+  vmgi_mat_t *vmgi_mat;
+  video_attr_t *video_attr;
+  pgc_t *pgc;
+  int i, j, titles, vts_ttn, title_set_nr;
+  int max_length = 0, max_track = 0;
+  struct dvd_info dvd_info;
+
+
+  ifo_zero = ifoOpen(dvd, 0);
+  if ( !ifo_zero ) {
+    fprintf( stderr, "Can't open main ifo!\n");
+    return 3;
+  }
+
+  ifo = (ifo_handle_t **)malloc((ifo_zero->vts_atrt->nr_of_vtss + 1) * sizeof(ifo_handle_t *));
+
+  for (i=1; i <= ifo_zero->vts_atrt->nr_of_vtss; i++) {
+    ifo[i] = ifoOpen(dvd, i);
+    if ( !ifo[i] ) {
+      fprintf( stderr, "Can't open ifo %d!\n", i);
+      return 4;
+    }
+  }
+
+
+  titles = ifo_zero->tt_srpt->nr_of_srpts;
+
+  vmgi_mat = ifo_zero->vmgi_mat;
+
+  
+/*   dvd_info.discinfo.device = dvd_device; */
+/*   dvd_info.discinfo.disc_title = has_title ? "unknown" : title; */
+  dvd_info.discinfo.vmg_id =  vmgi_mat->vmg_identifier;
+  dvd_info.discinfo.provider_id = vmgi_mat->provider_identifier;
+  
+  dvd_info.title_count = titles;
+  dvd_info.titles = calloc(titles, sizeof(*dvd_info.titles));
+
+  for (j=0; j < titles; j++)
+    {
+
+/*        GENERAL */
+      if (ifo[ifo_zero->tt_srpt->title[j].title_set_nr]->vtsi_mat) {
+
+	vtsi_mat   = ifo[ifo_zero->tt_srpt->title[j].title_set_nr]->vtsi_mat;
+	vts_pgcit  = ifo[ifo_zero->tt_srpt->title[j].title_set_nr]->vts_pgcit;
+	video_attr = &vtsi_mat->vts_video_attr;
+	vts_ttn = ifo_zero->tt_srpt->title[j].vts_ttn;
+	vmgi_mat = ifo_zero->vmgi_mat;
+	title_set_nr = ifo_zero->tt_srpt->title[j].title_set_nr;
+	pgc = vts_pgcit->pgci_srp[ifo[title_set_nr]->vts_ptt_srpt->title[vts_ttn - 1].ptt[0].pgcn - 1].pgc;
+
+	dvd_info.titles[j].general.length = dvdtime2msec(&pgc->playback_time)/1000.0;
+	converttime(&dvd_info.titles[j].general.playback_time, &pgc->playback_time);
+	dvd_info.titles[j].general.vts_id = vtsi_mat->vts_identifier;
+				
+	if (dvdtime2msec(&pgc->playback_time) > max_length) {
+	  max_length = dvdtime2msec(&pgc->playback_time);
+	  max_track = j+1;
+	}
+      }
+    }
+  return max_track;
+}

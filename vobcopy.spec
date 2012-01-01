@@ -1,6 +1,6 @@
 Name: vobcopy
 Summary: vobcopy copies DVD .vob files to harddisk
-Version: 1.0.2
+Version: 1.2.0
 Release: 1
 License: GPL
 Group: Applications/Multimedia
@@ -48,6 +48,15 @@ rm -fr %{buildroot}
 %doc Changelog COPYING README Release-Notes TODO alternative_programs.txt
 
 %changelog 
+* Mon Jun 8 2009 Robos <robos@muon.de>
+- 1.2.0: - guess what - see changelog :-)
+
+* Wed Oct 8 2008 Robos <robos@muon.de>
+- 1.1.2: - guess what - see changelog :-)
+
+* Sun Mar 3 2008 Robos <robos@muon.de>
+- 1.1.1: -see changelog
+
 * Sun Jan 13 2008 Robos  <robos@muon.de>
 - 1.1.0: -see changelog
 

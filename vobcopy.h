@@ -1,4 +1,12 @@
-#define VERSION "1.1.0"
+#define VERSION "1.2.0"
+
+#if defined( __gettext__ )
+#include <locale.h>
+#include <libintl.h>
+#define _(Text) gettext(Text)
+#else
+#define _(Text) Text
+#endif
 
 #define DVDCSS_VERBOSE 1
 #define BLOCK_COUNT 64
@@ -17,6 +25,9 @@
 #include <dirent.h> /*for readdir*/
 #include <errno.h>
 #include <signal.h>
+#include <time.h>
+#include <sys/ioctl.h>
+#include <termios.h>
 
 #if ( defined( __unix__ ) || defined( unix )) && !defined( USG )
 #include <sys/param.h>
@@ -29,7 +40,7 @@
 
 /* FreeBSD 4.10 and OpenBSD 3.2 has not <stdint.h> */
 /* by some bugreport:*/
-#if !( defined( BSD ) && ( BSD >= 199306 ) ) && !defined( sun )
+#if !( defined( BSD ) && ( BSD >= 199306 ) ) && !defined( sun ) || defined(OpenBSD)
 #include <stdint.h>
 #endif
 
@@ -58,18 +69,20 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 /* //////////  *BSD //////////  */
 #if ( defined( BSD ) && ( BSD >= 199306 ) )
 
-#  if  !defined( __NetBSD__ ) ) || \
+#if !defined( __NetBSD__ ) || \
        ( defined( __NetBSD__) && ( __NetBSD_Version__ < 200040000 ) )
 #include <sys/mount.h>
 #define USE_STATFS 1
+#endif
 
-#  else
-
+#if defined(__FreeBSD__)
+#define USE_STATFS_FOR_DEV
 #include <sys/statvfs.h>
+#else
+#include <sys/statvfs.h>
+#endif
 
-#  endif
-
-#  if defined(NetBSD)
+#  if defined(NetBSD) || defined (OpenBSD)
 
 #include <sys/param.h>
 
@@ -87,14 +100,18 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 #define GETMNTINFO_USES_STATVFS
 
 #    endif
+#endif
 
-#  else
-
+#if defined(__FreeBSD__)
+#define USE_STATFS_FOR_DEV
+#include <sys/statvfs.h>
+#else
 #include <sys/vfs.h>
+#endif
 
-#  endif
-
+# if !defined(OpenBSD)
 #define HAS_LARGEFILE 1
+#endif
 
 typedef enum  { FALSE=0, TRUE=1 }  bool;
 
@@ -129,6 +146,7 @@ typedef int bool;
 /*#include <unistd.h>  
 #include <sys/vfs.h> 
 #include <sys/statvfs.h> */
+#define MAC_LARGEFILE 1
 
 #  endif
 
@@ -147,7 +165,18 @@ typedef int bool;
 
   typedef enum  { FALSE=0, TRUE=1 }  bool;
 
-#else /* GNU/Linux */
+#elif defined( __GLIBC__ )
+
+#include <mntent.h>
+#include <sys/vfs.h>
+#include <sys/statvfs.h>
+
+#define HAVE_GETOPT_LONG 1
+#define HAS_LARGEFILE    1
+
+  typedef enum  { FALSE=0, TRUE=1 }  bool;
+
+#else
 
 /* ////////// For other cases ////////// */
 
@@ -200,6 +229,8 @@ void install_signal_handlers();
 void watchdog_handler( int signal );
 void shutdown_handler( int signal );
 char *safestrncpy(char *dest, const char *src, size_t n);
+int check_progress( void ); /* this can be removed because the one below supersedes it */
+int progressUpdate( int starttime, int cur, int tot, int force );
 
 #if defined(__APPLE__) && defined(__GNUC__)
 int fdatasync( int value );
