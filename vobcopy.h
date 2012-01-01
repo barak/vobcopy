@@ -69,7 +69,7 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 /* //////////  *BSD //////////  */
 #if ( defined( BSD ) && ( BSD >= 199306 ) )
 
-#if !defined( __NetBSD__ ) || \
+#if !defined( __NetBSD__ ) && !defined(__GNU__) || \
        ( defined( __NetBSD__) && ( __NetBSD_Version__ < 200040000 ) )
 #include <sys/mount.h>
 #define USE_STATFS 1
