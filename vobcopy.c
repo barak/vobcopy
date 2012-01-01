@@ -63,20 +63,22 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h> /*for readdir*/
-#if (defined(__unix__) || defined(unix)) && !defined(USG)  || (defined(__APPLE__) && defined(__GNUC__))
+#if (defined(__unix__) || defined(unix)) && !defined(USG)  || (defined(__APPLE__) && defined(__GNUC__)) || defined(__NetBSD__)
 #include <sys/param.h>
 #else
 #include <sys/vfs.h>
 #endif
 #include <dvdread/dvd_reader.h>
 /* for solaris, but is also present in linux */
-#if (defined(BSD) && (BSD >= 199306)) ||(defined(__APPLE__) && defined(__GNUC__))
+#if (defined(BSD) && (BSD >= 199306) && !defined(__NetBSD__)) ||(defined(__APPLE__) && defined(__GNUC__)) || (defined(__NetBSD__) && (__NetBSD_Version__ < 200040000))
 /* I don't know if *BSD have getopt-long... please tell me! */
 //#define HAVE_GETOPT_LONG
 #include <sys/mount.h>
+#define USE_STATFS
 #else
 #if (defined(__linux__))
 #include <sys/statfs.h> 
+#define USE_STATFS
 #define HAVE_GETOPT_LONG
 #else
 #include <sys/statvfs.h> 
@@ -84,16 +86,27 @@
 #endif
 #include <errno.h>
 #define _GNU_SOURCE /*for getopt_long*/
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__APPLE__)
 #include <getopt.h>
 #endif
+/*
 #if defined(__APPLE__) && defined(__GNUC__)
 #define HAVE_GETOPT_LONG
-#include <gnugetopt/getopt.h>
+//#include <gnugetopt/getopt.h>
+#include "/usr/include/getopt.h"
 #endif /* Fink on Darwin */
 
+#if defined(__APPLE__) && defined(__MACH__) /*this should be osx*/
+//#define HAVE_GETOPT_LONG
+#include <unistd.h>
+//#include "/usr/include/getopt.h"
+#endif /* osx */
+
+/* FreeBSD 4.10 and OpenBSD 3.2 has not <stdint.h> */
 //by some bugreport:
+#if !(defined(BSD) && (BSD >= 199306))
 #include <stdint.h>
+#endif
 
 
 #include "dvd.h"
@@ -109,6 +122,7 @@
 #include <dvdread/nav_print.h>
 
 extern int errno;
+  char              name[300];
 
 /* --------------------------------------------------------------------------*/
 /* MAIN */
@@ -117,7 +131,8 @@ extern int errno;
 int main ( int argc, char *argv[] )
 {
   int               streamout, block_count;
-  char              name[300], op;
+//  char              name[300], op;
+  char              op;
   char              dvd_path[255], logfile_name[20],logfile_path[255];
   char              dvd_name[33], vobcopy_call[255], provided_dvd_name[33];
   char              *size_suffix;
@@ -127,7 +142,7 @@ int main ( int argc, char *argv[] )
   int               i = 0,j = 0, l = 0, argc_i = 0, alternate_dir_count = 0;
   int               partcount = 0, get_dvd_name_return, options_char = 0;
   int               dvd_count = 0, verbosity_level = 0, paths_taken = 0, fast_factor = 1;
-  long int          seek_start = 0, stop_before_end = 0, temp_var;
+  long long unsigned int          seek_start = 0, stop_before_end = 0, temp_var;
   off_t             pwd_free, vob_size = 0, disk_vob_size = 0;
   off_t             offset = 0, free_space = 0; 
   off_t             max_filesize_in_blocks = 1048571;  /* for 2^31 / 2048 */
@@ -143,14 +158,6 @@ int main ( int argc, char *argv[] )
   bool              quiet_flag = FALSE;
   struct stat       buf;
 
-  /**
-   * This case here has to be examined for every system vobcopy shall run under
-   */
-#if defined( __linux__ ) || ( defined( BSD ) && ( BSD >= 199306 )) || (defined (__APPLE__) && defined(__GNUC__))
-  struct statfs     buf1;
-#elif !defined(__sun__)
-  struct statvfs    buf1;
-#endif
   dvd_reader_t      *dvd = NULL;
   dvd_file_t        *dvd_file;
   extern char       *optarg;
@@ -293,7 +300,8 @@ int main ( int argc, char *argv[] )
 	  break;
 
 	  case'e': /*size to stop from the end (end-offset) */
-	    if ( !isdigit( (int) *optarg ) )
+//	    if ( !isdigit( (int) *optarg ) )
+	    if ( !isdigit( (int) optarg[0] ) )	     
 	      { 
 		fprintf( stderr, "[Error] The thing behind -e has to be a number! \n" );
 		exit(1); 
@@ -354,7 +362,9 @@ int main ( int argc, char *argv[] )
 
 #if defined( __USE_FILE_OFFSET64 ) || ( defined( BSD ) && ( BSD >= 199306 ) ) || (defined (__APPLE__) && defined(__GNUC__))
 	  case'l': /*large file output*/
-	    max_filesize_in_blocks = 4500000000000000; 
+	   //max_filesize_in_blocks = 4500000000000000;
+//	   max_filesize_in_blocks = 17179869184; //16 GB
+	   max_filesize_in_blocks = 8388608; //16 GB /2048 (block)
 	  /* 2^63 / 2048 (not exactly) */
 	  large_file_flag = TRUE;
 	  break;
@@ -512,7 +522,8 @@ int main ( int argc, char *argv[] )
 	}
     }
 
-
+  fprintf( stderr, "Vobcopy "VERSION" - GPL Copyright (c) 2001 - 2004 robos@muon.de\n" );
+  fprintf( stderr, "[Hint] All lines starting with \"libdvdread:\" are not from vobcopy but from the libdvdread-library\n" );
 if( quiet_flag )
 {
     fprintf( stderr, "[Hint] Quiet mode - All messages will now end up in /tmp/vobcopy.bla\n" );
@@ -825,15 +836,13 @@ if( quiet_flag )
 		{
 		  fprintf( stderr, "[Error] Hmm, weird, the dir video_ts|VIDEO_TS on the dvd couldn't be opened\n");
 		  fprintf( stderr, "[Error] The dir to be opened was: %s\n", video_ts_dir );
-		  fprintf( stderr, "[Hint] Please mail me what your vobcopy call plus -v -v spits out\n");		   
-		  closedir( dir );
+		  fprintf( stderr, "[Hint] Please mail me what your vobcopy call plus -v -v spits out\n");
 		  exit( 1 );
 		}
 	    }
 
 	  directory = readdir( dir ); /* thats the . entry */
 	  directory = readdir( dir ); /* thats the .. entry */
-
 	  /* according to the file type (vob, ifo, bup) the file gets copied */
 	  while( ( directory = readdir( dir ) ) != NULL )
 	    {/*main mirror loop*/
@@ -862,7 +871,7 @@ if( quiet_flag )
                       char tmp[12];
                       tokenpos = onefile;
                       if( strstr( tokenpos, "," ) )
-                          {
+                          {          
                               while( ( tokenpos1 = strstr( tokenpos, "," ) ) ) /*tokens separated by , */
                                   { /*this parses every token without modifying the onefile var */
                                       int len_begin;
@@ -900,9 +909,50 @@ if( quiet_flag )
           }
       else
           {
-              
-              strcat( output_file, d_name );
+	     if( strstr( d_name, ";?" ) )
+	       {
+		  fprintf( stderr, "\n[Hint] file on dvd ends in \";?\" (%s)\n", d_name );
+		  strncat( output_file, d_name, strlen( d_name ) - 2 );
+	       }
+	     else
+	       {
+		  strcat( output_file, d_name );
+	       }
+	     
 	      fprintf(stderr, "writing to %s \n", output_file);
+
+	      if( open( output_file, O_RDONLY ) >= 0 )
+		{
+                    fprintf( stderr,"\n[Error] File '%s' already exists, [o]verwrite or [q]uit? \n", output_file );
+                    /*TODO: add [a]ppend  and seek thought stream till point of append is there */
+		  while ( 1 )
+		    {
+		      op=fgetc( stdin );
+		      fgetc ( stdin ); /* probably need to do this for second 
+					  time it comes around this loop */
+		      if( op == 'o' )
+			{
+			  if( ( streamout = open( output_file, O_WRONLY | O_TRUNC ) ) < 0 )
+			    {
+			      fprintf( stderr, "\n[Error] error opening file %s\n", output_file );
+                              fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+			      exit ( 1 );
+			    }
+			  break;
+			}
+		      else if( op == 'q' )
+			{
+			  DVDCloseFile( dvd_file );
+			  DVDClose( dvd );
+			  exit( 1 );
+			}
+		      else
+			{
+			  fprintf( stderr, "\n[Hint] please choose [o]verwrite or [q]uit the next time ;-)\n" );
+			}
+		    }
+		}
+
 	      strcat( output_file, ".partial" );
 
 	      if( open( output_file, O_RDONLY ) >= 0 )
@@ -1294,88 +1344,23 @@ if( quiet_flag )
 
 /*
 from alt.tasteless.jokes
-The buzzword in today's business world is MARKETING.
- * 
- * 
- * 
- * However, people often ask for a simple explanation of "Marketing." Well,
- * here it is:
- * 
- * 
- * 
- * - You're a woman and you see a handsome guy at a party. You go up to him and
- * say, "I'm fantastic in bed."
- * 
- * 
- * 
- * That's Direct Marketing.
- * 
- * 
- * 
- * - You're at a party with a bunch of friends and see a handsome guy. One of
- * your friends goes up to him and pointing at you says, "She's fantastic in
- * bed,"
- * 
- * 
- * 
- * That's Advertising.
- * 
- * 
- * 
- * - You see a handsome guy at a party. You go up to him and get his telephone
- * number. The next day you call and say, "Hi, I'm fantastic in bed."
- * 
- * 
- * 
- * That's Telemarketing.
- * 
- * 
- * 
- * - You see a guy at a party, you straighten your dress. You walk up to him
- * and pour him a drink. You say, "May I?" and reach up to straighten his tie,
- * brushing your breast lightly against his arm, and then say, "By the way, I'm
- * fantastic in bed."
- * 
- * 
- * 
- * That's Public Relations
- * 
- * 
- * 
- * - You're at a party and see a handsome guy. He walks up to you and says, "I
- * hear you're fantastic in bed."
- * 
- * 
- * 
- * That's Brand Recognition.
- * 
- * 
- * 
- * - You're on your way to a party when you realize that there could be
- * handsome men in all these houses you're passing. So you climb onto the roof
- * of one situated towards the centre and shout at the top of your lungs, "I'm
- * fantastic in bed!".....
- * 
- * That's Junk Mail.
- * 
- * 
- * 
- * - You are at a party, this well-built man walks up to you and gropes your
- * breasts, then grabs your butt.
- * 
- * 
- * 
- * That's Arnold Schwarzenegger!
- * 
- * 
- * 
- * - YOU LIKE IT, BUT 20 YEARS LATER YOUR ATTORNEY DECIDES YOU WERE OFFENDED.
- * 
- * 
- * 
- * That's Politics!!!
- * 
- * 
+A businessman was talking with his barber, when they both noticed a
+ goofy-looking fellow bouncing down the sidewalk.  The barber whispered,
+ "That's Tommy, one of the stupidest kids you'll ever meet. Here, I'll
+ show you."
+ 
+ "Hey Tommy! Come here!" yelled the barber.  Tommy came bouncing over "Hi
+ Mr. Williams!"  The barber pulled out a rusty dime and a shiny quarter and
+ told Tommy he could keep the one of his choice.  Tommy looked long and
+ hard at the dime and quarter and then quickly snapped the dime from the
+ barber's hand.  The barber looked at the businessman and said, "See, I
+ told you."
+ 
+ After his haircut, the businessman caught up with Tommy and asked him why
+ he chose the dime.
+ 
+ Tommy looked at him in the eye and said, "If I take the quarter, the game
+ is over."
  */
 
   /********************* 
@@ -1459,6 +1444,39 @@ The buzzword in today's business world is MARKETING.
 						  max_filesize_in_blocks=2GB*/
 	      space_greater_2gb_flag = TRUE;
 	    }
+
+
+	      if( open( name, O_RDONLY ) >= 0 )
+		{
+                    fprintf( stderr,"\n[Error] File '%s' already exists, [o]verwrite or [q]uit? \n", name );
+                    /*TODO: add [a]ppend  and seek thought stream till point of append is there */
+		  while ( 1 )
+		    {
+		      op=fgetc( stdin );
+		      fgetc ( stdin ); /* probably need to do this for second 
+					  time it comes around this loop */
+		      if( op == 'o' )
+			{
+			  if( ( streamout = open( name, O_WRONLY | O_TRUNC ) ) < 0 )
+			    {
+			      fprintf( stderr, "\n[Error] error opening file %s\n", name );
+                              fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
+			      exit ( 1 );
+			    }
+			  break;
+			}
+		      else if( op == 'q' )
+			{
+			  DVDCloseFile( dvd_file );
+			  DVDClose( dvd );
+			  exit( 1 );
+			}
+		      else
+			{
+			  fprintf( stderr, "\n[Hint] please choose [o]verwrite or [q]uit the next time ;-)\n" );
+			}
+		    }
+		}
           
           strcat( name, ".partial" );
           
@@ -1475,8 +1493,6 @@ The buzzword in today's business world is MARKETING.
 		    exit ( 1 );
 		  }
 		fprintf( stderr, "\n[Error] File '%s' already exists, [o]verwrite, [a]ppend, [q]uit? \n", name );
-		if( verbosity_level > 1 )
-		  fprintf( stderr,"\n[Error] File '%s' already exists, [o]verwrite, [a]ppend, [q]uit? \n", name );
 		while ( 1 )
 		  {
 		    op=fgetc( stdin );
@@ -1702,7 +1718,7 @@ int end_slash_adder( char *path )
 off_t freespace_getter( char *path, int verbosity_level )
 {
 
-#if defined( __linux__ ) || ( defined( BSD ) && ( BSD >= 199306 ) ) || (defined (__APPLE__) && defined(__GNUC__))
+#ifdef USE_STATFS
   struct statfs     buf1;
 #else 
   struct statvfs    buf1; 
@@ -1710,7 +1726,7 @@ off_t freespace_getter( char *path, int verbosity_level )
 /*   ssize_t temp1, temp2; */
   long temp1, temp2;
   off_t sum;
-#if defined( __linux__ ) || ( defined( BSD ) && ( BSD >= 199306 ) ) || (defined (__APPLE__) && defined(__GNUC__))
+#ifdef USE_STATFS
   statfs( path, &buf1 );
   if( verbosity_level >= 1 )
     fprintf( stderr, "Used the linux statfs\n" );
@@ -1739,7 +1755,7 @@ off_t freespace_getter( char *path, int verbosity_level )
 off_t usedspace_getter( char *path, int verbosity_level )
 {
 
-#if defined( __linux__ ) || ( defined( BSD ) && ( BSD >= 199306 ) ) || (defined (__APPLE__) && defined(__GNUC__))
+#ifdef USE_STATFS
   struct statfs     buf2;
 #else 
   struct statvfs    buf2; 
@@ -1747,7 +1763,7 @@ off_t usedspace_getter( char *path, int verbosity_level )
 /*   ssize_t temp1, temp2; */
   long temp1, temp2;
   off_t sum;
-#if defined( __linux__ ) || ( defined( BSD ) && ( BSD >= 199306 ) ) || (defined (__APPLE__) && defined(__GNUC__))
+#ifdef USE_STATFS
   statfs( path, &buf2 );
   if( verbosity_level >= 1 )
     fprintf( stderr, "Used the linux statfs\n" );
@@ -1851,6 +1867,8 @@ void re_name( char *output_file ){
                     fprintf( stderr, "[Error] Could not remove old filename: %s \n", output_file );
                     fprintf( stderr, "[Hint] This: %s is a hardlink to %s. Dunno what to do... \n", new_output_file, output_file );
                 }
+            else
+                fprintf( stderr, "[Info] Removed \".partial\" from %s since it got copied in full \n\n\n", output_file );
         }
     else
         {
@@ -1865,8 +1883,13 @@ void re_name( char *output_file ){
                 {
                     /*this here is a stdio function which simply overwrites an existing file. Bad but I don't want to include another test...*/
                     rename( output_file, new_output_file );
+                fprintf( stderr, "[Info] Removed \".partial\" from %s since it got copied in full \n\n\n", output_file );
                 }
         }
+    /* test, test... */
+    if( strstr( name, ".partial" ) )
+       name[ strlen( name ) - 8 ] = 0;
+
 }
 
 

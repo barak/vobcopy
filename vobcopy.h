@@ -1,4 +1,4 @@
-#define VERSION "0.5.13"
+#define VERSION "0.5.14"
 
 #define DVDCSS_VERBOSE 1
 #define BLOCK_COUNT 64

@@ -23,9 +23,18 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <sys/stat.h>
-#if (defined(__unix__) || defined(unix)) && !defined(USG) || (defined(__APPLE__) && defined(__GNUC__))
+#if ( defined(__unix__) || defined(unix) ) && !defined(USG) && !defined(__linux__) || (defined(__APPLE__) && defined(__GNUC__)) || defined(__NetBSD__)
 #include <sys/param.h>  
+#define USE_GETMNTINFO
+#if !defined(__NetBSD__) || (__NetBSD_Version__ < 200040000)
 #include <sys/mount.h>
+#define USE_STATFS_FOR_DEV
+#define GETMNTINFO_USES_STATFS
+#else
+#include <sys/statvfs.h>
+#define USE_STATVFS_FOR_DEV
+#define GETMNTINFO_USES_STATVFS
+#endif
 #endif
 #include "vobcopy.h"
 #if (defined(__sun__))
@@ -61,35 +70,46 @@ int get_dvd_name(const char *device, char *title)
   int  filehandle = 0;
   int  i = 0, last = 0;
   int  bytes_read;
-  
+
+  char tmp_buf[2048];
+
+       
   /* open the device */
-  if ( !(filehandle = open(device, O_RDONLY)) )
+  if ( !(filehandle = open(device, O_RDONLY, 0)) )       
   {
       /* open failed */
       fprintf( stderr, "[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n");
       fprintf( stderr, "[Error] opening of the device failed\n");
+      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
       return -1;
   }
   
   /* seek to title of first track, which is at (track_no * 32768) + 40 */
-  if ( 32808 != lseek( filehandle, 32808, SEEK_SET ) ) 
+//  if ( 32808 != lseek( filehandle, 32808, SEEK_SET ) ) 
+  if ( 32768 != lseek( filehandle, 32768, SEEK_SET ) )      
   {
       /* seek failed */
       close( filehandle );
       fprintf( stderr, "[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n");
       fprintf(stderr, "[Error] couldn't seek into the drive\n");
+      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
       return -1;
   }
   
   /* read title */
-  if ( (bytes_read = read(filehandle, title, 32)) != 32) 
+//  if ( (bytes_read = read(filehandle, title, 32)) != 32) 
+  if ( (bytes_read = read(filehandle, tmp_buf, 2048)) != 2048 )      
   {
       close(filehandle);
       fprintf( stderr, "[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n" );
-      fprintf(stderr, "[Error] only read %d bytes instead of 32\n", bytes_read);
+      fprintf(stderr, "[Error] only read %d bytes instead of 2048\n", bytes_read);
+      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
       return -1;
   }
   
+  strncpy( title, &tmp_buf[40], 32 ); 
+//   memcpy(title, help + 40, 32);
+   
   /* make sure string is terminated */
   title[32] = '\0';
   
@@ -138,8 +158,11 @@ int get_device( char *path, char *device )
   char  *k;
   bool  mounted = FALSE;
   int mntcheck;
-#if ( defined( BSD ) && ( BSD >= 199306 ) ) || ( defined( __APPLE__ ) && defined( __GNUC__ ) )
+#ifdef USE_STATFS_FOR_DEV
   struct statfs buf;
+#endif
+#ifdef USE_STATVFS_FOR_DEV
+  struct statvfs buf;
 #endif
 
 
@@ -166,13 +189,25 @@ int get_device( char *path, char *device )
     /*
      *look through /etc/mtab to see if it's actually mounted
      */
-#if ( defined( BSD ) && ( BSD >= 199306 ) )  || ( defined( __APPLE__ ) && defined( __GNUC__ ) )
+#if defined(USE_STATFS_FOR_DEV) || defined(USE_STATVFS_FOR_DEV)
+#ifdef USE_STATFS_FOR_DEV
     if( !statfs( path, &buf ) )
+#else
+    if( !statvfs( path, &buf ) )
+#endif
       {
        if( !strcmp( path, buf.f_mntonname ) )
          {
            mounted = TRUE;
+#if defined(__FreeBSD__) && (__FreeBSD_Version > 500000)
+          strcpy(device, buf.f_mntfromname);
+#else
+	   strcpy(device, "/dev/r");
+	   strcat(device, buf.f_mntfromname + 5);
+#endif
+	   return mounted;
          }
+         strcpy(device, buf.f_mntfromname);
       }
     else
       {
@@ -252,7 +287,7 @@ this is the code for the other-OSs, not solaris*/
 	while ((lmount_entry = getmntent(tmp_streamin))){
 	    if (strcmp(lmount_entry->mnt_dir, path) == 0){
 		/* Found the mount point */
-		printf ("Device %s mount on %s\n", lmount_entry->mnt_dir,
+		fprintf ( stderr, "Device %s mount on %s\n", lmount_entry->mnt_dir,
 			lmount_entry->mnt_fsname);
 		strcpy(device, lmount_entry->mnt_fsname);
 		mounted = TRUE;
@@ -366,9 +401,13 @@ this is the code for the other-OSs, not solaris*/
 /* returns <0 if error                            */
 int get_device_oyo( char *path, char *device )
 { /*oyo*/
-#if (defined(BSD) && (BSD >= 199306)) || (defined(__APPLE__) && defined(__GNUC__))
+#ifdef USE_GETMNTINFO
   int i, n, dvd_count = 0;
+#ifdef GETMNTINFO_USES_STATFS
   struct statfs *mntbuf;
+#else
+  struct statvfs *mntbuf;
+#endif
 
   if( ( n = getmntinfo( &mntbuf, MNT_WAIT ) ) > 0 )
     {
@@ -378,7 +417,12 @@ int get_device_oyo( char *path, char *device )
             {
               dvd_count++;
               strcpy( path, mntbuf[i].f_mntonname );
-              strcpy( device, mntbuf[i].f_mntfromname );
+#if defined(__FreeBSD__) && (__FreeBSD_Version > 500000)
+             strcat(device, mntbuf[i].f_mntfromname);
+#else
+	      strcpy(device, "/dev/r");
+	      strcat(device, mntbuf[i].f_mntfromname + 5);
+#endif
             }
         }
       if(dvd_count == 0)

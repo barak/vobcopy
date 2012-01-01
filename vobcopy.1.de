@@ -2,7 +2,7 @@
 .\" groff -man -Tascii vobcopy.1
 .\" verarbeiten
 .\"
-.TH VOBCOPY 1 "Jan 2004" Linux "User Manuals"
+.TH VOBCOPY 1 "Nov 2004" Linux "User Manuals"
 .SH NAME
 vobcopy \- kopiert (rippt) Dateien von einer (Video-) DVD auf die Festplatte
 .SH SYNTAX
@@ -39,8 +39,7 @@ in Datei(en) mit dem Namen der DVD. Es prüft auf ausreichend freien
 Festplattenplatz auf der Ziel-Partition und vergleicht die kopierte Größe
 mit der Größe auf der DVD (für den Fall, daß die Größe falsch ist behält die 
 Datei die Endung .partial). Es sollte auf jeden Fall auf Linux
-arbeiten aber auch auf *bsd und Solaris funktionieren. Mac OS X evtl.
-auch.
+arbeiten aber auch auf *bsd und Solaris funktionieren. Mac OS X auch.
 .BR CSS-Angelegenheiten:
 Aufgrund Legalitäten enthält vobcopy keinen Code zum Entschlüsseln von
 CSS "erweiterten" DVDs. CSS wird von der Filmindustrie als "Kopierschutz"

@@ -12,5 +12,7 @@ Description: A tool to copy DvD VOBs to hard disk
  vobcopy copies DVD .vob files to harddisk and merges them into file(s) 
  with the name extracted from the DVD. It checks for enough free space 
  on the destination drive and compares the copied size to the size on DVD
- (in case something went wrong during the copying). You can also mirror the
- dvd movie content and copy single files you specify.
+ (in case something went wrong during the copying). 
+ .
+  You can also mirror the dvd movie content and copy single
+  files you specify.
