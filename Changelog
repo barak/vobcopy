@@ -1,6 +1,36 @@
 Changelog for vobcopy:
 For more infos on the options see "man vobcopy"
+1.0.2:  I fixed a segfault in the log file writing routine. Otherwise
+	small fixes and experimental "step over the bad part" code.
 
+1.0.1:	I may have gcc-3.4, not the whole world :) Fix in Makefile.
+	choose the right dvd device from fstab (Jens Seidel)
+	read only as many blocks as there are actually left (Ingo Saitz)
+	partial fix for detection of full nfs files (Robert Story)
+	
+1.0.0:  Yay! 1.0.0! Only some minor cleanup and some minor bugfixes. Still
+	not perfect but good enough to enter "maintainance mode". vobcopy2 is
+	being worked on!
+
+0.9.0-pre1:  Lordy told me that checking return values from library calls is a
+	good idea - and I have to confirm :)
+	the configure.sh script now also looks if this is an ia64/AMD64
+	system and use the lib64 libraries then - thanks to Steven A. Falco
+	-D_FORTIFY_SOURCE=2 is strange, 3 bytes won't fit into a char[4]
+	then. Well, they fit into char[8]... Some people wrote in with
+	this, gonna name Peter Czanik because he had the fix :)
+	Fergal Daly taught me about the finer parts of sprintf, I took some
+	of his advice...
+	fixed double space detection on MacOSX, hopefully... thanks Bob Maguire
+
+0.5.16: added some code to make -n and -m mutually exclusive
+	the size-checking code with -m was br0ken. Fixed hopefully
+	typo in the man-page
+
+0.5.15: with -m, if files exist you now have the option to [s]kip the files
+	already present - by patch from Guy Naor
+	some dvd's show files ending in ";?", they should now work.
+	
 0.5.14: some more cleanup. Another small fix for different freebsd versions. Nothing major.
 
 0.5.14-rc1:

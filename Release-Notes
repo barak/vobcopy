@@ -1,3 +1,34 @@
+Release-Notes for 1.0.2 (Su 24. Jun 02:19:04 CEST 2007):
+Small fixes all in all: fix segfault with log file writing routine and
+some other small fixes. Also a small experimental patch which steps
+over broken parts on a dvd (is a copy protection system). Does not
+work properly yet...
+
+Release-Notes for 1.0.1 (Mo Nov 13 22:56:00 CET 2006):
+Some small fixes. Nothing major. Not everything is up to par but I think
+that that bug I'm (slowly) fixing is rare enough that people won't notice
+and I think it's better to get it out the door, it's been lying on my hdd
+for ages...
+
+Release-Notes for 1.0.0 (So  2 Apr 18:49:46 CEST 2006):
+This is it! Vobcopy is "ready" in the sense that it can be in maintainance
+mode from now on. I'm working on vobcopy2 (sort of) and that will be
+massively re-written. So, until then, enjoy this one here!
+
+Release-Notes for 0.9.0-pre1 (Fr Feb 24 21:15:36 CET 2006):
+Backup Release
+
+
+Release-Notes for 0.5.16 (Wed Dec  7 23:32:50 CET 2005):
+Rather minor stuff: -m and -n are mutually exclusive -now they are also in
+the code. The size-checking code in the -m part was broken and is hopefully
+fixed now. And a typo in the man-page.
+
+Release-Notes for 0.5.15 (Fr Jul 29 04:00:01 CEST 2005):
+By a patch from Guy Naor there is now the option to skip already copied
+files (from a previous run). Strange dvd's with files ending in ";?" should
+now also work.
+
 Release-Notes for 0.5.14 (Thu Nov 18 06:08:53 CET 2004):
 
 There have been some small cleanups that clear up a little what is being 

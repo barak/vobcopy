@@ -2,7 +2,7 @@
 #This is the makefile for vobcopy, mainly written by rosenauer. These things 
 #below here are variable definitions. They get substituted in the (CC) and 
 #stuff places.
-CC     ?= gcc
+CC     = gcc
 #PREFIX += /usr/local
 #BINDIR = ${PREFIX}/bin
 #MANDIR = ${PREFIX}/man

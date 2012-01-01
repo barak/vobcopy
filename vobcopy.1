@@ -1,7 +1,7 @@
 .\" Process this file with
 .\" groff -man -Tascii vobcopy.1
 .\"
-.TH VOBCOPY 1 "Nov 2004" Linux "User Manuals"
+.TH VOBCOPY 1 "Dez 2005" Linux "User Manuals"
 .SH NAME
 vobcopy \- copy (rip) files from a dvd to the harddisk
 .SH SYNOPSIS
@@ -72,7 +72,7 @@ write data into one file (needs large file support (LFS))
 .IP "-m, --mirror"
 mirrors the whole dvd to harddisk. It will create a directory named after the dvd and copy the ifo, bup and vob files there. The title-vobs are decrypted during this. 
 .IP "-n, --title-number TITLE-NUMBER"
-specify which title vobcopy shall copy (default is 1). On the dvd, vts_01_x.vob specify the first title (mostly main film).
+specify which title vobcopy shall copy (default is title with most chapters). On the dvd, vts_01_x.vob specify the first title (mostly this is the main feature).
 .IP "-o, --output-dir OUTPUT-DIR"
 specify the output-directory of the data. "stdout" or "-" redirect to stdout. Useful for pipeing it to /dev/null ;-) If you forget to pipe it to some place, your terminal will get garbled, so remember that typing "reset" and then Enter will rescue you.
 .IP "-q, --quiet"
