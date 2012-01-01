@@ -1,3 +1,18 @@
+vobcopy (1.2.0-1) unstable; urgency=low
+
+  * New upstream release (closes: #627915)
+    - includes open O_CREAT permission bits patch (closes: #511978)
+    - now checks for read failure, in loop (closes: #471047)
+    - includes GNU/kFreeBSD __GLIBC__ patch (closes: #465966)
+  * Update debian packaging
+  * Quilt patches
+    - Hurd FTBS patch (closes: #641283),
+      thanks to Svante Signell <svante.signell@telia.com>
+    - Silence scary incorrect pointer type gcc warning
+    - Man page slash dash hash mash, for the lintian
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Sun, 01 Jan 2012 19:26:22 +0100
+
 vobcopy (1.1.0-1) unstable; urgency=low
 
   * New upstream release
