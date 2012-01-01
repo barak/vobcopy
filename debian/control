@@ -12,11 +12,11 @@ Vcs-Browser: http://git.debian.org/?p=collab-maint/vobcopy.git
 Package: vobcopy
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: A tool to copy DVD VOBs to hard disk
- vobcopy copies DVD .vob files to harddisk and merges them into file(s)
- with the name extracted from the DVD. It checks for enough free space
+Description: Tool to copy DVD VOBs to hard disk
+ Copies DVD .vob files to harddisk and merges them into file(s)
+ with the name extracted from the DVD. Checks for sufficient free space
  on the destination drive and compares the copied size to the size on DVD
- (in case something went wrong during the copying).
+ in case something went wrong.
  .
- You can also mirror the DVD movie content and copy single
- files you specify.
+ Can also mirror the DVD movie content and copy single
+ specified files.
