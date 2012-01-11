@@ -1,6 +1,6 @@
 From: "Barak A. Pearlmutter" <barak+git@cs.nuim.ie>
 Date: Sun, 1 Jan 2012 19:13:15 +0100
-Subject: [PATCH] man dash hyphen slash de
+Subject: man dash hyphen slash de
 
 silence lintian warning about hyphens vs dashes in German man page
 ---
@@ -8,7 +8,7 @@ silence lintian warning about hyphens vs dashes in German man page
  1 files changed, 42 insertions(+), 42 deletions(-)
 
 diff --git a/vobcopy.1.de b/vobcopy.1.de
-index d47c387..1e2d0d4 100644
+index d47c387..794406d 100644
 --- a/vobcopy.1.de
 +++ b/vobcopy.1.de
 @@ -6,31 +6,31 @@
@@ -66,12 +66,12 @@ index d47c387..1e2d0d4 100644
  der Adresse kann mit den Abkürzungen b für 512-Byte-Blöcke, k für Kilobytes, 
  m für Mega- und g für Gigabytes angegeben werden. 
 -Beispiel: vobcopy -b 500m beginnt bei 500MB nach dem Anfang der Datei 
-+Beispiel: vobcopy \-b 500m beginnt bei 500MB nach dem Anfang der Datei 
++Beispiel: vobcopy \-b 500m beginnt bei 500MB nach dem Anfang der Datei
  bis zum Ende zu kopieren.
 -.IP "-e, --end GRÖSSE[bkmg]"
 -ähnlich wie -b gibt diese Option eine Größe vor dem Ende der Datei an, 
 +.IP "\-e, \-\-end GRÖSSE[bkmg]"
-+ähnlich wie \-b gibt diese Option eine Größe vor dem Ende der Datei an, 
++ähnlich wie \-b gibt diese Option eine Größe vor dem Ende der Datei an,
  an der der Kopiervorgang stoppt.
 -.IP "-f, --force"
 +.IP "\-f, \-\-force"
@@ -106,7 +106,7 @@ index d47c387..1e2d0d4 100644
 -.IP "-o, --output-dir AUSGABE-VERZEICHNIS"
 -gibt das Ausgabeverzeichnis für die Kopien an. Der Wert "stdout" oder "-" 
 +.IP "\-o, \-\-output\-dir AUSGABE-VERZEICHNIS"
-+gibt das Ausgabeverzeichnis für die Kopien an. Der Wert "stdout" oder "\-" 
++gibt das Ausgabeverzeichnis für die Kopien an. Der Wert "stdout" oder "\-"
  gibt auf der Standardausgabe aus. Nützlich für die Ausgabe nach /dev/null ;-) 
  Tipp: Wenn du vergisst umzuleiten, wird dein Terminal überflutet werden, 
  in diesem Fall tippe "reset" und Enter, um das Terminal zu retten.
@@ -126,7 +126,7 @@ index d47c387..1e2d0d4 100644
 +.IP "\-t, \-\-name NAME"
  Damit kann man der Ausgabedatei einen eigenen Namen geben, wenn einem der von 
 -der DVD nicht gefällt. -t hallo erzeugt also ein hallo.vob. (stdout oder "-" sind nun 
-+der DVD nicht gefällt. \-t hallo erzeugt also ein hallo.vob. (stdout oder "\-" sind nun 
++der DVD nicht gefällt. \-t hallo erzeugt also ein hallo.vob. (stdout oder "\-" sind nun
  nicht mehr unterstützt) Wenn du Namen mit Leerzeichen wie "Huh ich mag den Film" 
  angeben willst, schließe den Namen in Anführungszeichen ein.
 -.IP "-v, --verbose"
@@ -152,12 +152,12 @@ index d47c387..1e2d0d4 100644
 +.IP "\-1, \-\-1st_alt_output_dir AUXILIARY-OUTPUT-DIR1"
  Wenn die DVD einfach nicht in das erste Ausgabeverzeichnis passen will 
 -(mit -o angegeben), geht die Ausgabe in das hier angegebene Verzeichnis 
-+(mit \-o angegeben), geht die Ausgabe in das hier angegebene Verzeichnis 
++(mit \-o angegeben), geht die Ausgabe in das hier angegebene Verzeichnis
  (und die folgenden 2ten, 3ten und 4ten) weiter -> die Dateien werden geteilt, 
  je nachdem wie viel Platz in jedem der Verzeichnisse noch blieb.
 -Gib den Pfad _direkt_ hinter "-1" an, _kein_ Leerzeichen dazwischen lassen, 
 -wenn Probleme auftreten, möglicherweise ist das auch bei -o nötig...)
-+Gib den Pfad _direkt_ hinter "\-1" an, _kein_ Leerzeichen dazwischen lassen, 
++Gib den Pfad _direkt_ hinter "\-1" an, _kein_ Leerzeichen dazwischen lassen,
 +wenn Probleme auftreten, möglicherweise ist das auch bei \-o nötig...)
  .SH FEHLER
  Vobcopy ist weiterhin unter Entwicklung, also können noch einige Neuerungen 

@@ -1,6 +1,6 @@
 From: "Barak A. Pearlmutter" <barak+git@cs.nuim.ie>
 Date: Sun, 1 Jan 2012 19:11:10 +0100
-Subject: [PATCH] man dash hyphen slash en
+Subject: man dash hyphen slash en
 
 silence lintian warning about hyphens vs dashes in English man page
 ---

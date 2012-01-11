@@ -1,6 +1,6 @@
 From: "Barak A. Pearlmutter" <bap@debian.org>
 Date: Sun, 1 Jan 2012 18:20:23 +0100
-Subject: [PATCH] pointer type
+Subject: pointer type
 
 quash gcc pointer type warning,
 passing **dvd_reader_t to routine that expects *dvd_reader_t

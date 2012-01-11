@@ -1,6 +1,6 @@
 From: Svante Signell <svante.signell@telia.com>
 Date: Sun, 1 Jan 2012 18:42:05 +0100
-Subject: [PATCH] hurd fix
+Subject: hurd fix
 
 Solves failure to build from sources on Debian GNU/Hurd,
 see http://bugs.debian.org/641283 for details.
