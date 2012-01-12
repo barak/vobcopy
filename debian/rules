@@ -1,10 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@ --parallel
-
-override_dh_auto_configure:
-	./configure.sh --prefix=/usr --mandir='$${PREFIX}/share/man'
+	dh $@ --with autoreconf --parallel
 
 override_dh_install:
 	dh_install

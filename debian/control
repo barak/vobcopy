@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Stephen Birch <sgbirch@imsmail.org>
 Uploaders: Barak A. Pearlmutter <bap@debian.org>
-Build-Depends: debhelper (>= 8), libdvdread-dev
+Build-Depends: debhelper (>= 8), dh-autoreconf, libdvdread-dev
 Standards-Version: 3.9.2
 Homepage: http://vobcopy.org
 Vcs-Git: git://git.debian.org/git/collab-maint/vobcopy.git
