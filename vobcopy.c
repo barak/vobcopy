@@ -488,7 +488,7 @@ and potentially fatal."  - Thanks Leigh!*/
           i = 0;
           break;
         case'V': /*version number output */
-          printf( "Vobcopy "VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n" );
+          printf( "Vobcopy "PACKAGE_VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n" );
           exit( 0 );
           break;
 
@@ -513,7 +513,7 @@ and potentially fatal."  - Thanks Leigh!*/
         }
     }
 
-  fprintf( stderr, _("Vobcopy "VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n") );
+  fprintf( stderr, _("Vobcopy "PACKAGE_VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n") );
   fprintf( stderr, _("[Hint] All lines starting with \"libdvdread:\" are not from vobcopy but from the libdvdread-library\n") );
 
   /*get the current working directory*/
@@ -600,8 +600,8 @@ and potentially fatal."  - Thanks Leigh!*/
 
       if( strlen( logfile_path ) < 3 )
 	strcpy( logfile_path, pwd );
-      strcpy( logfile_name, "vobcopy_" );
-      strcat( logfile_name, VERSION );
+      strcpy( logfile_name, PACKAGE_TARNAME"_" );
+      strcat( logfile_name, PACKAGE_VERSION );
       strcat( logfile_name, ".log" );
       strcat( logfile_path, logfile_name );
       if ( ( temp = open ( logfile_path , O_RDWR | O_CREAT | O_EXCL, 0666 ) ) == -1 )
@@ -2072,7 +2072,7 @@ int make_output_path( char *pwd,char *name,int get_dvd_name_return, char *dvd_na
 
 void usage( char *program_name )
 {
-  fprintf( stderr, _("Vobcopy "VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n") );
+  fprintf( stderr, _("Vobcopy "PACKAGE_VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n") );
   fprintf( stderr, _("\nUsage: %s \n"), program_name );
   fprintf( stderr, _("if you want the main feature (title with most chapters) you don't need _any_ options!\n") );
   fprintf( stderr, _("Options:\n") );

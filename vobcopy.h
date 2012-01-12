@@ -1,5 +1,3 @@
-#define VERSION "1.2.0"
-
 #if defined( __gettext__ )
 #include <locale.h>
 #include <libintl.h>
