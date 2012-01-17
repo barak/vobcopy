@@ -1,3 +1,9 @@
+vobcopy (1.2.0-2) unstable; urgency=low
+
+  * Switch to autotools build system (patch)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Tue, 17 Jan 2012 11:54:35 +0000
+
 vobcopy (1.2.0-1) unstable; urgency=low
 
   * New upstream release (closes: #627915)
