@@ -1,3 +1,15 @@
 *.o
+/.deps/
 /.pc/
+/aclocal.m4
+/autom4te.cache/
+/config.log
+/config.status
+/configure
+/depcomp
+/install-sh
+/intl/
+/missing
 /vobcopy
+Makefile
+Makefile.in
