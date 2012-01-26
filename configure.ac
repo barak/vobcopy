@@ -22,7 +22,7 @@ AC_PROG_LN_S
 AC_CHECK_LIB([dvdread], [DVDOpen])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h libintl.h locale.h mntent.h stdint.h stdlib.h string.h sys/ioctl.h sys/mount.h sys/param.h sys/statfs.h sys/statvfs.h sys/vfs.h termios.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h libintl.h locale.h mntent.h stdint.h stdlib.h string.h sys/ioctl.h sys/mount.h sys/param.h sys/statfs.h sys/statvfs.h sys/vfs.h termios.h unistd.h getopt.h sys/mnttab.h assert.h dirent.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -35,7 +35,7 @@ AC_FUNC_FSEEKO
 AC_SYS_LARGEFILE
 AC_FUNC_GETMNTENT
 AC_FUNC_MALLOC
-AC_CHECK_FUNCS([alarm fdatasync getcwd getmntent getmntinfo memset mkdir setlocale strcasecmp strerror strpbrk strstr])
+AC_CHECK_FUNCS([alarm fdatasync getcwd getmntent getmntinfo memset mkdir setlocale strcasecmp strerror strpbrk strstr getopt_long])
 
 # trailer
 AC_CONFIG_FILES([Makefile po/Makefile.in])

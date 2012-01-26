@@ -2296,13 +2296,6 @@ char *safestrncpy(char *dest, const char *src, size_t n)
   return strncpy(dest, src, n-1);
 }
 
-#if defined(__APPLE__) && defined(__GNUC__) || defined(OpenBSD)
-int fdatasync( int value )
-{
-  return 0;
-}
-#endif
-
 
 /*
 * Check the time determine whether a new progress line should be output (once per second)
