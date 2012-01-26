@@ -3,3 +3,5 @@
 0003-man-dash-hyphen-slash-en.patch
 0004-man-dash-hyphen-slash-de.patch
 0005-autotools.patch
+0006-autoheader.patch
+0007-auto-gettext.patch
