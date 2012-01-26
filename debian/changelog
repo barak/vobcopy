@@ -1,3 +1,9 @@
+vobcopy (1.2.0-3) unstable; urgency=low
+
+  * Further immerse package in the ocean of autotools cruft (patches)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 26 Jan 2012 12:27:41 +0000
+
 vobcopy (1.2.0-2) unstable; urgency=low
 
   * Switch to autotools build system (patch)
