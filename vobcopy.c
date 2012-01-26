@@ -322,13 +322,11 @@ and potentially fatal."  - Thanks Leigh!*/
           provided_input_dir_flag = TRUE;
           break;
 
-#if defined( HAS_LARGEFILE ) || defined( MAC_LARGEFILE )
         case'l': /*large file output*/
           max_filesize_in_blocks = 8388608; /*16 GB /2048 (block) */
           /* 2^63 / 2048 (not exactly) */
           large_file_flag = TRUE;
           break;
-#endif
 
         case'm':/*mirrors the dvd to harddrive completly*/
           mirror_flag = TRUE;
@@ -1292,7 +1290,9 @@ next: /*for the goto - ugly, I know... */
 
                           culm_single_vob_size += buf.st_size;
                           if( verbosity_level > 1 )
-                            fprintf( stderr, _("[Info] Vob %d %d (%s) has a size of %lli\n"), title_nr, subvob, input_file, buf.st_size );
+                            fprintf( stderr,
+				     _("[Info] Vob %d %d (%s) has a size of %llu\n"),
+				     title_nr, subvob, input_file, (long long unsigned)buf.st_size );
                         }
 
                       start = ( culm_single_vob_size / DVD_VIDEO_LB_LEN ); 
@@ -1692,11 +1692,7 @@ The man replies, "I was talking to the sheep."
 
           strcat( name, ".partial" );
 
-#if defined( HAS_LARGEFILE )
-          if( open( name, O_RDONLY|O_LARGEFILE ) >= 0 )
-#else
           if( open( name, O_RDONLY ) >= 0 )
-#endif
             {
               if ( get_free_space( name, verbosity_level ) < 2097152 )
                 /* it might come here when the platter is full after a -f */
@@ -1719,11 +1715,7 @@ The man replies, "I was talking to the sheep."
 		    }
                   if( op == 'o' || op == 'x' )
                     {
-#if defined( HAS_LARGEFILE )
-                      if( ( streamout = open( name, O_WRONLY | O_TRUNC | O_LARGEFILE ) ) < 0 )
-#else
                       if( ( streamout = open( name, O_WRONLY | O_TRUNC ) ) < 0 )
-#endif
                         {
                           fprintf( stderr, _("\n[Error] Error opening file %s\n"), name );
                           exit ( 1 );
@@ -1739,11 +1731,7 @@ The man replies, "I was talking to the sheep."
                     }
                   else if( op == 'a' )
                     {
-#if defined( HAS_LARGEFILE )
-                      if( ( streamout = open( name, O_WRONLY | O_APPEND | O_LARGEFILE ) ) < 0 )
-#else
                       if( ( streamout = open( name, O_WRONLY | O_APPEND ) ) < 0 )
-#endif
                         {
                           fprintf( stderr, _("\n[Error] Error opening file %s\n"), name );
                           exit ( 1 );
@@ -1769,11 +1757,7 @@ The man replies, "I was talking to the sheep."
           else
             {
               /*assign the stream */
-#if defined( HAS_LARGEFILE )
-              if( ( streamout = open( name, O_WRONLY | O_CREAT | O_LARGEFILE, 0644 ) ) < 0 )
-#else
               if( ( streamout = open( name, O_WRONLY | O_CREAT, 0644 ) ) < 0 )
-#endif
                 {
                   fprintf( stderr, _("\n[Error] Error opening file %s\n"), name );
                   exit ( 1 );
@@ -1825,7 +1809,10 @@ The man replies, "I was talking to the sheep."
 	    }
 	  
 	  if( verbosity_level >= 1 && skipped_blocks > 0 )
-	    fprintf( stderr, _("[Warn] Had to skip (couldn't read) %d blocks (before block %d)! \n "), skipped_blocks, offset );
+	    fprintf( stderr,
+		     _("[Warn] Had to skip (couldn't read) %d blocks (before block %llu)! \n "),
+		     skipped_blocks,
+		     (long long unsigned)offset );
 
 /*TODO: this skipping here writes too few bytes to the output */
 
@@ -2096,10 +2083,7 @@ void usage( char *program_name )
   fprintf( stderr, _("[-w <watchdog-minutes>]\n" ) );
   fprintf( stderr, _("[-x (overwrite all)]\n" ) );
   fprintf( stderr, _("[-F <fast-factor:1..64>]\n") );
-
-#if defined( HAS_LARGEFILE ) || defined ( MAC_LARGEFILE )
   fprintf( stderr, _("[-l (large-file support for files > 2GB)] \n") );
-#endif
   exit( 1 );
 }
 

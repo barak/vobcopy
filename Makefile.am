@@ -2,7 +2,7 @@ bin_PROGRAMS = vobcopy
 
 vobcopy_SOURCES = dvd.c vobcopy.c dvd.h vobcopy.h
 
-AM_CPPFLAGS = -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE
+AM_CPPFLAGS = -Wall
 
 dist_man_MANS = vobcopy.1
 man1dedir = $(mandir)/de/man1

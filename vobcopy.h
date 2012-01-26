@@ -11,23 +11,52 @@
 #define MAX_STRING  81
 #define MAX_DIFFER  2000
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <features.h>
 #include <stdio.h>
+
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
+
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
+
 #include <string.h>
 #include <ctype.h>
+
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
+
 #include <fcntl.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <dirent.h> /*for readdir*/
 #include <errno.h>
 #include <signal.h>
 #include <time.h>
-#include <sys/ioctl.h>
-#include <termios.h>
 
-#if ( defined( __unix__ ) || defined( unix )) && !defined( USG )
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#endif
+
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
 
@@ -36,10 +65,32 @@
 #include <getopt.h>
 #endif
 
-/* FreeBSD 4.10 and OpenBSD 3.2 has not <stdint.h> */
-/* by some bugreport:*/
-#if !( defined( BSD ) && ( BSD >= 199306 ) ) && !defined( sun ) || defined(OpenBSD)
+#ifdef HAVE_STDINT_H
 #include <stdint.h>
+#endif
+
+#ifdef HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+
+#ifdef HAVE_SYS_STATVFS_H
+#include <sys/statvfs.h>
+#endif
+
+#ifdef HAVE_SYS_MOUNT_H
+#include <sys/mount.h>
+#endif
+
+#ifdef HAVE_GETMNTINFO
+#define USE_GETMNTINFO
+#endif
+
+#ifndef HAVE_STDBOOL_H
+typedef enum  { FALSE=0, TRUE=1 }  bool;
+#else
+#include <stdbool.h>
+#define TRUE true
+#define FALSE false
 #endif
 
 /* I'm trying to have all supported OSes definitions clearly separated here */
@@ -48,21 +99,9 @@
 /* ////////// Solaris ////////// */
 #if defined( __sun )
 
-#include <stdlib.h>
 #include <sys/mnttab.h>
-#include <sys/statvfs.h>
-
-typedef enum  { FALSE=0, TRUE=1 }  bool;
-
-#  if ( _FILE_OFFSET_BITS == 64 )
-#define HAS_LARGEFILE 1
-#  endif
-
-#define off_t off64_t      
 
 #else /* Solaris */
-
-/*#define off_t __off64_t  THIS HERE BREAKS OSX 10.5 */
 
 /* //////////  *BSD //////////  */
 #if ( defined( BSD ) && ( BSD >= 199306 ) )
@@ -75,16 +114,17 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 
 #if defined(__FreeBSD__)
 #define USE_STATFS_FOR_DEV
-#include <sys/statvfs.h>
-#else
+#endif
+
+#ifdef HAVE_SYS_STATVFS_H
 #include <sys/statvfs.h>
 #endif
 
-#  if defined(NetBSD) || defined (OpenBSD)
-
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
+#endif
 
-#define USE_GETMNTINFO
+#  if defined(NetBSD) || defined (OpenBSD)
 
 #    if ( __NetBSD_Version__ < 200040000 )
 
@@ -107,44 +147,29 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 #include <sys/vfs.h>
 #endif
 
-# if !defined(OpenBSD)
-#define HAS_LARGEFILE 1
-#endif
-
-typedef enum  { FALSE=0, TRUE=1 }  bool;
-
 #else /* *BSD */
 
 /* ////////// Darwin / OS X ////////// */
-#if defined ( __APPLE__ ) 
+#if defined ( __APPLE__ )
 
 /* ////////// Darwin ////////// */
 #  if defined( __GNUC__ )
 
-#include <sys/param.h> 
-#include <sys/mount.h> 
-
 #include <sys/statvfs.h>
 /*can't be both! Should be STATVFS IMHO */
-/*#define USE_STATFS     1 
-#define USE_STATVFS     1 
-#define HAS_LARGEFILE  1 */
+/*#define USE_STATFS     1
+#define USE_STATVFS     1 */
 #define GETMNTINFO_USES_STATFS 1
 #define USE_GETMNTINFO 1
-
-#define FALSE 0
-#define TRUE 1
-typedef int bool;
 
 #  endif
 
 /* ////////// OS X ////////// */
 #  if defined( __MACH__ )
 /* mac osx 10.5 does not seem to like this one here */
-/*#include <unistd.h>  
-#include <sys/vfs.h> 
+/*#include <unistd.h>
+#include <sys/vfs.h>
 #include <sys/statvfs.h> */
-#define MAC_LARGEFILE 1
 
 #  endif
 
@@ -159,9 +184,6 @@ typedef int bool;
 
 #define USE_STATFS       1
 #define HAVE_GETOPT_LONG 1
-#define HAS_LARGEFILE    1
-
-  typedef enum  { FALSE=0, TRUE=1 }  bool;
 
 #elif defined( __GLIBC__ )
 
@@ -170,32 +192,22 @@ typedef int bool;
 #include <sys/statvfs.h>
 
 #define HAVE_GETOPT_LONG 1
-#define HAS_LARGEFILE    1
-
-  typedef enum  { FALSE=0, TRUE=1 }  bool;
 
 #else
 
-/* ////////// For other cases ////////// */
-
-typedef enum  { FALSE=0, TRUE=1 }  bool;
-
-#if defined( __USE_FILE_OFFSET64 )
-#  define HAS_LARGEFILE 1
 #endif
 #endif
 #endif
 #endif
-#endif 
 
 
 /* OS/2 */
-#if defined(__EMX__)                                                                                                                                                                              
-#define __off64_t __int64_t 
+#if defined(__EMX__)
+#define __off64_t __int64_t
 #include <sys/vfs.h>
 #include <sys/statfs.h>
 #define USE_STATFS 1
-#endif          
+#endif
 
 
 
