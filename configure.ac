@@ -4,10 +4,15 @@
 AC_PREREQ([2.67])
 AC_INIT([vobcopy],[1.2.0],[Robos <robos@muon.de>],[vobcopy],[http://vobcopy.org])
 AC_CONFIG_SRCDIR([vobcopy.c])
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 
 # Enable automake
 AM_INIT_AUTOMAKE([foreign])
+
+# Internationalization support
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.18])
 
 # Checks for programs.
 AC_PROG_CC
@@ -33,5 +38,5 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([alarm fdatasync getcwd getmntent getmntinfo memset mkdir setlocale strcasecmp strerror strpbrk strstr])
 
 # trailer
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile po/Makefile.in])
 AC_OUTPUT

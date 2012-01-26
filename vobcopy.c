@@ -1196,8 +1196,9 @@ next: /*for the goto - ugly, I know... */
                         }
                       /* progress indicator */
                       tmp_i = i;
-                      fprintf( stderr, _("%4.0fkB of %4.0fkB written\r"),
+                      fprintf( stderr, _("%4.0fkB of %4.0fkB written"),
                                ( tmp_i+1 )*( DVD_VIDEO_LB_LEN/1024 ), tmp_file_size/1024 );
+                      fprintf( stderr, "\r" );
                     }
                   fprintf( stderr, _("\n"));
                   if( !stdout_flag )
@@ -1231,8 +1232,9 @@ next: /*for the goto - ugly, I know... */
                         }
                       /* progress indicator */
                       tmp_i = i;
-                      fprintf( stderr, _("%4.0fkB of %4.0fkB written\r"),
+                      fprintf( stderr, _("%4.0fkB of %4.0fkB written"),
                                ( tmp_i+1 )*( DVD_VIDEO_LB_LEN/1024 ), tmp_file_size/1024 );
+                      fprintf( stderr, "\r");
                     }
                   fprintf( stderr, _("\n"));
                   if( !stdout_flag )
@@ -1356,7 +1358,8 @@ next: /*for the goto - ugly, I know... */
                           tmp_i = ( i-start );
 
                           percent = ( ( ( ( tmp_i+1 )*DVD_VIDEO_LB_LEN )*100 )/tmp_file_size );
-                          fprintf( stderr, _("\r%4.0fMB of %4.0fMB written "),
+                          fprintf( stderr, "\r");
+                          fprintf( stderr, _("%4.0fMB of %4.0fMB written "),
                                    ( ( tmp_i+1 )*DVD_VIDEO_LB_LEN )/( 1024*1024 ),
                                    ( tmp_file_size+2048 )/( 1024*1024 ) );
                           fprintf( stderr, _("( %3.1f %% ) "), percent );
@@ -1365,7 +1368,8 @@ next: /*for the goto - ugly, I know... */
                     }
 /*this is just so that at the end it actually says 100.0% all the time... */
 /*TODO: if it is correct to always assume it's 100% is a good question.... */
-/*                  fprintf( stderr, _("\r%4.0fMB of %4.0fMB written "),
+/*                  fprintf( stderr, "\r");
+                  fprintf( stderr, _("%4.0fMB of %4.0fMB written "),
                            ( ( tmp_i+1 )*DVD_VIDEO_LB_LEN )/( 1024*1024 ),
                            ( tmp_file_size+2048 )/( 1024*1024 ) );
                   fprintf( stderr, _("( 100.0%% ) ") );
