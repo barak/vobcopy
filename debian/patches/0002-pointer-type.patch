@@ -6,7 +6,7 @@ quash gcc pointer type warning,
 passing **dvd_reader_t to routine that expects *dvd_reader_t
 ---
  vobcopy.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/vobcopy.c b/vobcopy.c
 index d6e8ffc..95c3fea 100644
@@ -21,4 +21,3 @@ index d6e8ffc..95c3fea 100644
        fprintf( stderr, _("[Info] longest title %d.\n"), titleid );
      }
  
--- 

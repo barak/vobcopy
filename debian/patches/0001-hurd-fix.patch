@@ -6,7 +6,7 @@ Solves failure to build from sources on Debian GNU/Hurd,
 see http://bugs.debian.org/641283 for details.
 ---
  vobcopy.h |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/vobcopy.h b/vobcopy.h
 index ebe2709..19b40e1 100644
@@ -21,4 +21,3 @@ index ebe2709..19b40e1 100644
         ( defined( __NetBSD__) && ( __NetBSD_Version__ < 200040000 ) )
  #include <sys/mount.h>
  #define USE_STATFS 1
--- 

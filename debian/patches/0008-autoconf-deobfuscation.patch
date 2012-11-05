@@ -564,4 +564,3 @@ index 76958e6..33cdf52 100644
 +#ifndef HAVE_FDATASYNC
 +#define fdatasync(fd) 0
  #endif
--- 

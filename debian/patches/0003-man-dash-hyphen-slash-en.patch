@@ -4,8 +4,8 @@ Subject: man dash hyphen slash en
 
 silence lintian warning about hyphens vs dashes in English man page
 ---
- vobcopy.1 |   82 ++++++++++++++++++++++++++++++------------------------------
- 1 files changed, 41 insertions(+), 41 deletions(-)
+ vobcopy.1 |   82 ++++++++++++++++++++++++++++++-------------------------------
+ 1 file changed, 41 insertions(+), 41 deletions(-)
 
 diff --git a/vobcopy.1 b/vobcopy.1
 index e3774ad..6f34152 100644
@@ -139,4 +139,3 @@ index e3774ad..6f34152 100644
  .SH BUGS
  Vobcopy is still under development. So expect some.
  There *might* be problems for users who's system is not large-file ready. If so, please get back to me.
--- 
