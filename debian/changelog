@@ -1,3 +1,9 @@
+vobcopy (1.2.0-5) unstable; urgency=low
+
+  * kfreebsd patch (closes: #697016)
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Mon, 16 Sep 2013 22:55:50 +0100
+
 vobcopy (1.2.0-4) unstable; urgency=low
 
   * add build dependency on autopoint
