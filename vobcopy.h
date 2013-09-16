@@ -124,15 +124,7 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 
 #ifdef HAVE_GETMNTINFO
 #define USE_GETMNTINFO
-#endif
-
-#ifdef USE_GETMNTINFO
-#ifdef USE_STATFS_FOR_DEV
 #define GETMNTINFO_USES_STATFS
-#endif
-#ifdef USE_STATVFS_FOR_DEV
-#define GETMNTINFO_USES_STATVFS
-#endif
 #endif
 
 #include <dvdread/dvd_reader.h>
