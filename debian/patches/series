@@ -6,3 +6,4 @@
 0006-autoheader.patch
 0007-auto-gettext.patch
 0008-autoconf-deobfuscation.patch
+0009-vobcopy.h-xMNTINFO.patch
