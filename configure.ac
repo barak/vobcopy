@@ -18,6 +18,7 @@ AM_GNU_GETTEXT_VERSION([0.18])
 AC_PROG_CC
 AX_CFLAGS_WARN_ALL
 AC_PROG_LN_S
+AC_PROG_MKDIR_P
 
 # Checks for libraries.
 AC_CHECK_LIB([dvdread], [DVDOpen])

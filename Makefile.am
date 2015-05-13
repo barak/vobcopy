@@ -14,7 +14,7 @@ EXTRA_DIST = m4/ChangeLog vobcopy.mo vobcopy.pot vobcopy.spec vobcopy.1.de
 dist_doc_DATA = alternative_programs.txt Changelog README Release-Notes TODO COPYING
 
 intl/de/vobcopy.1: vobcopy.1.de
-	mkdir -p intl/de
+	$(MKDIR_P) intl/de
 	ln $< $@
 
 MOSTLYCLEANFILES = intl/de/vobcopy.1
