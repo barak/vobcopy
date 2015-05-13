@@ -8,3 +8,7 @@
 0008-autoconf-deobfuscation.patch
 0009-vobcopy.h-xMNTINFO.patch
 0010-rm-Makefile.patch
+0011-enable-warnings.patch
+0012-AC_PROG_MKDIR_P.patch
+0013-configure.ac-AC_SEARCH_LIB.patch
+0014-clang-Wall.patch

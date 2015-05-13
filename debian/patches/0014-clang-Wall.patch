@@ -1,0 +1,56 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Wed, 13 May 2015 10:28:19 +0100
+Subject: clang -Wall
+
+$ clang -DHAVE_CONFIG_H -I. -g -O2 -Wall -c vobcopy.c
+ln vobcopy.1.de intl/de/vobcopy.1
+vobcopy.c:240:24: warning: taking the absolute value of unsigned type 'unsigned long long' has no effect
+      [-Wabsolute-value]
+          seek_start = abs( temp_var / 2048 );
+                       ^
+vobcopy.c:240:24: note: remove the call to 'abs' since unsigned values cannot be negative
+          seek_start = abs( temp_var / 2048 );
+                       ^~~
+vobcopy.c:241:26: warning: comparison of unsigned expression < 0 is always false [-Wtautological-compare]
+          if( seek_start < 0 )
+              ~~~~~~~~~~ ^ ~
+vobcopy.c:293:29: warning: taking the absolute value of unsigned type 'unsigned long long' has no effect
+      [-Wabsolute-value]
+          stop_before_end = abs( temp_var / 2048 );
+                            ^
+vobcopy.c:293:29: note: remove the call to 'abs' since unsigned values cannot be negative
+          stop_before_end = abs( temp_var / 2048 );
+                            ^~~
+vobcopy.c:294:31: warning: comparison of unsigned expression < 0 is always false [-Wtautological-compare]
+          if( stop_before_end < 0 )
+              ~~~~~~~~~~~~~~~ ^ ~
+---
+ vobcopy.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+diff --git a/vobcopy.c b/vobcopy.c
+index 4847b01..78100e9 100644
+--- a/vobcopy.c
++++ b/vobcopy.c
+@@ -237,9 +237,7 @@ and potentially fatal."  - Thanks Leigh!*/
+               break;
+             }
+           /* 	  sscanf( optarg, "%lli", &temp_var ); */
+-          seek_start = abs( temp_var / 2048 );
+-          if( seek_start < 0 )
+-            seek_start = 0;
++          seek_start = temp_var;
+           cut_flag = TRUE;
+           break;
+ 
+@@ -290,9 +288,7 @@ and potentially fatal."  - Thanks Leigh!*/
+               break;
+             }
+ 
+-          stop_before_end = abs( temp_var / 2048 );
+-          if( stop_before_end < 0 )
+-            stop_before_end = 0;
++          stop_before_end = temp_var / 2048;
+           cut_flag = TRUE;
+           break;
+ 

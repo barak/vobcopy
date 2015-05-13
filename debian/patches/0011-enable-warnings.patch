@@ -1,0 +1,43 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Wed, 13 May 2015 10:11:38 +0100
+Subject: enable warnings
+
+---
+ Makefile.am  | 2 --
+ configure.ac | 3 ++-
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 44b839d..03ca276 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -5,8 +5,6 @@ bin_PROGRAMS = vobcopy
+ 
+ vobcopy_SOURCES = dvd.c vobcopy.c dvd.h vobcopy.h
+ 
+-AM_CPPFLAGS = -Wall
+-
+ dist_man_MANS = vobcopy.1
+ man1dedir = $(mandir)/de/man1
+ man1de_DATA = intl/de/vobcopy.1
+diff --git a/configure.ac b/configure.ac
+index 4539a98..7a52129 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -8,7 +8,7 @@ AC_CONFIG_MACRO_DIR([m4])
+ AC_CONFIG_HEADERS([config.h])
+ 
+ # Enable automake
+-AM_INIT_AUTOMAKE([foreign])
++AM_INIT_AUTOMAKE([foreign -Wall])
+ 
+ # Internationalization support
+ AM_GNU_GETTEXT([external])
+@@ -16,6 +16,7 @@ AM_GNU_GETTEXT_VERSION([0.18])
+ 
+ # Checks for programs.
+ AC_PROG_CC
++AX_CFLAGS_WARN_ALL
+ AC_PROG_LN_S
+ 
+ # Checks for libraries.

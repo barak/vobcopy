@@ -1,0 +1,21 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Wed, 13 May 2015 10:22:13 +0100
+Subject: configure.ac AC_SEARCH_LIB
+
+---
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 8f25d40..0afa930 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -21,7 +21,7 @@ AC_PROG_LN_S
+ AC_PROG_MKDIR_P
+ 
+ # Checks for libraries.
+-AC_CHECK_LIB([dvdread], [DVDOpen])
++AC_SEARCH_LIBS([DVDOpen], [dvdread],,[AC_MSG_ERROR([libdvdread not found])])
+ 
+ # Checks for header files.
+ AC_CHECK_HEADERS([fcntl.h libintl.h locale.h mntent.h stdint.h stdlib.h string.h sys/ioctl.h sys/mount.h sys/param.h sys/statfs.h sys/statvfs.h sys/vfs.h termios.h unistd.h getopt.h sys/mnttab.h assert.h dirent.h])
