@@ -6,11 +6,11 @@ Switch build system to use autotools
 (add autotools scripts; rm Makefile configure.sh)
 centralise version number in configure.ac
 ---
- Makefile.am  |   23 ++++++
- configure.ac |   12 +++
- configure.sh |  249 ----------------------------------------------------------
- vobcopy.c    |   10 +--
- vobcopy.h    |    2 -
+ Makefile.am  |  23 ++++++
+ configure.ac |  12 +++
+ configure.sh | 249 -----------------------------------------------------------
+ vobcopy.c    |  10 +--
+ vobcopy.h    |   2 -
  5 files changed, 40 insertions(+), 256 deletions(-)
  create mode 100644 Makefile.am
  create mode 100644 configure.ac

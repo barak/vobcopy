@@ -7,7 +7,7 @@ http://bugs.debian.org/697016 by accepting the patch therein.
 
 Thanks to: Petr Salinger <Petr.Salinger@seznam.cz>
 ---
- vobcopy.h |    8 --------
+ vobcopy.h | 8 --------
  1 file changed, 8 deletions(-)
 
 diff --git a/vobcopy.h b/vobcopy.h

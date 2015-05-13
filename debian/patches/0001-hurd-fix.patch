@@ -5,7 +5,7 @@ Subject: hurd fix
 Solves failure to build from sources on Debian GNU/Hurd,
 see http://bugs.debian.org/641283 for details.
 ---
- vobcopy.h |    2 +-
+ vobcopy.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/vobcopy.h b/vobcopy.h

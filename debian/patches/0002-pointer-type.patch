@@ -5,7 +5,7 @@ Subject: pointer type
 quash gcc pointer type warning,
 passing **dvd_reader_t to routine that expects *dvd_reader_t
 ---
- vobcopy.c |    2 +-
+ vobcopy.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/vobcopy.c b/vobcopy.c

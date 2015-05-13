@@ -4,10 +4,10 @@ Subject: autoheader
 
 engage autoheader, and let it deal with largefile issues
 ---
- Makefile.am  |    2 +-
- configure.ac |   27 ++++++++++++-
- vobcopy.c    |   30 ++++----------
- vobcopy.h    |  128 ++++++++++++++++++++++++++++++++--------------------------
+ Makefile.am  |   2 +-
+ configure.ac |  27 ++++++++++++-
+ vobcopy.c    |  30 ++++----------
+ vobcopy.h    | 128 ++++++++++++++++++++++++++++++++---------------------------
  4 files changed, 104 insertions(+), 83 deletions(-)
 
 diff --git a/Makefile.am b/Makefile.am

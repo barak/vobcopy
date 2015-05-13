@@ -4,7 +4,7 @@ Subject: man dash hyphen slash de
 
 silence lintian warning about hyphens vs dashes in German man page
 ---
- vobcopy.1.de |   84 +++++++++++++++++++++++++++++-----------------------------
+ vobcopy.1.de | 84 ++++++++++++++++++++++++++++++------------------------------
  1 file changed, 42 insertions(+), 42 deletions(-)
 
 diff --git a/vobcopy.1.de b/vobcopy.1.de
