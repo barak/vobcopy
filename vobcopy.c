@@ -237,9 +237,7 @@ and potentially fatal."  - Thanks Leigh!*/
               break;
             }
           /* 	  sscanf( optarg, "%lli", &temp_var ); */
-          seek_start = abs( temp_var / 2048 );
-          if( seek_start < 0 )
-            seek_start = 0;
+          seek_start = temp_var;
           cut_flag = TRUE;
           break;
 
@@ -290,9 +288,7 @@ and potentially fatal."  - Thanks Leigh!*/
               break;
             }
 
-          stop_before_end = abs( temp_var / 2048 );
-          if( stop_before_end < 0 )
-            stop_before_end = 0;
+          stop_before_end = temp_var / 2048;
           cut_flag = TRUE;
           break;
 
