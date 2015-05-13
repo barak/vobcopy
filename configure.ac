@@ -21,7 +21,7 @@ AC_PROG_LN_S
 AC_PROG_MKDIR_P
 
 # Checks for libraries.
-AC_CHECK_LIB([dvdread], [DVDOpen])
+AC_SEARCH_LIBS([DVDOpen], [dvdread],,[AC_MSG_ERROR([libdvdread not found])])
 
 # Checks for header files.
 AC_CHECK_HEADERS([fcntl.h libintl.h locale.h mntent.h stdint.h stdlib.h string.h sys/ioctl.h sys/mount.h sys/param.h sys/statfs.h sys/statvfs.h sys/vfs.h termios.h unistd.h getopt.h sys/mnttab.h assert.h dirent.h])
