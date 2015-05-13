@@ -9,6 +9,7 @@
 /depcomp
 /install-sh
 /intl/
+/compile
 /missing
 /vobcopy
 Makefile
