@@ -8,7 +8,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
 
 # Enable automake
-AM_INIT_AUTOMAKE([foreign])
+AM_INIT_AUTOMAKE([foreign -Wall])
 
 # Internationalization support
 AM_GNU_GETTEXT([external])
@@ -16,6 +16,7 @@ AM_GNU_GETTEXT_VERSION([0.18])
 
 # Checks for programs.
 AC_PROG_CC
+AX_CFLAGS_WARN_ALL
 AC_PROG_LN_S
 
 # Checks for libraries.

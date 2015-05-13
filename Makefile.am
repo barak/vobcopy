@@ -5,8 +5,6 @@ bin_PROGRAMS = vobcopy
 
 vobcopy_SOURCES = dvd.c vobcopy.c dvd.h vobcopy.h
 
-AM_CPPFLAGS = -Wall
-
 dist_man_MANS = vobcopy.1
 man1dedir = $(mandir)/de/man1
 man1de_DATA = intl/de/vobcopy.1
