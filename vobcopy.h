@@ -21,7 +21,10 @@
 #include <libintl.h>
 #endif
 
+#ifdef HAVE_FEATURES_H
 #include <features.h>
+#endif
+
 #include <stdio.h>
 
 #ifdef HAVE_STDLIB_H
