@@ -12,3 +12,4 @@
 0012-AC_PROG_MKDIR_P.patch
 0013-configure.ac-AC_SEARCH_LIB.patch
 0014-clang-Wall.patch
+0015-narrow-window.patch
