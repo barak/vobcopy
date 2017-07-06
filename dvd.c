@@ -109,6 +109,7 @@ int get_device( char *path, char *device )
 
 #if ( !defined( __sun ) )
   FILE	*tmp_streamin;
+  FILE	*tmp_streamin_fuseiso;
   char	tmp_bufferin[ MAX_STRING ];
   char  tmp_path[ 256 ];
   int   l = 0;
@@ -117,6 +118,8 @@ int get_device( char *path, char *device )
 
 #if (defined(__linux__))
   struct mntent* lmount_entry;
+  struct mntent* lmount_entry_fuseiso;
+
 #endif
 
 #if ( defined( __sun ) )
@@ -257,6 +260,30 @@ this is the code for the other-OSs, not solaris*/
 	    }
 	}
 	endmntent(tmp_streamin);
+        
+        if (strcmp(lmount_entry->mnt_fsname, "fuseiso") == 0) {
+          fprintf ( stderr, "[Info] Fuseiso detected. I'm looking for the iso file\n");
+          // The directory is mounted by fuseiso. Here we try get the name & path of the ISO
+          char *homedir;
+          if ((homedir = getenv("HOME")) == NULL) {
+              // TODO
+              //homedir = getpwuid(getuid())->pw_dir;
+          }
+          
+          if ((tmp_streamin_fuseiso = setmntent(strcat(homedir,"/.mtab.fuseiso"), "r"))){
+            while ((lmount_entry_fuseiso = getmntent(tmp_streamin_fuseiso))){
+              if (strcmp(lmount_entry_fuseiso->mnt_dir, path) == 0){
+                /* Found the mount point */
+                fprintf ( stderr, "[Info] Device %s mounted on %s\n", lmount_entry_fuseiso->mnt_fsname, lmount_entry_fuseiso->mnt_dir);
+                strcpy(device, lmount_entry_fuseiso->mnt_fsname);
+                mounted = TRUE;
+                break; 
+              }
+            }
+            endmntent(tmp_streamin_fuseiso);
+          }
+        }
+
 	if (mounted) 
             {
 		/* device was set from /etc/mtab, no need to further check
