@@ -989,7 +989,7 @@ and potentially fatal."  - Thanks Leigh!*/
               if( onefile_flag )
                 {
                   char *tokenpos, *tokenpos1;
-                  char tmp[12];
+                  char tmp[50];
                   tokenpos = onefile;
                   if( strstr( tokenpos, "," ) )
                     {
@@ -1026,10 +1026,16 @@ next: /*for the goto - ugly, I know... */
                 }
               else
                 {
-                  if( strstr( d_name, ";?" ) )
-                    {
-                      fprintf( stderr, _("\n[Hint] File on dvd ends in \";?\" (%s)\n"), d_name );
-                      strncat( output_file, d_name, strlen( d_name ) - 2 );
+                  if( strstr( d_name, ";" ) )
+                  {
+                      char * pch;
+                      int position_from_end;
+                      pch = strrchr(d_name, ';');
+                      position_from_end = strlen( d_name ) - (pch - d_name);
+                      if ( position_from_end < 4 ) {
+                        fprintf( stderr, _("\n[Hint] File on dvd ends in \";?\" (%s)\n"), d_name );
+                        strncat( output_file, d_name, strlen( d_name ) - position_from_end );
+                      }
                     }
                   else
                     {
@@ -1274,8 +1280,15 @@ next: /*for the goto - ugly, I know... */
 
                       for( a = 1; a < subvob; a++ )
                         {
-                          if( strstr( input_file, ";?" ) )
-                            input_file[ strlen( input_file ) - 7 ] = ( a + 48 );
+                          if( strstr( input_file, ";" ) )
+                            {
+                              char * pch;
+                              int position_from_end;
+                              pch = strrchr( input_file, ';' );
+                              position_from_end = strlen( input_file ) - ( pch - input_file );
+                              if ( position_from_end < 4 )
+                                input_file[ strlen( input_file ) - 5 - position_from_end ] = ( a + 48 );
+                            } 
                           else
                             input_file[ strlen( input_file ) - 5 ] = ( a + 48 );
 
