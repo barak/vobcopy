@@ -1320,13 +1320,13 @@ next: /*for the goto - ugly, I know... */
                     fprintf( stderr, _("[Info] Start of %s at %d blocks \n"), output_file, start );
                   file_block_count = block_count;
 		  starttime = time(NULL);
-                  for( i = start; ( i - start ) * DVD_VIDEO_LB_LEN < file_size; i += file_block_count)
+                  for( i = start + seek_start*2048/DVD_VIDEO_LB_LEN; ( i - start ) * DVD_VIDEO_LB_LEN < file_size - stop_before_end*2048 ; i += file_block_count)
                     {
 		      int tries = 0, skipped_blocks = 0; 
                       /* Only read and write as many blocks as there are left in the file */
-                      if ( ( i - start + file_block_count ) * DVD_VIDEO_LB_LEN > file_size )
+                      if ( ( i - start + file_block_count ) * DVD_VIDEO_LB_LEN > file_size - stop_before_end*2048 )
                         {
-                          file_block_count = ( file_size / DVD_VIDEO_LB_LEN ) - ( i - start );
+                          file_block_count = ( (file_size - stop_before_end*2048 )/ DVD_VIDEO_LB_LEN ) - ( i - start );
                         }
 
                       /*		      DVDReadBlocks( dvd_file, i, 1, bufferin );this has to be wrong with the 1 there...*/
