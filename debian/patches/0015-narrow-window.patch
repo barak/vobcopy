@@ -11,10 +11,11 @@ diff --git a/vobcopy.c b/vobcopy.c
 index 78100e9..30bb721 100644
 --- a/vobcopy.c
 +++ b/vobcopy.c
-@@ -2202,6 +2202,18 @@ int makedir( char *name )
+@@ -2201,6 +2201,18 @@ int makedir( char *name )
+   return 0;
  }
  
- /*
++/*
 + * Get the width in characters of the terminal window, or defaults to 80.
 + */
 +int get_term_width() {
@@ -26,10 +27,9 @@ index 78100e9..30bb721 100644
 +}
 +
 +
-+/*
+ /*
  * Check the time determine whether a new progress line should be output (once per second)
  */
- 
 @@ -2214,22 +2226,20 @@ int progressUpdate(int starttime, int cur, int tot, int force)
  	  int barLen, barChar, numChars, timeSoFar, minsLeft, secsLeft, ctr, cols;
  	  float percentComplete, percentLeft, timePerPercent;
