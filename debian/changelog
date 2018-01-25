@@ -1,3 +1,13 @@
+vobcopy (1.2.0-7) unstable; urgency=medium
+
+  * merge patch from Fab Stz <fabstz-it@yahoo.fr> (closes: #867388)
+  * bump to debhelper 11
+  * bump policy version
+  * enable hardening
+  * address non-function-affecting lintian issues
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 25 Jan 2018 18:30:24 +0000
+
 vobcopy (1.2.0-6) unstable; urgency=medium
 
   * accept small chapter patch
