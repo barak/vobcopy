@@ -237,7 +237,7 @@ and potentially fatal."  - Thanks Leigh!*/
               break;
             }
           /* 	  sscanf( optarg, "%lli", &temp_var ); */
-          seek_start = temp_var;
+          seek_start = temp_var / 2048;
           cut_flag = TRUE;
           break;
 
