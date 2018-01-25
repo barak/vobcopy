@@ -8,7 +8,7 @@ Copying a small chapter or if the terminal window is too small, printing the pro
  1 file changed, 16 insertions(+), 6 deletions(-)
 
 diff --git a/vobcopy.c b/vobcopy.c
-index 78100e9..30bb721 100644
+index da9c9b9..d7260d0 100644
 --- a/vobcopy.c
 +++ b/vobcopy.c
 @@ -2201,6 +2201,18 @@ int makedir( char *name )

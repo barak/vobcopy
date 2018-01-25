@@ -29,7 +29,7 @@ vobcopy.c:294:31: warning: comparison of unsigned expression < 0 is always false
  1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/vobcopy.c b/vobcopy.c
-index 4847b01..78100e9 100644
+index 4847b01..da9c9b9 100644
 --- a/vobcopy.c
 +++ b/vobcopy.c
 @@ -237,9 +237,7 @@ and potentially fatal."  - Thanks Leigh!*/
@@ -39,7 +39,7 @@ index 4847b01..78100e9 100644
 -          seek_start = abs( temp_var / 2048 );
 -          if( seek_start < 0 )
 -            seek_start = 0;
-+          seek_start = temp_var;
++          seek_start = temp_var / 2048;
            cut_flag = TRUE;
            break;
  
