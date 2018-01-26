@@ -1,0 +1,37 @@
+From: "Barak A. Pearlmutter" <barak+git@pearlmutter.net>
+Date: Thu, 26 Nov 2015 17:03:32 +0000
+Subject: guard features.h
+
+---
+ configure.ac | 2 +-
+ vobcopy.h    | 3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/configure.ac b/configure.ac
+index 0afa930..2a72cd8 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -24,7 +24,7 @@ AC_PROG_MKDIR_P
+ AC_SEARCH_LIBS([DVDOpen], [dvdread],,[AC_MSG_ERROR([libdvdread not found])])
+ 
+ # Checks for header files.
+-AC_CHECK_HEADERS([fcntl.h libintl.h locale.h mntent.h stdint.h stdlib.h string.h sys/ioctl.h sys/mount.h sys/param.h sys/statfs.h sys/statvfs.h sys/vfs.h termios.h unistd.h getopt.h sys/mnttab.h assert.h dirent.h])
++AC_CHECK_HEADERS([fcntl.h libintl.h features.h locale.h mntent.h stdint.h stdlib.h string.h sys/ioctl.h sys/mount.h sys/param.h sys/statfs.h sys/statvfs.h sys/vfs.h termios.h unistd.h getopt.h sys/mnttab.h assert.h dirent.h])
+ 
+ # Checks for typedefs, structures, and compiler characteristics.
+ AC_HEADER_STDBOOL
+diff --git a/vobcopy.h b/vobcopy.h
+index 1da5ce4..0a56804 100644
+--- a/vobcopy.h
++++ b/vobcopy.h
+@@ -21,7 +21,10 @@
+ #include <libintl.h>
+ #endif
+ 
++#ifdef HAVE_FEATURES_H
+ #include <features.h>
++#endif
++
+ #include <stdio.h>
+ 
+ #ifdef HAVE_STDLIB_H
