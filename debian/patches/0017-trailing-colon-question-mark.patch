@@ -10,22 +10,13 @@ Better detected and manage this case.
 
 See https://bugs.debian.org/867388
 ---
- vobcopy.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ vobcopy.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
 diff --git a/vobcopy.c b/vobcopy.c
 index d7260d0..d7e53cc 100644
 --- a/vobcopy.c
 +++ b/vobcopy.c
-@@ -989,7 +989,7 @@ and potentially fatal."  - Thanks Leigh!*/
-               if( onefile_flag )
-                 {
-                   char *tokenpos, *tokenpos1;
--                  char tmp[12];
-+                  char tmp[50];
-                   tokenpos = onefile;
-                   if( strstr( tokenpos, "," ) )
-                     {
 @@ -1026,10 +1026,16 @@ next: /*for the goto - ugly, I know... */
                  }
                else
