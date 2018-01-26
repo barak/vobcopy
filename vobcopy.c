@@ -989,7 +989,7 @@ and potentially fatal."  - Thanks Leigh!*/
               if( onefile_flag )
                 {
                   char *tokenpos, *tokenpos1;
-                  char tmp[50];
+                  char tmp[12];
                   tokenpos = onefile;
                   if( strstr( tokenpos, "," ) )
                     {
