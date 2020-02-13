@@ -3,7 +3,7 @@ Section: utils
 Priority: optional
 Maintainer: Stephen Birch <sgbirch@imsmail.org>
 Uploaders: Barak A. Pearlmutter <bap@debian.org>
-Build-Depends: debhelper (>= 11),
+Build-Depends: debhelper (>= 12~),
 		libdvdread-dev,
 		autoconf-archive
 Standards-Version: 4.1.3
