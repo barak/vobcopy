@@ -237,9 +237,7 @@ and potentially fatal."  - Thanks Leigh!*/
               break;
             }
           /* 	  sscanf( optarg, "%lli", &temp_var ); */
-          seek_start = abs( temp_var / 2048 );
-          if( seek_start < 0 )
-            seek_start = 0;
+          seek_start = temp_var / 2048;
           cut_flag = TRUE;
           break;
 
@@ -290,9 +288,7 @@ and potentially fatal."  - Thanks Leigh!*/
               break;
             }
 
-          stop_before_end = abs( temp_var / 2048 );
-          if( stop_before_end < 0 )
-            stop_before_end = 0;
+          stop_before_end = temp_var / 2048;
           cut_flag = TRUE;
           break;
 
@@ -322,13 +318,11 @@ and potentially fatal."  - Thanks Leigh!*/
           provided_input_dir_flag = TRUE;
           break;
 
-#if defined( HAS_LARGEFILE ) || defined( MAC_LARGEFILE )
         case'l': /*large file output*/
           max_filesize_in_blocks = 8388608; /*16 GB /2048 (block) */
           /* 2^63 / 2048 (not exactly) */
           large_file_flag = TRUE;
           break;
-#endif
 
         case'm':/*mirrors the dvd to harddrive completly*/
           mirror_flag = TRUE;
@@ -488,7 +482,7 @@ and potentially fatal."  - Thanks Leigh!*/
           i = 0;
           break;
         case'V': /*version number output */
-          printf( "Vobcopy "VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n" );
+          printf( "Vobcopy "PACKAGE_VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n" );
           exit( 0 );
           break;
 
@@ -513,7 +507,7 @@ and potentially fatal."  - Thanks Leigh!*/
         }
     }
 
-  fprintf( stderr, _("Vobcopy "VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n") );
+  fprintf( stderr, _("Vobcopy "PACKAGE_VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n") );
   fprintf( stderr, _("[Hint] All lines starting with \"libdvdread:\" are not from vobcopy but from the libdvdread-library\n") );
 
   /*get the current working directory*/
@@ -600,8 +594,8 @@ and potentially fatal."  - Thanks Leigh!*/
 
       if( strlen( logfile_path ) < 3 )
 	strcpy( logfile_path, pwd );
-      strcpy( logfile_name, "vobcopy_" );
-      strcat( logfile_name, VERSION );
+      strcpy( logfile_name, PACKAGE_TARNAME"_" );
+      strcat( logfile_name, PACKAGE_VERSION );
       strcat( logfile_name, ".log" );
       strcat( logfile_path, logfile_name );
       if ( ( temp = open ( logfile_path , O_RDWR | O_CREAT | O_EXCL, 0666 ) ) == -1 )
@@ -773,7 +767,7 @@ and potentially fatal."  - Thanks Leigh!*/
 
   if( longest_title_flag ) /*no title specified (-n ) */
     {
-      titleid = get_longest_title( &dvd );
+      titleid = get_longest_title( dvd );
       fprintf( stderr, _("[Info] longest title %d.\n"), titleid );
     }
 
@@ -1032,10 +1026,16 @@ next: /*for the goto - ugly, I know... */
                 }
               else
                 {
-                  if( strstr( d_name, ";?" ) )
-                    {
-                      fprintf( stderr, _("\n[Hint] File on dvd ends in \";?\" (%s)\n"), d_name );
-                      strncat( output_file, d_name, strlen( d_name ) - 2 );
+                  if( strstr( d_name, ";" ) )
+                  {
+                      char * pch;
+                      int position_from_end;
+                      pch = strrchr(d_name, ';');
+                      position_from_end = strlen( d_name ) - (pch - d_name);
+                      if ( position_from_end < 4 ) {
+                        fprintf( stderr, _("\n[Hint] File on dvd ends in \";?\" (%s)\n"), d_name );
+                        strncat( output_file, d_name, strlen( d_name ) - position_from_end );
+                      }
                     }
                   else
                     {
@@ -1198,8 +1198,9 @@ next: /*for the goto - ugly, I know... */
                         }
                       /* progress indicator */
                       tmp_i = i;
-                      fprintf( stderr, _("%4.0fkB of %4.0fkB written\r"),
+                      fprintf( stderr, _("%4.0fkB of %4.0fkB written"),
                                ( tmp_i+1 )*( DVD_VIDEO_LB_LEN/1024 ), tmp_file_size/1024 );
+                      fprintf( stderr, "\r" );
                     }
                   fprintf( stderr, _("\n"));
                   if( !stdout_flag )
@@ -1233,8 +1234,9 @@ next: /*for the goto - ugly, I know... */
                         }
                       /* progress indicator */
                       tmp_i = i;
-                      fprintf( stderr, _("%4.0fkB of %4.0fkB written\r"),
+                      fprintf( stderr, _("%4.0fkB of %4.0fkB written"),
                                ( tmp_i+1 )*( DVD_VIDEO_LB_LEN/1024 ), tmp_file_size/1024 );
+                      fprintf( stderr, "\r");
                     }
                   fprintf( stderr, _("\n"));
                   if( !stdout_flag )
@@ -1278,8 +1280,15 @@ next: /*for the goto - ugly, I know... */
 
                       for( a = 1; a < subvob; a++ )
                         {
-                          if( strstr( input_file, ";?" ) )
-                            input_file[ strlen( input_file ) - 7 ] = ( a + 48 );
+                          if( strstr( input_file, ";" ) )
+                            {
+                              char * pch;
+                              int position_from_end;
+                              pch = strrchr( input_file, ';' );
+                              position_from_end = strlen( input_file ) - ( pch - input_file );
+                              if ( position_from_end < 4 )
+                                input_file[ strlen( input_file ) - 5 - position_from_end ] = ( a + 48 );
+                            } 
                           else
                             input_file[ strlen( input_file ) - 5 ] = ( a + 48 );
 
@@ -1292,7 +1301,9 @@ next: /*for the goto - ugly, I know... */
 
                           culm_single_vob_size += buf.st_size;
                           if( verbosity_level > 1 )
-                            fprintf( stderr, _("[Info] Vob %d %d (%s) has a size of %lli\n"), title_nr, subvob, input_file, buf.st_size );
+                            fprintf( stderr,
+				     _("[Info] Vob %d %d (%s) has a size of %llu\n"),
+				     title_nr, subvob, input_file, (long long unsigned)buf.st_size );
                         }
 
                       start = ( culm_single_vob_size / DVD_VIDEO_LB_LEN ); 
@@ -1309,13 +1320,13 @@ next: /*for the goto - ugly, I know... */
                     fprintf( stderr, _("[Info] Start of %s at %d blocks \n"), output_file, start );
                   file_block_count = block_count;
 		  starttime = time(NULL);
-                  for( i = start; ( i - start ) * DVD_VIDEO_LB_LEN < file_size; i += file_block_count)
+                  for( i = start + seek_start*2048/DVD_VIDEO_LB_LEN; ( i - start ) * DVD_VIDEO_LB_LEN < file_size - stop_before_end*2048 ; i += file_block_count)
                     {
 		      int tries = 0, skipped_blocks = 0; 
                       /* Only read and write as many blocks as there are left in the file */
-                      if ( ( i - start + file_block_count ) * DVD_VIDEO_LB_LEN > file_size )
+                      if ( ( i - start + file_block_count ) * DVD_VIDEO_LB_LEN > file_size - stop_before_end*2048 )
                         {
-                          file_block_count = ( file_size / DVD_VIDEO_LB_LEN ) - ( i - start );
+                          file_block_count = ( (file_size - stop_before_end*2048 )/ DVD_VIDEO_LB_LEN ) - ( i - start );
                         }
 
                       /*		      DVDReadBlocks( dvd_file, i, 1, bufferin );this has to be wrong with the 1 there...*/
@@ -1356,7 +1367,8 @@ next: /*for the goto - ugly, I know... */
                           tmp_i = ( i-start );
 
                           percent = ( ( ( ( tmp_i+1 )*DVD_VIDEO_LB_LEN )*100 )/tmp_file_size );
-                          fprintf( stderr, _("\r%4.0fMB of %4.0fMB written "),
+                          fprintf( stderr, "\r");
+                          fprintf( stderr, _("%4.0fMB of %4.0fMB written "),
                                    ( ( tmp_i+1 )*DVD_VIDEO_LB_LEN )/( 1024*1024 ),
                                    ( tmp_file_size+2048 )/( 1024*1024 ) );
                           fprintf( stderr, _("( %3.1f %% ) "), percent );
@@ -1365,7 +1377,8 @@ next: /*for the goto - ugly, I know... */
                     }
 /*this is just so that at the end it actually says 100.0% all the time... */
 /*TODO: if it is correct to always assume it's 100% is a good question.... */
-/*                  fprintf( stderr, _("\r%4.0fMB of %4.0fMB written "),
+/*                  fprintf( stderr, "\r");
+                  fprintf( stderr, _("%4.0fMB of %4.0fMB written "),
                            ( ( tmp_i+1 )*DVD_VIDEO_LB_LEN )/( 1024*1024 ),
                            ( tmp_file_size+2048 )/( 1024*1024 ) );
                   fprintf( stderr, _("( 100.0%% ) ") );
@@ -1692,11 +1705,7 @@ The man replies, "I was talking to the sheep."
 
           strcat( name, ".partial" );
 
-#if defined( HAS_LARGEFILE )
-          if( open( name, O_RDONLY|O_LARGEFILE ) >= 0 )
-#else
           if( open( name, O_RDONLY ) >= 0 )
-#endif
             {
               if ( get_free_space( name, verbosity_level ) < 2097152 )
                 /* it might come here when the platter is full after a -f */
@@ -1719,11 +1728,7 @@ The man replies, "I was talking to the sheep."
 		    }
                   if( op == 'o' || op == 'x' )
                     {
-#if defined( HAS_LARGEFILE )
-                      if( ( streamout = open( name, O_WRONLY | O_TRUNC | O_LARGEFILE ) ) < 0 )
-#else
                       if( ( streamout = open( name, O_WRONLY | O_TRUNC ) ) < 0 )
-#endif
                         {
                           fprintf( stderr, _("\n[Error] Error opening file %s\n"), name );
                           exit ( 1 );
@@ -1739,11 +1744,7 @@ The man replies, "I was talking to the sheep."
                     }
                   else if( op == 'a' )
                     {
-#if defined( HAS_LARGEFILE )
-                      if( ( streamout = open( name, O_WRONLY | O_APPEND | O_LARGEFILE ) ) < 0 )
-#else
                       if( ( streamout = open( name, O_WRONLY | O_APPEND ) ) < 0 )
-#endif
                         {
                           fprintf( stderr, _("\n[Error] Error opening file %s\n"), name );
                           exit ( 1 );
@@ -1769,11 +1770,7 @@ The man replies, "I was talking to the sheep."
           else
             {
               /*assign the stream */
-#if defined( HAS_LARGEFILE )
-              if( ( streamout = open( name, O_WRONLY | O_CREAT | O_LARGEFILE, 0644 ) ) < 0 )
-#else
               if( ( streamout = open( name, O_WRONLY | O_CREAT, 0644 ) ) < 0 )
-#endif
                 {
                   fprintf( stderr, _("\n[Error] Error opening file %s\n"), name );
                   exit ( 1 );
@@ -1825,7 +1822,10 @@ The man replies, "I was talking to the sheep."
 	    }
 	  
 	  if( verbosity_level >= 1 && skipped_blocks > 0 )
-	    fprintf( stderr, _("[Warn] Had to skip (couldn't read) %d blocks (before block %d)! \n "), skipped_blocks, offset );
+	    fprintf( stderr,
+		     _("[Warn] Had to skip (couldn't read) %d blocks (before block %llu)! \n "),
+		     skipped_blocks,
+		     (long long unsigned)offset );
 
 /*TODO: this skipping here writes too few bytes to the output */
 
@@ -2072,7 +2072,7 @@ int make_output_path( char *pwd,char *name,int get_dvd_name_return, char *dvd_na
 
 void usage( char *program_name )
 {
-  fprintf( stderr, _("Vobcopy "VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n") );
+  fprintf( stderr, _("Vobcopy "PACKAGE_VERSION" - GPL Copyright (c) 2001 - 2009 robos@muon.de\n") );
   fprintf( stderr, _("\nUsage: %s \n"), program_name );
   fprintf( stderr, _("if you want the main feature (title with most chapters) you don't need _any_ options!\n") );
   fprintf( stderr, _("Options:\n") );
@@ -2096,10 +2096,7 @@ void usage( char *program_name )
   fprintf( stderr, _("[-w <watchdog-minutes>]\n" ) );
   fprintf( stderr, _("[-x (overwrite all)]\n" ) );
   fprintf( stderr, _("[-F <fast-factor:1..64>]\n") );
-
-#if defined( HAS_LARGEFILE ) || defined ( MAC_LARGEFILE )
   fprintf( stderr, _("[-l (large-file support for files > 2GB)] \n") );
-#endif
   exit( 1 );
 }
 
@@ -2218,6 +2215,18 @@ int makedir( char *name )
 }
 
 /*
+ * Get the width in characters of the terminal window, or defaults to 80.
+ */
+int get_term_width() {
+   struct winsize ws;
+   if (ioctl(1, TIOCGWINSZ, &ws) >= 0)
+      return ws.ws_col;
+   else
+      return 80;
+}
+
+
+/*
 * Check the time determine whether a new progress line should be output (once per second)
 */
 
@@ -2227,13 +2236,11 @@ int progressUpdate(int starttime, int cur, int tot, int force)
 
   if (progress_time == 0 || progress_time != time(NULL) || force)
   {
-	  int barLen, barChar, numChars, timeSoFar, minsLeft, secsLeft, ctr, cols;
+	  int barLen, numChars, timeSoFar, minsLeft, secsLeft, ctr, cols;
 	  float percentComplete, percentLeft, timePerPercent;
 	  int curtime, timeLeft;
-	  struct winsize ws; 
 
-	  ioctl(0, TIOCGWINSZ, &ws);
-	  cols = ws.ws_col - 1;
+	  cols = get_term_width();
 
 	  progress_time = time(NULL);
 	  curtime = time(NULL);
@@ -2242,10 +2249,9 @@ int progressUpdate(int starttime, int cur, int tot, int force)
 /* 	   calc it this way so it's easy to change later */
 /* 	   2 for brackets, 1 for space, 5 for percent complete, 1 for space, 6 for time left, 1 for space */
 	  barLen = cols - 2 - 1 - 5 - 1 - 6 - 1;
-	  barChar = tot / barLen;
 	  percentComplete = (float)((float)cur / (float)tot * 100.0);
 	  percentLeft = 100 - percentComplete;
-	  numChars = cur / barChar;
+	  numChars = cur * barLen / tot;
 
 /* 	   guess remaining time */
 	  timeSoFar = curtime - starttime;
@@ -2258,15 +2264,17 @@ int progressUpdate(int starttime, int cur, int tot, int force)
 	  minsLeft = (int)(timeLeft / 60);
 	  secsLeft = (int)(timeLeft % 60);
 
-	  printf("[");
-	  for (ctr = 0; ctr < numChars-1; ctr++) {
-		  printf("=");
+	  if (barLen > 0) {
+	      printf("[");
+	      for (ctr = 0; ctr < numChars-1; ctr++) {
+	          printf("=");
+	      }
+	      printf("|");
+	      for (ctr = numChars + (numChars < 1); ctr < barLen; ctr++) {
+	          printf(" ");
+	      }
+	      printf("] ");
 	  }
-	  printf("|");
-	  for (ctr = numChars; ctr < barLen; ctr++) {
-		  printf(" ");
-	  }
-	  printf("] ");
 	  printf("%5.1f%% %02d:%02d ", percentComplete, minsLeft, secsLeft);
 	  fflush(stdout);
   }
@@ -2307,13 +2315,6 @@ char *safestrncpy(char *dest, const char *src, size_t n)
   dest[n] = '\0';
   return strncpy(dest, src, n-1);
 }
-
-#if defined(__APPLE__) && defined(__GNUC__) || defined(OpenBSD)
-int fdatasync( int value )
-{
-  return 0;
-}
-#endif
 
 
 /*

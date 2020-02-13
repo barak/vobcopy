@@ -1,11 +1,5 @@
-#define VERSION "1.2.0"
-
-#if defined( __gettext__ )
-#include <locale.h>
-#include <libintl.h>
-#define _(Text) gettext(Text)
-#else
-#define _(Text) Text
+#ifdef HAVE_CONFIG_H
+#include "config.h"
 #endif
 
 #define DVDCSS_VERBOSE 1
@@ -13,200 +7,136 @@
 #define MAX_STRING  81
 #define MAX_DIFFER  2000
 
+#ifdef ENABLE_NLS
+#define _(Text) gettext(Text)
+#else
+#define _(Text) Text
+#endif
+
+#ifdef HAVE_LOCALE_H
+#include <locale.h>
+#endif
+
+#ifdef HAVE_LIBINTL_H
+#include <libintl.h>
+#endif
+
+#ifdef HAVE_FEATURES_H
+#include <features.h>
+#endif
+
 #include <stdio.h>
+
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
+#endif
+
+#ifdef HAVE_STRINGS_H
+#include <strings.h>
+#endif
+
 #include <string.h>
 #include <ctype.h>
+
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif
+
+#ifdef HAVE_SYS_IOCTL_H
 #include <sys/ioctl.h>
+#endif
+
+#ifdef HAVE_SYS_STAT_H
 #include <sys/stat.h>
+#endif
+
 #include <fcntl.h>
+
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif
+
 #include <dirent.h> /*for readdir*/
 #include <errno.h>
 #include <signal.h>
 #include <time.h>
-#include <sys/ioctl.h>
-#include <termios.h>
 
-#if ( defined( __unix__ ) || defined( unix )) && !defined( USG )
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#endif
+
+#ifdef HAVE_SYS_PARAM_H
 #include <sys/param.h>
 #endif
 
-#if defined( __GNUC__ ) && \
-    !( defined( sun ) )
+#ifdef HAVE_GETOPT_H
 #include <getopt.h>
 #endif
 
-/* FreeBSD 4.10 and OpenBSD 3.2 has not <stdint.h> */
-/* by some bugreport:*/
-#if !( defined( BSD ) && ( BSD >= 199306 ) ) && !defined( sun ) || defined(OpenBSD)
+#ifdef HAVE_STDINT_H
 #include <stdint.h>
 #endif
 
-/* I'm trying to have all supported OSes definitions clearly separated here */
-/* The appearance could probably be made more readable -- lb                */
-
-/* ////////// Solaris ////////// */
-#if defined( __sun )
-
+#ifdef HAVE_STDLIB_H
 #include <stdlib.h>
-#include <sys/mnttab.h>
-#include <sys/statvfs.h>
+#endif
 
-typedef enum  { FALSE=0, TRUE=1 }  bool;
-
-#  if ( _FILE_OFFSET_BITS == 64 )
-#define HAS_LARGEFILE 1
-#  endif
-
-#define off_t off64_t      
-
-#else /* Solaris */
-
-/*#define off_t __off64_t  THIS HERE BREAKS OSX 10.5 */
-
-/* //////////  *BSD //////////  */
-#if ( defined( BSD ) && ( BSD >= 199306 ) )
-
-#if !defined( __NetBSD__ ) || \
-       ( defined( __NetBSD__) && ( __NetBSD_Version__ < 200040000 ) )
+#ifdef HAVE_SYS_MOUNT_H
 #include <sys/mount.h>
-#define USE_STATFS 1
 #endif
 
-#if defined(__FreeBSD__)
-#define USE_STATFS_FOR_DEV
-#include <sys/statvfs.h>
-#else
-#include <sys/statvfs.h>
-#endif
-
-#  if defined(NetBSD) || defined (OpenBSD)
-
-#include <sys/param.h>
-
+#ifdef HAVE_GETMNTINFO
 #define USE_GETMNTINFO
+#endif
 
-#    if ( __NetBSD_Version__ < 200040000 )
+#ifndef HAVE_STDBOOL_H
+typedef enum  { FALSE=0, TRUE=1 }  bool;
+#else
+#include <stdbool.h>
+#define TRUE true
+#define FALSE false
+#endif
 
-#include <sys/mount.h>
-#define USE_STATFS_FOR_DEV
-#define GETMNTINFO_USES_STATFS
+#ifdef HAVE_SYS_MNTTAB_H
+#include <sys/mnttab.h>
+#endif
 
-#    else
+#ifdef HAVE_SYS_STATFS_H
+#include <sys/statfs.h>
+#endif
+
+#ifdef HAVE_SYS_VFS_H
+#include <sys/vfs.h>
+#define USE_STATFS
+/* #define USE_STATFS_FOR_DEV */
+#endif
+
+#ifdef HAVE_SYS_STATVFS_H
 #include <sys/statvfs.h>
+#ifndef USE_STATFS
+#define USE_STATVFS
+#ifndef USE_STATFS_FOR_DEV
 #define USE_STATVFS_FOR_DEV
-#define GETMNTINFO_USES_STATVFS
-
-#    endif
+#endif
+#endif
 #endif
 
-#if defined(__FreeBSD__)
-#define USE_STATFS_FOR_DEV
-#include <sys/statvfs.h>
-#else
-#include <sys/vfs.h>
-#endif
-
-# if !defined(OpenBSD)
-#define HAS_LARGEFILE 1
-#endif
-
-typedef enum  { FALSE=0, TRUE=1 }  bool;
-
-#else /* *BSD */
-
-/* ////////// Darwin / OS X ////////// */
-#if defined ( __APPLE__ ) 
-
-/* ////////// Darwin ////////// */
-#  if defined( __GNUC__ )
-
-#include <sys/param.h> 
-#include <sys/mount.h> 
-
-#include <sys/statvfs.h>
-/*can't be both! Should be STATVFS IMHO */
-/*#define USE_STATFS     1 
-#define USE_STATVFS     1 
-#define HAS_LARGEFILE  1 */
-#define GETMNTINFO_USES_STATFS 1
-#define USE_GETMNTINFO 1
-
-#define FALSE 0
-#define TRUE 1
-typedef int bool;
-
-#  endif
-
-/* ////////// OS X ////////// */
-#  if defined( __MACH__ )
-/* mac osx 10.5 does not seem to like this one here */
-/*#include <unistd.h>  
-#include <sys/vfs.h> 
-#include <sys/statvfs.h> */
-#define MAC_LARGEFILE 1
-
-#  endif
-
-#else  /* Darwin / OS X */
-
-/* ////////// GNU/Linux ////////// */
-#if ( defined( __linux__ ) )
-
+#ifdef HAVE_MNTENT_H
 #include <mntent.h>
-#include <sys/vfs.h>
-#include <sys/statfs.h>
-
-#define USE_STATFS       1
-#define HAVE_GETOPT_LONG 1
-#define HAS_LARGEFILE    1
-
-  typedef enum  { FALSE=0, TRUE=1 }  bool;
-
-#elif defined( __GLIBC__ )
-
-#include <mntent.h>
-#include <sys/vfs.h>
-#include <sys/statvfs.h>
-
-#define HAVE_GETOPT_LONG 1
-#define HAS_LARGEFILE    1
-
-  typedef enum  { FALSE=0, TRUE=1 }  bool;
-
-#else
-
-/* ////////// For other cases ////////// */
-
-typedef enum  { FALSE=0, TRUE=1 }  bool;
-
-#if defined( __USE_FILE_OFFSET64 )
-#  define HAS_LARGEFILE 1
 #endif
+
+#ifdef HAVE_GETMNTINFO
+#define USE_GETMNTINFO
+#define GETMNTINFO_USES_STATFS
 #endif
-#endif
-#endif
-#endif 
-
-
-/* OS/2 */
-#if defined(__EMX__)                                                                                                                                                                              
-#define __off64_t __int64_t 
-#include <sys/vfs.h>
-#include <sys/statfs.h>
-#define USE_STATFS 1
-#endif          
-
-
-
 
 #include <dvdread/dvd_reader.h>
 
 /*for/from play_title.c*/
+#ifdef HAVE_ASSERT_H
 #include <assert.h>
-/* #include "config.h" */
+#endif
+
 #include <dvdread/ifo_types.h>
 #include <dvdread/ifo_read.h>
 /* #include <dvdread/dvd_udf.h> */
@@ -232,6 +162,6 @@ char *safestrncpy(char *dest, const char *src, size_t n);
 int check_progress( void ); /* this can be removed because the one below supersedes it */
 int progressUpdate( int starttime, int cur, int tot, int force );
 
-#if defined(__APPLE__) && defined(__GNUC__)
-int fdatasync( int value );
+#ifndef HAVE_FDATASYNC
+#define fdatasync(fd) 0
 #endif
