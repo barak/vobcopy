@@ -1,11 +1,13 @@
-vobcopy (1.2.0-8) UNRELEASED; urgency=medium
+vobcopy (1.2.0-8) unstable; urgency=medium
 
+  * Move quilt patchs out of debian/patches/ and onto master branch
   * Trim trailing whitespace.
   * Bump debhelper from old 11 to 12.
   * Set debhelper-compat version in Build-Depends.
   * Fix day-of-week for changelog entries 1.0.2-1, 0.5.7-1.
+  * Bump policy version
 
- -- Barak A. Pearlmutter <bap@debian.org>  Thu, 13 Feb 2020 13:48:10 +0000
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 13 Feb 2020 13:50:03 +0000
 
 vobcopy (1.2.0-7) unstable; urgency=medium
 
