@@ -2224,6 +2224,8 @@ int makedir( char *name )
 int progressUpdate(int starttime, int cur, int tot, int force)
 {
   static int progress_time = 0;
+  if (tot < 1)
+      return 0;
 
   if (progress_time == 0 || progress_time != time(NULL) || force)
   {
