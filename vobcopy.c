@@ -2236,7 +2236,7 @@ int progressUpdate(int starttime, int cur, int tot, int force)
 
   if (progress_time == 0 || progress_time != time(NULL) || force)
   {
-	  int barLen, barChar, numChars, timeSoFar, minsLeft, secsLeft, ctr, cols;
+	  int barLen, numChars, timeSoFar, minsLeft, secsLeft, ctr, cols;
 	  float percentComplete, percentLeft, timePerPercent;
 	  int curtime, timeLeft;
 
@@ -2247,12 +2247,11 @@ int progressUpdate(int starttime, int cur, int tot, int force)
 
 	  printf("\r");
 /* 	   calc it this way so it's easy to change later */
-/* 	   2 for brackets, 1 for space, 5 for percent complete, 1 for space, 6 for time left, 1 for space, 1 for padding */
-	  barLen = cols - 2 - 1 - 5 - 1 - 6 - 1 - 1;
-	  barChar = tot / barLen;
+/* 	   2 for brackets, 1 for space, 5 for percent complete, 1 for space, 6 for time left, 1 for space */
+	  barLen = cols - 2 - 1 - 5 - 1 - 6 - 1;
 	  percentComplete = (float)((float)cur / (float)tot * 100.0);
 	  percentLeft = 100 - percentComplete;
-	  numChars = (barChar <= 0) ? 0 : cur / barChar;
+	  numChars = cur * barLen / tot;
 
 /* 	   guess remaining time */
 	  timeSoFar = curtime - starttime;
