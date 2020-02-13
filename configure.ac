@@ -1,7 +1,7 @@
 # Process this file with autoconf to produce a configure script.
 
 # header
-AC_PREREQ([2.67])
+AC_PREREQ([2.69])
 AC_INIT([vobcopy],[1.2.0],[Robos <robos@muon.de>],[vobcopy],[http://vobcopy.org])
 AC_CONFIG_SRCDIR([vobcopy.c])
 AC_CONFIG_MACRO_DIR([m4])
