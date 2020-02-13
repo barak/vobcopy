@@ -2257,15 +2257,17 @@ int progressUpdate(int starttime, int cur, int tot, int force)
 	  minsLeft = (int)(timeLeft / 60);
 	  secsLeft = (int)(timeLeft % 60);
 
-	  printf("[");
-	  for (ctr = 0; ctr < numChars-1; ctr++) {
-		  printf("=");
+	  if (barLen > 0) {
+	      printf("[");
+	      for (ctr = 0; ctr < numChars-1; ctr++) {
+	          printf("=");
+	      }
+	      printf("|");
+	      for (ctr = numChars + (numChars < 1); ctr < barLen; ctr++) {
+	          printf(" ");
+	      }
+	      printf("] ");
 	  }
-	  printf("|");
-	  for (ctr = numChars; ctr < barLen; ctr++) {
-		  printf(" ");
-	  }
-	  printf("] ");
 	  printf("%5.1f%% %02d:%02d ", percentComplete, minsLeft, secsLeft);
 	  fflush(stdout);
   }
