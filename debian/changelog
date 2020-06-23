@@ -1,3 +1,10 @@
+vobcopy (1.2.0-9) unstable; urgency=medium
+
+  * Bump to debhelper 13
+  * Progress bar fix
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Tue, 23 Jun 2020 22:12:39 +0100
+
 vobcopy (1.2.0-8) unstable; urgency=medium
 
   * Move quilt patchs out of debian/patches/ and onto master branch
