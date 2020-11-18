@@ -1,3 +1,9 @@
+vobcopy (1.2.0-10) unstable; urgency=medium
+
+  * Merge null pointer dereference fix
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Wed, 18 Nov 2020 17:58:58 +0000
+
 vobcopy (1.2.0-9) unstable; urgency=medium
 
   * Bump to debhelper 13
