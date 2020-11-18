@@ -1439,7 +1439,7 @@ next: /*for the goto - ugly, I know... */
       fprintf( stderr, _("[Info]  Disk free: %f MB\n"), (double)  (pwd_free / ( 1024.0*1024.0 )) );
       fprintf( stderr, _("[Info]  Vobs size: %f MB\n"), (double)  vob_size / ( 1024.0*1024.0 ) );
       ifoClose( vmg_file );
-      DVDCloseFile( dvd_file );
+      if(dvd_file) DVDCloseFile( dvd_file );
       DVDClose( dvd );
       /*hope all are closed now...*/
       exit( 0 );
