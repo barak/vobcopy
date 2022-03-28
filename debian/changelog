@@ -1,3 +1,9 @@
+vobcopy (1.2.0-11) unstable; urgency=medium
+
+  * Maintenance release: bump some versions
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Mon, 28 Mar 2022 10:36:23 +0100
+
 vobcopy (1.2.0-10) unstable; urgency=medium
 
   * Merge null pointer dereference fix
