@@ -1,3 +1,10 @@
+vobcopy (1.2.1-1) unstable; urgency=medium
+
+  * Fixes for some compiler format overflow warnings
+  * Add uscan support file for de-facto upstream
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Wed, 04 May 2022 10:17:59 +0100
+
 vobcopy (1.2.0-11) unstable; urgency=medium
 
   * Maintenance release: bump some versions
