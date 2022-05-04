@@ -41,9 +41,9 @@ int get_dvd_name(const char *device, char *title)
   if ( !(filehandle = open(device, O_RDONLY, 0)) )       
   {
       /* open failed */
-      fprintf( stderr, _("[Error] Something went wrong while getting the dvd name  - please specify path as /cdrom or /dvd (mount point) or use -t\n"));
-      fprintf( stderr, _("[Error] Opening of the device failed\n"));
-      fprintf( stderr, _("[Error] Error: %s\n"), strerror( errno ) );
+      fprintf( stderr, "[Error] Something went wrong while getting the dvd name  - please specify path as /cdrom or /dvd (mount point) or use -t\n");
+      fprintf( stderr, "[Error] Opening of the device failed\n");
+      fprintf( stderr, "[Error] Error: %s\n", strerror(errno));
       return -1;
   }
   
@@ -52,9 +52,9 @@ int get_dvd_name(const char *device, char *title)
   {
       /* seek failed */
       close( filehandle );
-      fprintf( stderr, _("[Error] Something went wrong while getting the dvd name - please specify path as /cdrom or /dvd (mount point) or use -t\n"));
-      fprintf( stderr, _("[Error] Couldn't seek into the drive\n"));
-      fprintf( stderr, _("[Error] Error: %s\n"), strerror( errno ) );
+      fprintf( stderr, "[Error] Something went wrong while getting the dvd name - please specify path as /cdrom or /dvd (mount point) or use -t\n");
+      fprintf( stderr, "[Error] Couldn't seek into the drive\n");
+      fprintf( stderr, "[Error] Error: %s\n", strerror( errno ) );
       return -1;
   }
   
@@ -62,9 +62,9 @@ int get_dvd_name(const char *device, char *title)
   if ( (bytes_read = read(filehandle, tmp_buf, 2048)) != 2048 )      
   {
       close(filehandle);
-      fprintf( stderr, _("[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n") );
-      fprintf( stderr, _("[Error] only read %d bytes instead of 2048\n"), bytes_read);
-      fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
+      fprintf( stderr, "[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n");
+      fprintf( stderr, "[Error] only read %d bytes instead of 2048\n", bytes_read);
+      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
       return -1;
   }
   
@@ -82,7 +82,7 @@ int get_dvd_name(const char *device, char *title)
   }
   if( 0 == last )
       {
-          fprintf( stderr, _("[Hint] The dvd has no name, will choose a nice one ;-), else use -t\n") );
+          fprintf( stderr, "[Hint] The dvd has no name, will choose a nice one ;-), else use -t\n");
           strcpy( title, "insert_name_here\0" );
       }
   else
@@ -188,7 +188,7 @@ int get_device( char *path, char *device )
       }
     else
       {
-       fprintf( stderr, _("[Error] Error while reading filesystem info") );
+       fprintf( stderr, "[Error] Error while reading filesystem info" );
        return -1;
       }
 #elif ( defined( __sun ) )
@@ -198,8 +198,8 @@ int get_device( char *path, char *device )
  
     if ( ( mnttab_fp = fopen( "/etc/mnttab", "r" ) ) == NULL )
       {
-	fprintf( stderr, _(" [Error] Could not open mnttab for searching!\n") );
-	fprintf( stderr, _(" [Error] error: %s\n"), strerror( errno ) );
+	fprintf( stderr, " [Error] Could not open mnttab for searching!\n" );
+	fprintf( stderr, " [Error] error: %s\n", strerror( errno ) );
 	return -1;
       }
 
@@ -211,7 +211,7 @@ int get_device( char *path, char *device )
 	    char *new_device, *mnt_special;
 	    if ( strstr( mount_entry.mnt_special, "/dsk/" ) == NULL )
 	      {
-		fprintf( stderr, _("[Error] %s doesn't look like a disk device to me"),
+		fprintf( stderr, "[Error] %s doesn't look like a disk device to me",
 			 mount_entry.mnt_special );
 		return -1;
 	      }
@@ -234,13 +234,13 @@ int get_device( char *path, char *device )
       }
     if ( mntcheck > 0 )
       {
-         fprintf( stderr, _("[Error] Encountered error in reading mnttab file\n") );
-         fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
+         fprintf( stderr, "[Error] Encountered error in reading mnttab file\n" );
+         fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
          return -1;
       }
     else if ( mntcheck == -1 )
       {
-         fprintf( stderr, _("[Error] Did not find mount %s in mnttab!\n"), path );
+         fprintf( stderr, "[Error] Did not find mount %s in mnttab!\n", path );
          return -1;
       }
 #else
@@ -313,8 +313,8 @@ this is the code for the other-OSs, not solaris*/
       }
     else
       {
-	fprintf( stderr, _("[Error] Could not read /etc/mtab!\n") );
-	fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
+	fprintf( stderr, "[Error] Could not read /etc/mtab!\n" );
+	fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
 	return -1;
       }  
 #endif
@@ -346,7 +346,7 @@ this is the code for the other-OSs, not solaris*/
 
 		if( ( k = strstr( tmp_bufferin, "/dev/" ) ) == NULL )
 		  {
-		    fprintf( stderr, _("[Error] Weird, no /dev/ entry found in the line where iso9660 or udf gets mentioned in /etc/fstab\n") );
+		    fprintf( stderr, "[Error] Weird, no /dev/ entry found in the line where iso9660 or udf gets mentioned in /etc/fstab\n");
 		    return -1;
 		  }
 		l=0;
@@ -362,7 +362,7 @@ this is the code for the other-OSs, not solaris*/
 		if( isdigit( ( int) device[l-1] ) )
 	          {
                  if( strstr( device, "hd" ) )
-	              fprintf( stderr, _("[Hint] Hmm, the last char in the device path (%s) that gets mounted to %s is a number.\n"), device, path);
+	              fprintf( stderr, "[Hint] Hmm, the last char in the device path (%s) that gets mounted to %s is a number.\n", device, path);
 	          }
 		device[l] = '\0';
 	      }
@@ -371,15 +371,15 @@ this is the code for the other-OSs, not solaris*/
           fclose( tmp_streamin );
 	  if( !strstr( device, "/dev" ) )
 	    {
-	      fprintf( stderr, _("[Error] Could not find the provided path (%s), typo?\n"),path);
+	      fprintf( stderr, "[Error] Could not find the provided path (%s), typo?\n",path);
 	      device[0] = '\0';
 	      return -1;
 	    }
       }
     else
       {
-	fprintf( stderr, _("[Error] Could not read /etc/fstab!") );
-	fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
+	fprintf( stderr, "[Error] Could not read /etc/fstab!" );
+	fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
 	device[0] = '\0';
 	return -1;
       }
@@ -422,13 +422,13 @@ int get_device_on_your_own( char *path, char *device )
         }
       if(dvd_count == 0)
         { /* no cd found? Then user should mount it */
-	  fprintf( stderr, _("[Error] There seems to be no cd/dvd mounted. Please do that..\n"));
+	  fprintf( stderr, "[Error] There seems to be no cd/dvd mounted. Please do that..\n");
 	  return -1;
         }
     }
   else
     {
-      fprintf( stderr, _("[Error] An error occured while getting mounted file system information\n"));
+      fprintf( stderr, "[Error] An error occured while getting mounted file system information\n");
       return -1;
     }
 
@@ -459,8 +459,8 @@ int get_device_on_your_own( char *path, char *device )
 	   
     /* Try to open the mnttab info */
     if (( mnttab_fp = fopen( "/etc/mnttab", "r" ) ) == NULL) {
-      fprintf( stderr, _("[Error] Could not open mnttab for searching!\n") );
-      fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
+      fprintf( stderr, "[Error] Could not open mnttab for searching!\n" );
+      fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
       return -1;
 	     }
 
@@ -476,7 +476,7 @@ int get_device_on_your_own( char *path, char *device )
    
     /* no cd found? Then user should mount it */
     if (dvd_count == 0) {
-	 fprintf( stderr, _("[Error] There seems to be no cd/dvd mounted. Please do that..\n"));
+	 fprintf( stderr, "[Error] There seems to be no cd/dvd mounted. Please do that..\n");
 	 return -1;
        }
 
@@ -514,7 +514,7 @@ int get_device_on_your_own( char *path, char *device )
 
 	   if( ( k = strstr( tmp_bufferin, "/dev/" ) ) == NULL )
 	     {
-	       fprintf( stderr, _("[Error] Weird, no /dev/ entry found in the line where iso9660, udf or cdrom gets mentioned in /etc/mtab\n") );
+	       fprintf( stderr, "[Error] Weird, no /dev/ entry found in the line where iso9660, udf or cdrom gets mentioned in /etc/mtab\n");
 	       dvd_count--;
 	       continue;
 	     }
@@ -531,7 +531,7 @@ int get_device_on_your_own( char *path, char *device )
 	   if(isdigit((int)device[l-1]))
 	     {
                  if( strstr( device, "hd" ) )
-                    fprintf( stderr, _("[Hint] Hmm, the last char in the device path %s is a number.\n"), device );
+                    fprintf( stderr, "[Hint] Hmm, the last char in the device path %s is a number.\n", device );
 	     }
 	   
 	   /*The syntax of /etc/fstab and mtab seems to be something like this:
@@ -587,14 +587,14 @@ int get_device_on_your_own( char *path, char *device )
 
      if(dvd_count == 0)
        { /* no cd found? Then user should mount it */
-	 fprintf( stderr, _("[Error] There seems to be no cd/dvd mounted. Please do that..\n"));
+	 fprintf( stderr, "[Error] There seems to be no cd/dvd mounted. Please do that..\n");
 	 return -1;
        }
    }
  else
    {
-     fprintf( stderr, _("[Error] Could not read /etc/mtab!"));
-     fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
+     fprintf( stderr, "[Error] Could not read /etc/mtab!");
+     fprintf( stderr, "[Error] error: %s\n", strerror( errno ) );
      return -1;
    }
 #endif

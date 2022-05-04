@@ -10,10 +10,6 @@ AC_CONFIG_HEADERS([config.h])
 # Enable automake
 AM_INIT_AUTOMAKE([foreign -Wall])
 
-# Internationalization support
-AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.20])
-
 # Checks for programs.
 AC_PROG_CC
 AX_CFLAGS_WARN_ALL
@@ -24,7 +20,7 @@ AC_PROG_MKDIR_P
 AC_SEARCH_LIBS([DVDOpen], [dvdread],,[AC_MSG_ERROR([libdvdread not found])])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h libintl.h features.h locale.h mntent.h stdint.h stdlib.h string.h sys/ioctl.h sys/mount.h sys/param.h sys/statfs.h sys/statvfs.h sys/vfs.h termios.h unistd.h getopt.h sys/mnttab.h assert.h dirent.h])
+AC_CHECK_HEADERS([fcntl.h features.h mntent.h stdint.h stdlib.h string.h sys/ioctl.h sys/mount.h sys/param.h sys/statfs.h sys/statvfs.h sys/vfs.h termios.h unistd.h getopt.h sys/mnttab.h assert.h dirent.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -40,5 +36,5 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([alarm fdatasync getcwd getmntent getmntinfo memset mkdir setlocale strcasecmp strerror strpbrk strstr getopt_long])
 
 # trailer
-AC_CONFIG_FILES([Makefile po/Makefile.in])
+AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

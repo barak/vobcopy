@@ -7,20 +7,6 @@
 #define MAX_STRING  81
 #define MAX_DIFFER  2000
 
-#ifdef ENABLE_NLS
-#define _(Text) gettext(Text)
-#else
-#define _(Text) Text
-#endif
-
-#ifdef HAVE_LOCALE_H
-#include <locale.h>
-#endif
-
-#ifdef HAVE_LIBINTL_H
-#include <libintl.h>
-#endif
-
 #ifdef HAVE_FEATURES_H
 #include <features.h>
 #endif
