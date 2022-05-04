@@ -611,7 +611,7 @@ off_t get_vob_size( int title, char *provided_input_dir )
             path_to_vobs1[278], 
             path_to_vobs2[278], 
             path_to_vobs3[278];
-      char  stat_path[278];
+      char  stat_path[300];
       int   subvob;
       FILE  *tmp_streamin1;
       struct stat buf;
@@ -631,7 +631,7 @@ off_t get_vob_size( int title, char *provided_input_dir )
       /*
        * extract the size of the files on dvd using stat
        */
-      sprintf( stat_path, "%s_1.vob", path_to_vobs );
+      snprintf( stat_path, sizeof(stat_path), "%s_1.vob", path_to_vobs );
       
       if( ( tmp_streamin1 = fopen( stat_path, "r" ) ) != NULL ) /*check if this path is correct*/
 	{
@@ -641,14 +641,14 @@ off_t get_vob_size( int title, char *provided_input_dir )
 	    {
 	      /* adjust path for next subvob */
 	       subvob++;
-           sprintf( stat_path, "%s_%d.vob", path_to_vobs, subvob );	    
+           snprintf( stat_path, sizeof(stat_path), "%s_%d.vob", path_to_vobs, subvob );
 	       
 	      vob_size += buf.st_size;
 	    }	   
 	   return ( off_t ) vob_size;
 	}
       
-      sprintf( stat_path, "%s_1.VOB", path_to_vobs1 );
+      snprintf( stat_path, sizeof(stat_path), "%s_1.VOB", path_to_vobs1 );
       if( ( tmp_streamin1 = fopen( stat_path, "r" ) ) != NULL ) /*check if this path is correct */
 	{
 	  fclose ( tmp_streamin1 );
@@ -657,14 +657,14 @@ off_t get_vob_size( int title, char *provided_input_dir )
 	    {
 	      /* adjust path for next subvob */
 	      subvob++;
-          sprintf( stat_path, "%s_%d.VOB", path_to_vobs1, subvob );	    
+          snprintf( stat_path, sizeof(stat_path), "%s_%d.VOB", path_to_vobs1, subvob );
 	       
 	      vob_size += buf.st_size;
 	    }
    	   return ( off_t ) vob_size;
 	}
       
-      sprintf( stat_path, "%s_1.VOB", path_to_vobs2 );
+      snprintf( stat_path, sizeof(stat_path), "%s_1.VOB", path_to_vobs2 );
       if( ( tmp_streamin1 = fopen( stat_path, "r" ) ) != NULL ) /*check if this path is correct */
 	{
 	  fclose ( tmp_streamin1 );
@@ -689,7 +689,7 @@ off_t get_vob_size( int title, char *provided_input_dir )
 	    {
 	      /* adjust path for next subvob */
 	      subvob++;
-          sprintf( stat_path, "%s_%d.vob", path_to_vobs3, subvob );	      
+          snprintf( stat_path, sizeof(stat_path), "%s_%d.vob", path_to_vobs3, subvob );
 	      vob_size += buf.st_size;
 	    }
           return ( off_t ) vob_size; 
