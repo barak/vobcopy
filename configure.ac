@@ -10,10 +10,6 @@ AC_CONFIG_HEADERS([config.h])
 # Enable automake
 AM_INIT_AUTOMAKE([foreign -Wall])
 
-# Internationalization support
-AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.20])
-
 # Checks for programs.
 AC_PROG_CC
 AX_CFLAGS_WARN_ALL
@@ -40,5 +36,5 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([alarm fdatasync getcwd getmntent getmntinfo memset mkdir setlocale strcasecmp strerror strpbrk strstr getopt_long])
 
 # trailer
-AC_CONFIG_FILES([Makefile po/Makefile.in])
+AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
