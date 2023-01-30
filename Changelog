@@ -1,5 +1,7 @@
 Changelog for vobcopy:
 For more infos on the options see "man vobcopy"
+1.2.2:  Changed the home website of the project
+
 1.2.0:  Some new features!
 	-Progress bar and speed enhancements/system load reduction
 	coming with it - many thanks to Eric Kilfoil!
