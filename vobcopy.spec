@@ -4,7 +4,7 @@ Version: 1.2.0
 Release: 1
 License: GPL
 Group: Applications/Multimedia
-URL: http://vobcopy.org/projects/c/c.shtml
+URL: https://github.com/barak/vobcopy
 Source0: %{name}-%{version}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-root
 Requires: libdvdread
