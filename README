@@ -42,9 +42,6 @@ rpmbuild -ta vobcopy-0.5.8.tar.gz
 
 Compile:
 	make
-	(if you want to disable large file support during compilation, use
-	make disable_lfs
-	instead)
 Install:
 	as root: make install
 
