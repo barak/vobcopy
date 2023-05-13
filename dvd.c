@@ -258,8 +258,6 @@ this is the code for the other-OSs, not solaris*/
 		mounted = TRUE;
 		break;
 	    }
-	}
-	endmntent(tmp_streamin);
         
         if (strcmp(lmount_entry->mnt_fsname, "fuseiso") == 0) {
           fprintf ( stderr, "[Info] Fuseiso detected. I'm looking for the iso file\n");
@@ -283,6 +281,8 @@ this is the code for the other-OSs, not solaris*/
             endmntent(tmp_streamin_fuseiso);
           }
         }
+	}
+	endmntent(tmp_streamin);
 
 	if (mounted) 
             {
