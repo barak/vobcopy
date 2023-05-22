@@ -93,8 +93,10 @@
 typedef enum  { FALSE=0, TRUE=1 }  bool;
 #else
 #include <stdbool.h>
+#ifndef TRUE
 #define TRUE true
 #define FALSE false
+#endif
 #endif
 
 #ifdef HAVE_SYS_MNTTAB_H
