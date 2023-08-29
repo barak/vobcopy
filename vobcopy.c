@@ -25,7 +25,7 @@
  * rosenauer@users.sf.net - helped me a lot! 
  * Billy Biggs <vektor@dumbterm.net> - took some of his play_title.c code 
  * and implemeted it here 
- * Håkan Hjort <d95hjort@dtek.chalmers.se> and Billy Biggs - libdvdread
+ * HÃ¥kan Hjort <d95hjort@dtek.chalmers.se> and Billy Biggs - libdvdread
  * Stephen Birch <sgbirch@imsmail.org> - debian packaging
  */
 
