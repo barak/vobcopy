@@ -721,6 +721,8 @@ and potentially fatal."  - Thanks Leigh!*/
       fprintf( stderr, _("[Error] Try something like -i /cdrom, /dvd  or /mnt/dvd \n") );
       if( dvd_count > 1 )
         fprintf( stderr, _("[Hint] By the way, you have %i cdroms|dvds mounted, that probably caused the problem\n"), dvd_count );
+      if( dvd )
+        DVDClose( dvd );
       exit( 1 );
     }
 
@@ -2340,12 +2342,17 @@ void get_fallback_dvd_name( const char *path, char *title, size_t title_size )
 
   if ( title_size == 0 )
     return;
+  if ( title_size == 1 )
+    {
+      title[0] = '\0';
+      return;
+    }
 
-  snprintf( title, title_size, "%s", DEFAULT_DVD_NAME );
+  safestrncpy( title, DEFAULT_DVD_NAME, title_size - 1 );
   if( !path || !*path )
     return;
 
-  snprintf( path_copy, sizeof(path_copy), "%s", path );
+  safestrncpy( path_copy, path, sizeof(path_copy) - 1 );
   path_length = strlen( path_copy );
   while( path_length > 1 && path_copy[ path_length - 1 ] == '/' )
     {
@@ -2384,7 +2391,7 @@ void get_fallback_dvd_name( const char *path, char *title, size_t title_size )
   if( !*component )
     return;
 
-  snprintf( title, title_size, "%s", component );
+  safestrncpy( title, component, title_size - 1 );
   for( i = 0; title[ i ] != '\0'; i++ )
     {
       if( title[ i ] == ' ' )
