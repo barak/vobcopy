@@ -69,13 +69,13 @@ int main ( int argc, char *argv[] )
   char              dvd_path[255], logfile_name[20],logfile_path[280]="\0"; /* TODO: fill logfile_path with all zeros so that
  " if strncpy() finds the source too long IT DOES NOT TERMINATE the sink, so the following strcat() is undefined 
 and potentially fatal."  - Thanks Leigh!*/
-  char              dvd_name[35], vobcopy_call[255], provided_dvd_name[35];
+  char              dvd_name[35] = "insert_name_here", vobcopy_call[255], provided_dvd_name[35] = "";
   char              *size_suffix;
   char              pwd[255],provided_output_dir[255],provided_input_dir[255];
   char              alternate_output_dir[4][255], onefile[255];
   unsigned char     bufferin[ DVD_VIDEO_LB_LEN * BLOCK_COUNT ];
   int               i = 0,j = 0, argc_i = 0, alternate_dir_count = 0;
-  int               partcount = 0, get_dvd_name_return, options_char = 0;
+  int               partcount = 0, get_dvd_name_return = -1, options_char = 0;
   int               dvd_count = 0, verbosity_level = 0, paths_taken = 0, fast_factor = 1;
   int               watchdog_minutes = 0;
   long long unsigned int          seek_start = 0, stop_before_end = 0, temp_var;
@@ -721,7 +721,6 @@ and potentially fatal."  - Thanks Leigh!*/
       fprintf( stderr, _("[Error] Try something like -i /cdrom, /dvd  or /mnt/dvd \n") );
       if( dvd_count > 1 )
         fprintf( stderr, _("[Hint] By the way, you have %i cdroms|dvds mounted, that probably caused the problem\n"), dvd_count );
-      DVDClose( dvd );
       exit( 1 );
     }
 
@@ -731,7 +730,14 @@ and potentially fatal."  - Thanks Leigh!*/
   if ( provided_dvd_name_flag )
     safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name)-1 );
   else
-    get_dvd_name_return = get_dvd_name( dvd_path, dvd_name );
+    {
+      get_dvd_name_return = get_dvd_name( dvd_path, dvd_name );
+      if ( get_dvd_name_return < 0 )
+        {
+          get_fallback_dvd_name( dvd_path, dvd_name, sizeof(dvd_name) );
+          fprintf( stderr, _("[Hint] Falling back to '%s' as dvd name.\n"), dvd_name );
+        }
+    }
   fprintf( stderr, _("[Info] Name of the dvd: %s\n"), dvd_name );
 
   /* The new part taken from play-title.c*/
@@ -748,6 +754,13 @@ and potentially fatal."  - Thanks Leigh!*/
       return -1;
     }
   tt_srpt = vmg_file->tt_srpt;
+  if( !tt_srpt || tt_srpt->nr_of_srpts < 1 )
+    {
+      fprintf( stderr, _("[Error] Can't read title information from this DVD.\n") );
+      ifoClose( vmg_file );
+      DVDClose( dvd );
+      return -1;
+    }
 
   /**
    * Get the title with the most chapters since this is probably the main part
@@ -2317,6 +2330,63 @@ char *safestrncpy(char *dest, const char *src, size_t n)
 {
   dest[n] = '\0';
   return strncpy(dest, src, n-1);
+}
+
+void get_fallback_dvd_name( const char *path, char *title, size_t title_size )
+{
+  char path_copy[255];
+  char *component;
+  size_t i, path_length;
+
+  if ( title_size == 0 )
+    return;
+
+  snprintf( title, title_size, "%s", "insert_name_here" );
+  if( !path || !*path )
+    return;
+
+  snprintf( path_copy, sizeof(path_copy), "%s", path );
+  path_length = strlen( path_copy );
+  while( path_length > 1 && path_copy[ path_length - 1 ] == '/' )
+    {
+      path_copy[ path_length - 1 ] = '\0';
+      path_length--;
+    }
+
+  component = strrchr( path_copy, '/' );
+  component = component ? component + 1 : path_copy;
+  if( !strcasecmp( component, "VIDEO_TS" ) )
+    {
+      if( component == path_copy )
+        {
+          if( getcwd( path_copy, sizeof(path_copy) ) == NULL )
+            return;
+        }
+      else
+        {
+          *( component - 1 ) = '\0';
+        }
+
+      path_length = strlen( path_copy );
+      while( path_length > 1 && path_copy[ path_length - 1 ] == '/' )
+        {
+          path_copy[ path_length - 1 ] = '\0';
+          path_length--;
+        }
+
+      component = strrchr( path_copy, '/' );
+      component = component ? component + 1 : path_copy;
+    }
+
+  if( !*component )
+    return;
+
+  snprintf( title, title_size, "%s", component );
+  for( i = 0; title[ i ] != '\0'; i++ )
+    {
+      if( title[ i ] == ' ' )
+        title[ i ] = '_';
+    }
 }
 
 

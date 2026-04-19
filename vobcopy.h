@@ -161,6 +161,7 @@ void install_signal_handlers();
 void watchdog_handler( int signal );
 void shutdown_handler( int signal );
 char *safestrncpy(char *dest, const char *src, size_t n);
+void get_fallback_dvd_name( const char *path, char *title, size_t title_size );
 int check_progress( void ); /* this can be removed because the one below supersedes it */
 int progressUpdate( int starttime, int cur, int tot, int force );
 
