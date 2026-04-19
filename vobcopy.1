@@ -84,7 +84,7 @@ all info- and error-messages of vobcopy will end up in the current directory in 
 .IP "\-O, \-\-onefile single_file(s)_to_rip"
 specify which single file(s) to rip. Parts of names can be given and all 
 files which include the part will be copied. Files can be listed with comma 
-separation. Example: \-O video_ts.vob,bup will copy the single file video_ts.vob and all files containing bup
+separation. Example: \-O video_ts.vob,bup will copy the single file video_ts.vob and all files containing bup. This mode selects files by name from VIDEO_TS, so it cannot be combined with \-n. To match title 2 in this mode, use something like \-O vts_02_
 .IP "\-t, \-\-name NAME"
 you can give the file a name if you don't like the one from dvd. \-t hallo will result in hallo.vob. (stdout or "\-" are deprecated now)
 If you want to give it names like "Huh I like this movie", do it in quotation marks.
@@ -109,5 +109,4 @@ Vobcopy is still under development. So expect some.
 There *might* be problems for users who's system is not large-file ready. If so, please get back to me.
 .SH AUTHOR
 Robos <robos@muon.de>
-
 
