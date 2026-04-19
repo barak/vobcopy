@@ -6,6 +6,8 @@
 #define BLOCK_COUNT 64
 #define MAX_STRING  81
 #define MAX_DIFFER  2000
+#define PATH_BUFFER_SIZE 255
+#define DEFAULT_DVD_NAME "insert_name_here"
 
 #ifdef ENABLE_NLS
 #define _(Text) gettext(Text)

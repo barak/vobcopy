@@ -66,13 +66,13 @@ int main ( int argc, char *argv[] )
 {
   int               streamout, block_count, blocks, file_block_count;
   int               op;
-  char              dvd_path[255], logfile_name[20],logfile_path[280]="\0"; /* TODO: fill logfile_path with all zeros so that
+  char              dvd_path[PATH_BUFFER_SIZE], logfile_name[20],logfile_path[280]="\0"; /* TODO: fill logfile_path with all zeros so that
  " if strncpy() finds the source too long IT DOES NOT TERMINATE the sink, so the following strcat() is undefined 
 and potentially fatal."  - Thanks Leigh!*/
-  char              dvd_name[35] = "insert_name_here", vobcopy_call[255], provided_dvd_name[35] = "";
+  char              dvd_name[35] = DEFAULT_DVD_NAME, vobcopy_call[255], provided_dvd_name[35] = "";
   char              *size_suffix;
-  char              pwd[255],provided_output_dir[255],provided_input_dir[255];
-  char              alternate_output_dir[4][255], onefile[255];
+  char              pwd[PATH_BUFFER_SIZE],provided_output_dir[PATH_BUFFER_SIZE],provided_input_dir[PATH_BUFFER_SIZE];
+  char              alternate_output_dir[4][PATH_BUFFER_SIZE], onefile[PATH_BUFFER_SIZE];
   unsigned char     bufferin[ DVD_VIDEO_LB_LEN * BLOCK_COUNT ];
   int               i = 0,j = 0, argc_i = 0, alternate_dir_count = 0;
   int               partcount = 0, get_dvd_name_return = -1, options_char = 0;
@@ -517,7 +517,7 @@ and potentially fatal."  - Thanks Leigh!*/
     }
   else
     {
-      if ( getcwd( pwd, 255 ) == NULL )
+      if ( getcwd( pwd, PATH_BUFFER_SIZE ) == NULL )
         {
           fprintf( stderr, _("\n[Error] Hmm, the path length of your current directory is really large (>255)\n") );
           fprintf( stderr, _("[Hint] Change to a path with shorter path length pleeeease ;-)\n") );
@@ -2334,14 +2334,14 @@ char *safestrncpy(char *dest, const char *src, size_t n)
 
 void get_fallback_dvd_name( const char *path, char *title, size_t title_size )
 {
-  char path_copy[255];
+  char path_copy[PATH_BUFFER_SIZE];
   char *component;
   size_t i, path_length;
 
   if ( title_size == 0 )
     return;
 
-  snprintf( title, title_size, "%s", "insert_name_here" );
+  snprintf( title, title_size, "%s", DEFAULT_DVD_NAME );
   if( !path || !*path )
     return;
 
