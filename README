@@ -72,6 +72,8 @@ vobcopy -O <filename of single files you want to copy, more than one have to
 	be separated by comma>
 	e.g. -O video_ts.vob,vts_01_01.ifo,vts_01_01.vob
 	or -O bup,ifo will copy all files containing ifo and bup in their names
+	This selects files by name from VIDEO_TS, so it cannot be combined with
+	-n. To match title 2 in this mode, use something like -O vts_02_.
 
 vobcopy -F <fast_factor= 1..64> (--fast)
 	Speed up the copying (experimental)
