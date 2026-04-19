@@ -1,2 +1,5 @@
-version=4
-https://github.com/barak/@PACKAGE@/tags .*/v?([0=9.]+)@ARCHIVE_EXT@
+Version: 5
+
+Template: Github
+Owner: barak
+Project: @PACKAGE@
