@@ -652,10 +652,17 @@ and potentially fatal."  - Thanks Leigh!*/
       fprintf( stderr, _("[Info] Called: %s\n"), vobcopy_call );
     }
 
-  /*sanity check: -m and -n are mutually exclusive... */
+  /*sanity check: -n can't be combined with mirror/onefile modes */
+  if( titleid_flag && onefile_flag )
+    {
+      fprintf( stderr, _("\n[Error] Please use either -n or -O, not both.\n") );
+      fprintf( stderr, _("[Hint] -O copies explicitly named files from VIDEO_TS. Use a pattern like -O VTS_02_ to match title 2.\n") );
+      exit( 1 );
+    }
+
   if( titleid_flag && mirror_flag )
     {
-      fprintf( stderr, _("\n[Error] There can be only one: either -m or -n...'\n") );
+      fprintf( stderr, _("\n[Error] Please use either -m or -n, not both.\n") );
       exit( 1 );
     }
 

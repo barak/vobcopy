@@ -97,7 +97,9 @@ gibt (eine) einzelne Datei(en) für das Kopieren an. Teile von Namen können
 angegeben werden und alle Dateien, die die Namensteile enthalten, werden 
 kopiert. Dateinamen können als mit Komma getrennte Liste angegeben werden.
 Beispiel: \-O video_ts.vob,bup kopiert die Datei video_ts.vob und alle Dateien,
-deren Namen bup enthält.
+deren Namen bup enthält. Dieser Modus wählt Dateien anhand ihres Namens aus dem
+VIDEO_TS aus und kann daher nicht mit \-n kombiniert werden. Für Titel 2 kann
+man in diesem Modus zum Beispiel \-O vts_02_ verwenden.
 .IP "\-t, \-\-name NAME"
 Damit kann man der Ausgabedatei einen eigenen Namen geben, wenn einem der von 
 der DVD nicht gefällt. \-t hallo erzeugt also ein hallo.vob. (stdout oder "\-" sind nun
@@ -131,5 +133,3 @@ Dateien haben (LFS). Wenn welche auftreten, sollten diese bitte an mich gemeldet
 werden.
 .SH AUTHOR
 Robos <robos@muon.de>
-
-
