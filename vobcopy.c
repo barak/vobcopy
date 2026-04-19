@@ -75,7 +75,7 @@ and potentially fatal."  - Thanks Leigh!*/
   char              alternate_output_dir[4][PATH_BUFFER_SIZE], onefile[PATH_BUFFER_SIZE];
   unsigned char     bufferin[ DVD_VIDEO_LB_LEN * BLOCK_COUNT ];
   int               i = 0,j = 0, argc_i = 0, alternate_dir_count = 0;
-  int               partcount = 0, get_dvd_name_return = -1, options_char = 0;
+  int               partcount = 0, get_dvd_name_return = 0, options_char = 0;
   int               dvd_count = 0, verbosity_level = 0, paths_taken = 0, fast_factor = 1;
   int               watchdog_minutes = 0;
   long long unsigned int          seek_start = 0, stop_before_end = 0, temp_var;
@@ -2348,11 +2348,11 @@ void get_fallback_dvd_name( const char *path, char *title, size_t title_size )
       return;
     }
 
-  safestrncpy( title, DEFAULT_DVD_NAME, title_size - 1 );
+  safestrncpy( title, DEFAULT_DVD_NAME, title_size );
   if( !path || !*path )
     return;
 
-  safestrncpy( path_copy, path, sizeof(path_copy) - 1 );
+  safestrncpy( path_copy, path, sizeof(path_copy) );
   path_length = strlen( path_copy );
   while( path_length > 1 && path_copy[ path_length - 1 ] == '/' )
     {
@@ -2391,7 +2391,7 @@ void get_fallback_dvd_name( const char *path, char *title, size_t title_size )
   if( !*component )
     return;
 
-  safestrncpy( title, component, title_size - 1 );
+  safestrncpy( title, component, title_size );
   for( i = 0; title[ i ] != '\0'; i++ )
     {
       if( title[ i ] == ' ' )
