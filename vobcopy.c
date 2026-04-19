@@ -2360,7 +2360,10 @@ void get_fallback_dvd_name( const char *path, char *title, size_t title_size )
       if( component == path_copy )
         {
           if( getcwd( path_copy, sizeof(path_copy) ) == NULL )
-            return;
+            {
+              fprintf( stderr, _("[Warning] Couldn't determine the current directory for a fallback dvd name.\n") );
+              return;
+            }
         }
       else
         {
