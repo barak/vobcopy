@@ -1,13 +1,11 @@
 Source: vobcopy
 Section: utils
-Priority: optional
 Maintainer: Stephen Birch <sgbirch@imsmail.org>
 Uploaders: Barak A. Pearlmutter <bap@debian.org>
 Build-Depends: debhelper-compat (= 13),
 		libdvdread-dev,
 		autoconf-archive
-Standards-Version: 4.6.2
-Rules-Requires-Root: no
+Standards-Version: 4.7.4
 Homepage: http://vobcopy.org
 Vcs-Git: https://salsa.debian.org/debian/vobcopy.git
 Vcs-Browser: https://salsa.debian.org/debian/vobcopy
