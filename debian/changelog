@@ -1,4 +1,4 @@
-vobcopy (1.2.1-5) UNRELEASED; urgency=medium
+vobcopy (1.2.2-1) unstable; urgency=medium
 
   * track upstream changes
   * update packaging scripts
