@@ -2,7 +2,7 @@
 
 # header
 AC_PREREQ([2.69])
-AC_INIT([vobcopy],[1.2.1],[Robos <robos@muon.de>],[vobcopy],[https://github.com/barak/vobcopy])
+AC_INIT([vobcopy],[1.2.2],[Robos <robos@muon.de>],[vobcopy],[https://github.com/barak/vobcopy])
 AC_CONFIG_SRCDIR([vobcopy.c])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([config.h])
