@@ -89,11 +89,10 @@ and potentially fatal."  - Thanks Leigh!*/
   bool              force_flag = FALSE, info_flag = FALSE, cut_flag = FALSE;
   bool              large_file_flag = FALSE, titleid_flag = FALSE;
   bool              mirror_flag = FALSE, provided_dvd_name_flag = FALSE;
-  bool              stdout_flag = FALSE, space_greater_2gb_flag = TRUE;
+  bool              stdout_flag = FALSE;
   bool              fast_switch = FALSE, onefile_flag = FALSE;
   bool              quiet_flag = FALSE, longest_title_flag = FALSE;
   struct stat       buf;
-  float             lastpos = 0;
   int               starttime;
 
   dvd_reader_t      *dvd = NULL;
@@ -104,14 +103,12 @@ and potentially fatal."  - Thanks Leigh!*/
   /**
    *this is taken from play_title.c
    */
-  int               titleid = 2, chapid = 0, pgc_id, start_cell;
-  int               angle = 0, ttn, pgn, sum_chapters = 0;
+  int               titleid = 2, chapid = 0;
+  int               angle = 0, sum_chapters = 0;
   int               sum_angles = 0, most_chapters = 0;
   ifo_handle_t *vmg_file;
   tt_srpt_t *tt_srpt;
   ifo_handle_t *vts_file;
-  vts_ptt_srpt_t *vts_ptt_srpt;
-  pgc_t *cur_pgc;
 
   /*
     this is for the mirror feature (readdir)
@@ -309,7 +306,7 @@ and potentially fatal."  - Thanks Leigh!*/
             }
           fprintf( stderr, _("[Hint] You use -i. Normally this is not necessary, vobcopy finds the input dir by itself. This option is only there if vobcopy makes trouble.\n") );
           fprintf( stderr, _("[Hint] If vobcopy makes trouble, please mail me so that I can fix this (robos@muon.de). Thanks\n") );
-          safestrncpy( provided_input_dir, optarg, sizeof(provided_input_dir)-1 );
+          safestrncpy( provided_input_dir, optarg, sizeof(provided_input_dir) );
           if( strstr( provided_input_dir, "/dev" ) )
             {
               fprintf( stderr, _("[Error] Please don't use -i /dev/something in this version, only the next version will support this again.\n") );
@@ -349,7 +346,7 @@ and potentially fatal."  - Thanks Leigh!*/
             {
               fprintf( stderr, _("[Hint] Erm, the number comes behind -n ... \n") );
             }
-          safestrncpy( provided_output_dir, optarg, sizeof(provided_output_dir)-1 );
+          safestrncpy( provided_output_dir, optarg, sizeof(provided_output_dir) );
           if ( !strcasecmp( provided_output_dir, "stdout" ) || !strcasecmp( provided_output_dir, "-" ) )
             {
               stdout_flag = TRUE;
@@ -381,7 +378,7 @@ and potentially fatal."  - Thanks Leigh!*/
             {
               fprintf( stderr, _("[Hint] Erm, the number comes behind -n ... \n") );
             }
-          safestrncpy( alternate_output_dir[ options_char-49 ], optarg, sizeof(alternate_output_dir[ options_char-49 ])-1 );
+          safestrncpy( alternate_output_dir[ options_char-49 ], optarg, sizeof(alternate_output_dir[ options_char-49 ]) );
           provided_output_dir_flag = TRUE;
           alternate_dir_count++;
           force_flag = TRUE;
@@ -391,7 +388,7 @@ and potentially fatal."  - Thanks Leigh!*/
           		     maybe even stdout output */
           if ( strlen( optarg ) > 33 )
             printf( "[Hint] The max title-name length is 33, the remainder got discarded" );
-          safestrncpy( provided_dvd_name, optarg, sizeof(provided_dvd_name)-1 );
+          safestrncpy( provided_dvd_name, optarg, sizeof(provided_dvd_name) );
           provided_dvd_name_flag = TRUE;
           if ( !strcasecmp( provided_dvd_name,"stdout" ) || !strcasecmp( provided_dvd_name,"-" ) )
             {
@@ -464,7 +461,7 @@ and potentially fatal."  - Thanks Leigh!*/
 
         case'O': /*only one file will get copied*/
           onefile_flag = TRUE;
-          safestrncpy( onefile, optarg, sizeof(onefile)-1 );
+          safestrncpy( onefile, optarg, sizeof(onefile) );
           i = 0; /*this i here could be bad... */
           while( onefile[ i ] )
             {
@@ -678,7 +675,7 @@ and potentially fatal."  - Thanks Leigh!*/
           fprintf( stderr, _("\n[Error] Bloody path to long '%s'\n"), argv[optind] );
           exit( 1 );
         }
-      safestrncpy( provided_input_dir, argv[optind],sizeof(provided_input_dir)-1 );
+      safestrncpy( provided_input_dir, argv[optind],sizeof(provided_input_dir) );
     }
 
   if ( provided_input_dir_flag ) /*the path has been given to us */
@@ -714,7 +711,7 @@ and potentially fatal."  - Thanks Leigh!*/
   if (! mounted )
     {
       /*see if the path given is a iso file or a VIDEO_TS dir */
-      safestrncpy( dvd_path, provided_input_dir, sizeof(dvd_path)-1 );
+      safestrncpy( dvd_path, provided_input_dir, sizeof(dvd_path) );
     }
 
   /*
@@ -737,7 +734,7 @@ and potentially fatal."  - Thanks Leigh!*/
    * this here gets the dvd name
    */
   if ( provided_dvd_name_flag )
-    safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name)-1 );
+    safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name) );
   else
     {
       get_dvd_name_return = get_dvd_name( dvd_path, dvd_name );
@@ -936,7 +933,7 @@ and potentially fatal."  - Thanks Leigh!*/
       if( provided_dvd_name_flag )
 	{
 	  fprintf( stderr, _("\n[Info] Your name for the dvd: %s\n"), provided_dvd_name );
-	  safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name)-1 );
+	  safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name) );
 	}
       fprintf( stderr, _("[Info]  Disk free: %.0f MB\n"), (float) pwd_free / ( 1024*1024 ) );
       fprintf( stderr, _("[Info]  Vobs size: %.0f MB\n"), (float) disk_vob_size / ( 1024*1024 ) );
@@ -947,14 +944,14 @@ and potentially fatal."  - Thanks Leigh!*/
           char number[8];
           char input_file[280];
           char output_file[255];
-          int  i, start, title_nr = 0;
+          int  i, start = 0, title_nr = 0;
           off_t file_size;
           double tmp_i = 0, tmp_file_size = 0;
           int k = 0;
           char d_name[256];
 
           safestrncpy( name, pwd,  sizeof(name)-34 ); /*  255 */
-          strncat( name, dvd_name, 33 );
+          strcat( name, dvd_name );
 
           if( !stdout_flag )
             {
@@ -991,7 +988,7 @@ and potentially fatal."  - Thanks Leigh!*/
             {/*main mirror loop*/
 
               k = 0;
-              safestrncpy( output_file, name, sizeof(output_file)-1 );
+              safestrncpy( output_file, name, sizeof(output_file) );
               /*in dvd specs it says it must be uppercase VIDEO_TS/VTS...
               but iso9660 mounted dvd's sometimes have it lowercase */
               while( directory->d_name[k] )
@@ -1056,7 +1053,7 @@ next: /*for the goto - ugly, I know... */
                       position_from_end = strlen( d_name ) - (pch - d_name);
                       if ( position_from_end < 4 ) {
                         fprintf( stderr, _("\n[Hint] File on dvd ends in \";?\" (%s)\n"), d_name );
-                        strncat( output_file, d_name, strlen( d_name ) - position_from_end );
+                        strncat( output_file, d_name, (size_t)(pch - d_name) );
                       }
                     }
                   else
@@ -1405,7 +1402,6 @@ next: /*for the goto - ugly, I know... */
                            ( tmp_file_size+2048 )/( 1024*1024 ) );
                   fprintf( stderr, _("( 100.0%% ) ") );
 */
-		  lastpos = 0;
 		  progressUpdate(starttime, (int)(( ( i-start+1 )*DVD_VIDEO_LB_LEN )), (int)(tmp_file_size+2048), TRUE);
                   start=i;
                   fprintf( stderr, _("\n") );
@@ -1486,12 +1482,6 @@ next: /*for the goto - ugly, I know... */
    * Determine which program chain we want to watch.  This is based on the
    * chapter number.
    */
-  ttn = tt_srpt->title[ titleid-1 ].vts_ttn;
-  vts_ptt_srpt = vts_file->vts_ptt_srpt;
-  pgc_id = vts_ptt_srpt->title[ ttn - 1 ].ptt[ chapid ].pgcn;
-  pgn = vts_ptt_srpt->title[ ttn - 1 ].ptt[ chapid ].pgn;
-  cur_pgc = vts_file->vts_pgcit->pgci_srp[ pgc_id - 1 ].pgc;
-  start_cell = cur_pgc->program_map[ pgn - 1 ] - 1;
 
 
   /**
@@ -1615,7 +1605,7 @@ The man replies, "I was talking to the sheep."
     /*if the user has given a name for the file */
     {
       fprintf( stderr, _("\n[Info] Your name for the dvd: %s\n"), provided_dvd_name );
-      safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name)-1 );
+      safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name) );
     }
 
   while( offset < ( file_size_in_blocks - seek_start - stop_before_end ) )
@@ -1659,7 +1649,6 @@ The man replies, "I was talking to the sheep."
 
           if( !large_file_flag && force_flag && free_space < 2147473408 ) /* 2GB */
             {
-              space_greater_2gb_flag = FALSE;
               max_filesize_in_blocks = ( ( free_space - 2097152 ) / 2048 ); /* - 2 MB */
               if( verbosity_level > 1 )
                 fprintf( stderr, _("[Info] Taken max_filesize_in_blocks(2GB version): %.0f\n"), ( float ) max_filesize_in_blocks );
@@ -1667,7 +1656,6 @@ The man replies, "I was talking to the sheep."
             }
           else if( large_file_flag && force_flag) /*lfs version */
             {
-              space_greater_2gb_flag = FALSE;
               max_filesize_in_blocks = ( ( free_space - 2097152) / 2048);/* - 2 MB */
               if( verbosity_level > 1)
                 fprintf( stderr, _("[Info] Taken max_filesize_in_blocks(lfs version): %.0f\n"), ( float ) max_filesize_in_blocks );
@@ -1676,7 +1664,6 @@ The man replies, "I was talking to the sheep."
           else if( !large_file_flag )
             {
               max_filesize_in_blocks = 1048571; /*if free_space is more than  2 GB fall back to max_filesize_in_blocks=2GB*/
-              space_greater_2gb_flag = TRUE;
             }
 
 
@@ -2070,7 +2057,7 @@ off_t get_used_space( char *path, int verbosity_level )
 
 int make_output_path( char *pwd,char *name,int get_dvd_name_return, char *dvd_name,int titleid, int partcount )
 {
-  char temp[5];
+  char temp[12];
   strcpy( name, pwd );
   strcat( name, dvd_name );
 
@@ -2334,11 +2321,15 @@ void shutdown_handler( int signal )
   _exit( 2 );
 }
 
-/* safe strcncpy, adds null terminator */
+/* safe strncpy: copies at most n-1 bytes and always null-terminates */
 char *safestrncpy(char *dest, const char *src, size_t n)
 {
-  dest[n] = '\0';
-  return strncpy(dest, src, n-1);
+  if (n == 0) return dest;
+  size_t src_len = strlen(src);
+  size_t copy_len = src_len < n - 1 ? src_len : n - 1;
+  memcpy(dest, src, copy_len);
+  dest[copy_len] = '\0';
+  return dest;
 }
 
 void get_fallback_dvd_name( const char *path, char *title, size_t title_size )

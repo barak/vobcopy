@@ -742,7 +742,6 @@ int get_longest_title( dvd_reader_t *dvd )
   pgcit_t *vts_pgcit;
   vtsi_mat_t *vtsi_mat;
   vmgi_mat_t *vmgi_mat;
-  video_attr_t *video_attr;
   pgc_t *pgc;
   int i, j, titles, vts_ttn, title_set_nr;
   int max_length = 0, max_track = 0;
@@ -787,7 +786,6 @@ int get_longest_title( dvd_reader_t *dvd )
 
 	vtsi_mat   = ifo[ifo_zero->tt_srpt->title[j].title_set_nr]->vtsi_mat;
 	vts_pgcit  = ifo[ifo_zero->tt_srpt->title[j].title_set_nr]->vts_pgcit;
-	video_attr = &vtsi_mat->vts_video_attr;
 	vts_ttn = ifo_zero->tt_srpt->title[j].vts_ttn;
 	vmgi_mat = ifo_zero->vmgi_mat;
 	title_set_nr = ifo_zero->tt_srpt->title[j].title_set_nr;
