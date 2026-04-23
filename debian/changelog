@@ -1,3 +1,9 @@
+vobcopy (1.2.2-2) UNRELEASED; urgency=medium
+
+  * debian/copyright, update to modern standards
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Thu, 23 Apr 2026 16:27:52 +0100
+
 vobcopy (1.2.2-1) unstable; urgency=medium
 
   * track upstream changes

@@ -1,27 +1,31 @@
-This package was debianized by Philippe Normand (phil) <sweafty@free.fr> on
-Mon, 15 Jul 2002 18:27:23 +0200.  Debian maintenance of the package was taken
-over on Feb 7, 2004 by Stephen Birch <sgbirch@imsmail.org>.
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: vobcopy
+Upstream-Contact: robos@muon.de
+Source: https://github.com/barak/vobcopy
 
-Upstream location: http://vobcopy.org
-Upstream Author: Robos <robos@muon.de>
+Files: *
+Copyright: 2001-2009 robos@muon.de
+License: GPL-2+
 
-This software is copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007 Robos
-<robos@muon.de>, Philippe Normand, Stephen Birch, and lots of contribution and
-cleanup from rosenauer@users.sourceforge.net.
+Files: debian/*
+Copyright: 2002 Philippe Normand <sweafty@free.fr>
+           2004 Stephen Birch <sgbirch@imsmail.org>
+           2009-2026 Barak A. Pearlmutter <bap@debian.org>
+License: GPL-2+
 
-   This package is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 2 dated June, 1991.
-
-   This package is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-
-   You should have received a copy of the GNU General Public License
-   along with this package; if not, write to the Free Software Foundation,
-   Inc., 51 Franklin St, Fifth Floor, Boston,
-   MA 02110-1301, USA.
-
-On Debian GNU/Linux systems, the complete text of the GNU General
-Public License version 2 can be found in `/usr/share/common-licenses/GPL-2'.
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>.
+ .
+ On Debian GNU/Linux systems, the complete text of the GNU General
+ Public License version 2 can be found in `/usr/share/common-licenses/GPL-2'.
