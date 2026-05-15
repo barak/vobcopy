@@ -1542,7 +1542,7 @@ next: /*for the goto - ugly, I know... */
       selected_range_index = 0;
       selected_sector = selected_ranges[ 0 ].first_sector;
 
-      if( cut_flag && ( seek_start + stop_before_end ) >= (long long unsigned int) selected_title_blocks )
+      if( cut_flag && ( ( off_t ) seek_start + ( off_t ) stop_before_end ) >= selected_title_blocks )
         {
           fprintf( stderr, _("[Error] The selected begin/end cut removes the complete title.\n") );
           free( selected_ranges );
@@ -1603,6 +1603,7 @@ next: /*for the goto - ugly, I know... */
       fprintf( stderr, _("[Info]  Vobs size: %.0f MB\n"), ( float ) (disk_vob_size / (1024 * 1024 )) );
 
       free( selected_ranges );
+      selected_ranges = NULL;
       ifoClose( vts_file );
       ifoClose( vmg_file );
       DVDCloseFile( dvd_file );
@@ -2507,6 +2508,8 @@ void sanitize_dvd_name( char *name )
     {
       if( name[ i ] == ' '
           || name[ i ] == '\t'
+          || name[ i ] == '\n'
+          || name[ i ] == '\r'
           || name[ i ] == '/'
           || name[ i ] == '\\'
           || name[ i ] == ':'
