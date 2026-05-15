@@ -1963,7 +1963,7 @@ The man replies, "I was talking to the sheep."
                 && offset - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped < max_filesize_in_blocks;
                 offset += file_block_count )
             {
-	      int tries = 0, skipped_blocks = 0; 
+              int tries = 0, skipped_blocks = 0;
               /* Only read and write as many blocks as there are left in the file */
               if ( ( offset + file_block_count + ( off_t ) seek_start ) > ( ( off_t ) file_size_in_blocks - ( off_t ) stop_before_end ) )
                 {
@@ -1974,21 +1974,21 @@ The man replies, "I was talking to the sheep."
                   file_block_count = max_filesize_in_blocks - ( offset + file_block_count - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped );
                 }
 
-	      /*          blocks = DVDReadBlocks( dvd_file,( offset + seek_start ), file_block_count, bufferin ); */
+              /*          blocks = DVDReadBlocks( dvd_file,( offset + seek_start ), file_block_count, bufferin ); */
 
-	      while( ( blocks = DVDReadBlocks( dvd_file,( offset + seek_start ), file_block_count, bufferin ) ) <= 0 && tries < 10 )
-	        {
-	          if( tries == 9 )
-		    {
-		      offset += file_block_count;
-		      skipped_blocks +=1;
-		      overall_skipped_blocks +=1;
-		      tries=0;
-		    }
-	          /*                          if( verbosity_level >= 1 ) 
-					      fprintf( stderr, _("[Warn] Had to skip %d blocks (reading block %d)! \n "), skipped_blocks, i ); */
-	          tries++;
-	        }
+              while( ( blocks = DVDReadBlocks( dvd_file,( offset + seek_start ), file_block_count, bufferin ) ) <= 0 && tries < 10 )
+                {
+                  if( tries == 9 )
+                    {
+                      offset += file_block_count;
+                      skipped_blocks += 1;
+                      overall_skipped_blocks += 1;
+                      tries = 0;
+                    }
+                  /*                          if( verbosity_level >= 1 ) 
+                                              fprintf( stderr, _("[Warn] Had to skip %d blocks (reading block %d)! \n "), skipped_blocks, i ); */
+                  tries++;
+                }
 	  
 	      if( verbosity_level >= 1 && skipped_blocks > 0 )
 	        fprintf( stderr,
@@ -2506,6 +2506,7 @@ void sanitize_dvd_name( char *name )
   for( i = 0; name[ i ] != '\0'; i++ )
     {
       if( name[ i ] == ' '
+          || name[ i ] == '\t'
           || name[ i ] == '/'
           || name[ i ] == '\\'
           || name[ i ] == ':'
