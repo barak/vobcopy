@@ -2501,9 +2501,10 @@ void sanitize_dvd_name( char *name )
 
   for( i = 0; name[ i ] != '\0'; i++ )
     {
+      unsigned char ch = (unsigned char) name[ i ];
+
       /* Keep generated filenames portable by flattening path separators and
-       * non-printable bytes into underscores. Bytes outside the current locale
-       * may also be treated as non-printable and therefore sanitized. */
+       * ASCII control bytes into underscores while leaving UTF-8 bytes alone. */
       if( name[ i ] == ' '
           || name[ i ] == '\t'
           || name[ i ] == '\n'
@@ -2511,7 +2512,8 @@ void sanitize_dvd_name( char *name )
           || name[ i ] == '/'
           || name[ i ] == '\\'
           || name[ i ] == ':'
-          || !isprint( (unsigned char) name[ i ] ) )
+          || ch < 0x20
+          || ch == 0x7f )
         {
           name[ i ] = '_';
         }
