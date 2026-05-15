@@ -75,6 +75,10 @@ static int advance_sector_range_position( const sector_range_t *ranges,
                                           int *range_index,
                                           uint32_t *sector,
                                           off_t blocks );
+static void normalize_sector_range_position( const sector_range_t *ranges,
+                                             int range_count,
+                                             int *range_index,
+                                             uint32_t *sector );
 
 /* --------------------------------------------------------------------------*/
 /* MAIN */
@@ -1906,20 +1910,15 @@ The man replies, "I was talking to the sheep."
                     {
                       offset += file_block_count;
                       selected_sector += file_block_count;
-                      skipped_blocks += 1;
-                      overall_skipped_blocks += 1;
+                      normalize_sector_range_position( selected_ranges,
+                                                       selected_range_count,
+                                                       &selected_range_index,
+                                                       &selected_sector );
+                      skipped_blocks++;
+                      overall_skipped_blocks++;
                       tries = 0;
                     }
                   tries++;
-                }
-
-              if( selected_sector > selected_ranges[ selected_range_index ].last_sector )
-                {
-                  selected_range_index++;
-                  if( selected_range_index < selected_range_count )
-                    {
-                      selected_sector = selected_ranges[ selected_range_index ].first_sector;
-                    }
                 }
 
               if( verbosity_level >= 1 && skipped_blocks > 0 )
@@ -1945,14 +1944,10 @@ The man replies, "I was talking to the sheep."
 
               offset += blocks;
               selected_sector += blocks;
-              if( selected_sector > selected_ranges[ selected_range_index ].last_sector )
-                {
-                  selected_range_index++;
-                  if( selected_range_index < selected_range_count )
-                    {
-                      selected_sector = selected_ranges[ selected_range_index ].first_sector;
-                    }
-                }
+              normalize_sector_range_position( selected_ranges,
+                                               selected_range_count,
+                                               &selected_range_index,
+                                               &selected_sector );
 
               progressUpdate(starttime, (int)offset/512, (int) file_size_in_blocks /512, FALSE);
             }
@@ -2506,6 +2501,9 @@ void sanitize_dvd_name( char *name )
 
   for( i = 0; name[ i ] != '\0'; i++ )
     {
+      /* Keep generated filenames portable by flattening path separators and
+       * non-printable bytes into underscores. Bytes outside the current locale
+       * may also be treated as non-printable and therefore sanitized. */
       if( name[ i ] == ' '
           || name[ i ] == '\t'
           || name[ i ] == '\n'
@@ -2720,6 +2718,22 @@ static int advance_sector_range_position( const sector_range_t *ranges,
     }
 
   return blocks == 0 ? 0 : -1;
+}
+
+static void normalize_sector_range_position( const sector_range_t *ranges,
+                                             int range_count,
+                                             int *range_index,
+                                             uint32_t *sector )
+{
+  while( *range_index < range_count
+         && *sector > ranges[ *range_index ].last_sector )
+    {
+      ( *range_index )++;
+      if( *range_index < range_count )
+        {
+          *sector = ranges[ *range_index ].first_sector;
+        }
+    }
 }
 
 
