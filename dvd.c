@@ -91,11 +91,7 @@ int get_dvd_name(const char *device, char *title)
 
 #endif
 
-  for( i = 0; title[i] != '\0'; i++ )
-    {
-      if( title[i] == ' ')
-        title[i] = '_';
-    }
+  sanitize_dvd_name( title );
 
   return 0;
 }

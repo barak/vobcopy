@@ -58,6 +58,24 @@ bool              overwrite_flag = FALSE;
 bool              overwrite_all_flag = FALSE;
 int               overall_skipped_blocks = 0;
 
+typedef struct {
+  uint32_t first_sector;
+  uint32_t last_sector;
+} sector_range_t;
+
+static int build_title_sector_ranges( ifo_handle_t *vts_file,
+                                      tt_srpt_t *tt_srpt,
+                                      int titleid,
+                                      int angle,
+                                      sector_range_t **ranges,
+                                      int *range_count,
+                                      off_t *total_blocks );
+static int advance_sector_range_position( const sector_range_t *ranges,
+                                          int range_count,
+                                          int *range_index,
+                                          uint32_t *sector,
+                                          off_t blocks );
+
 /* --------------------------------------------------------------------------*/
 /* MAIN */
 /* --------------------------------------------------------------------------*/
@@ -83,6 +101,7 @@ and potentially fatal."  - Thanks Leigh!*/
   off_t             offset = 0, free_space = 0;
   off_t             max_filesize_in_blocks = 1048571;  /* for 2^31 / 2048 */
   off_t             max_filesize_in_blocks_summed = 0, angle_blocks_skipped = 0;
+  off_t             selected_title_blocks = 0;
   ssize_t           file_size_in_blocks = 0;
   bool              mounted = FALSE, provided_output_dir_flag = FALSE;
   bool              verbose_flag = FALSE, provided_input_dir_flag = FALSE;
@@ -92,8 +111,13 @@ and potentially fatal."  - Thanks Leigh!*/
   bool              stdout_flag = FALSE;
   bool              fast_switch = FALSE, onefile_flag = FALSE;
   bool              quiet_flag = FALSE, longest_title_flag = FALSE;
+  bool              angle_copy_mode = FALSE;
   struct stat       buf;
   int               starttime;
+  sector_range_t    *selected_ranges = NULL;
+  int               selected_range_count = 0;
+  int               selected_range_index = 0;
+  uint32_t          selected_sector = 0;
 
   dvd_reader_t      *dvd = NULL;
   dvd_file_t        *dvd_file = NULL;
@@ -395,11 +419,7 @@ and potentially fatal."  - Thanks Leigh!*/
               stdout_flag = TRUE;
               force_flag = TRUE;
             }
-	  for( i=0; i< strlen(provided_dvd_name);i++ )
-	    {
-	      if( provided_dvd_name[i] == ' ')
-		provided_dvd_name[i] = '_';
-	    }
+          sanitize_dvd_name( provided_dvd_name );
 
           break;
 
@@ -910,7 +930,7 @@ and potentially fatal."  - Thanks Leigh!*/
 
   pwd_free = get_free_space( pwd,verbosity_level );
 
-  if( fast_switch )
+  if( fast_switch && !angle_copy_mode )
     block_count = fast_factor;
   else
     block_count = 1;
@@ -1503,6 +1523,56 @@ next: /*for the goto - ugly, I know... */
 
   file_size_in_blocks = DVDFileSize( dvd_file );
 
+  if( tt_srpt->title[ titleid - 1 ].nr_of_angles > 1 )
+    {
+      if( build_title_sector_ranges( vts_file, tt_srpt, titleid, angle,
+                                     &selected_ranges, &selected_range_count,
+                                     &selected_title_blocks ) < 0 )
+        {
+          fprintf( stderr, _("[Error] Couldn't determine the sectors for angle %d.\n"), angle + 1 );
+          ifoClose( vts_file );
+          ifoClose( vmg_file );
+          DVDCloseFile( dvd_file );
+          DVDClose( dvd );
+          return -1;
+        }
+
+      angle_copy_mode = TRUE;
+      block_count = 1;
+      selected_range_index = 0;
+      selected_sector = selected_ranges[ 0 ].first_sector;
+
+      if( cut_flag && ( seek_start + stop_before_end ) >= (long long unsigned int) selected_title_blocks )
+        {
+          fprintf( stderr, _("[Error] The selected begin/end cut removes the complete title.\n") );
+          free( selected_ranges );
+          ifoClose( vts_file );
+          ifoClose( vmg_file );
+          DVDCloseFile( dvd_file );
+          DVDClose( dvd );
+          return -1;
+        }
+
+      if( seek_start > 0
+          && advance_sector_range_position( selected_ranges, selected_range_count,
+                                            &selected_range_index, &selected_sector,
+                                            (off_t) seek_start ) < 0 )
+        {
+          fprintf( stderr, _("[Error] Couldn't seek to the requested begin offset.\n") );
+          free( selected_ranges );
+          ifoClose( vts_file );
+          ifoClose( vmg_file );
+          DVDCloseFile( dvd_file );
+          DVDClose( dvd );
+          return -1;
+        }
+
+      file_size_in_blocks = selected_title_blocks - seek_start - stop_before_end;
+      seek_start = 0;
+      stop_before_end = 0;
+      vob_size = (off_t) file_size_in_blocks * (off_t) DVD_VIDEO_LB_LEN;
+    }
+
   if ( vob_size == ( - ( seek_start * 2048 ) - ( stop_before_end * 2048 ) ) )
     {
       vob_size = ( ( off_t ) ( file_size_in_blocks ) * ( off_t ) DVD_VIDEO_LB_LEN ) -
@@ -1532,6 +1602,7 @@ next: /*for the goto - ugly, I know... */
       /* Should be the *disk* size here, right? -- lb */
       fprintf( stderr, _("[Info]  Vobs size: %.0f MB\n"), ( float ) (disk_vob_size / (1024 * 1024 )) );
 
+      free( selected_ranges );
       ifoClose( vts_file );
       ifoClose( vmg_file );
       DVDCloseFile( dvd_file );
@@ -1797,62 +1868,152 @@ The man replies, "I was talking to the sheep."
       fprintf( stderr, _("\n") );
       memset( bufferin, 0, BLOCK_COUNT * DVD_VIDEO_LB_LEN * sizeof( unsigned char ) );
 
-      file_block_count = block_count;
       starttime = time(NULL);
-      for ( ; ( offset + ( off_t ) seek_start ) < ( ( off_t ) file_size_in_blocks - ( off_t ) stop_before_end )
-            && offset - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped < max_filesize_in_blocks;
-            offset += file_block_count )
+      if( angle_copy_mode )
         {
-	  int tries = 0, skipped_blocks = 0; 
-          /* Only read and write as many blocks as there are left in the file */
-          if ( ( offset + file_block_count + ( off_t ) seek_start ) > ( ( off_t ) file_size_in_blocks - ( off_t ) stop_before_end ) )
+          while( offset < ( off_t ) file_size_in_blocks
+                 && offset - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped < max_filesize_in_blocks
+                 && selected_range_index < selected_range_count )
             {
-              file_block_count = ( off_t ) file_size_in_blocks - ( off_t ) stop_before_end - offset - ( off_t ) seek_start;
+              off_t blocks_left_in_file;
+              off_t blocks_left_in_range;
+              int tries = 0, skipped_blocks = 0;
+
+              file_block_count = block_count;
+              blocks_left_in_file = ( off_t ) file_size_in_blocks - offset;
+              if( file_block_count > blocks_left_in_file )
+                {
+                  file_block_count = blocks_left_in_file;
+                }
+
+              blocks_left_in_range =
+                ( off_t ) selected_ranges[ selected_range_index ].last_sector -
+                ( off_t ) selected_sector + 1;
+              if( file_block_count > blocks_left_in_range )
+                {
+                  file_block_count = blocks_left_in_range;
+                }
+
+              if ( offset + file_block_count - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped > max_filesize_in_blocks )
+                {
+                  file_block_count = max_filesize_in_blocks - ( offset + file_block_count - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped );
+                }
+
+              while( ( blocks = DVDReadBlocks( dvd_file, selected_sector, file_block_count, bufferin ) ) <= 0 && tries < 10 )
+                {
+                  if( tries == 9 )
+                    {
+                      offset += file_block_count;
+                      selected_sector += file_block_count;
+                      skipped_blocks += 1;
+                      overall_skipped_blocks += 1;
+                      tries = 0;
+                    }
+                  tries++;
+                }
+
+              if( selected_sector > selected_ranges[ selected_range_index ].last_sector )
+                {
+                  selected_range_index++;
+                  if( selected_range_index < selected_range_count )
+                    {
+                      selected_sector = selected_ranges[ selected_range_index ].first_sector;
+                    }
+                }
+
+              if( verbosity_level >= 1 && skipped_blocks > 0 )
+                fprintf( stderr,
+                         _("[Warn] Had to skip (couldn't read) %d blocks (before block %llu)! \n "),
+                         skipped_blocks,
+                         (long long unsigned)offset );
+
+              if( blocks <= 0 )
+                {
+                  continue;
+                }
+
+              if( write( streamout, bufferin, DVD_VIDEO_LB_LEN * blocks ) < 0 )
+                {
+                  fprintf( stderr, _("\n[Error] Write() error\n") );
+                  fprintf( stderr, _("[Error] It's possible that you try to write files\n") );
+                  fprintf( stderr, _("[Error] greater than 2GB to filesystem which\n") );
+                  fprintf( stderr, _("[Error] doesn't support it? (try without -l)\n") );
+                  fprintf( stderr, _("[Error] Error: %s\n"), strerror( errno ) );
+                  exit( 1 );
+                }
+
+              offset += blocks;
+              selected_sector += blocks;
+              if( selected_sector > selected_ranges[ selected_range_index ].last_sector )
+                {
+                  selected_range_index++;
+                  if( selected_range_index < selected_range_count )
+                    {
+                      selected_sector = selected_ranges[ selected_range_index ].first_sector;
+                    }
+                }
+
+              progressUpdate(starttime, (int)offset/512, (int) file_size_in_blocks /512, FALSE);
             }
-          if ( offset + file_block_count - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped > max_filesize_in_blocks )
+        }
+      else
+        {
+          file_block_count = block_count;
+          for ( ; ( offset + ( off_t ) seek_start ) < ( ( off_t ) file_size_in_blocks - ( off_t ) stop_before_end )
+                && offset - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped < max_filesize_in_blocks;
+                offset += file_block_count )
             {
-              file_block_count = max_filesize_in_blocks - ( offset + file_block_count - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped );
-            }
+	      int tries = 0, skipped_blocks = 0; 
+              /* Only read and write as many blocks as there are left in the file */
+              if ( ( offset + file_block_count + ( off_t ) seek_start ) > ( ( off_t ) file_size_in_blocks - ( off_t ) stop_before_end ) )
+                {
+                  file_block_count = ( off_t ) file_size_in_blocks - ( off_t ) stop_before_end - offset - ( off_t ) seek_start;
+                }
+              if ( offset + file_block_count - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped > max_filesize_in_blocks )
+                {
+                  file_block_count = max_filesize_in_blocks - ( offset + file_block_count - ( off_t )max_filesize_in_blocks_summed - (off_t)angle_blocks_skipped );
+                }
 
-	  /*          blocks = DVDReadBlocks( dvd_file,( offset + seek_start ), file_block_count, bufferin ); */
+	      /*          blocks = DVDReadBlocks( dvd_file,( offset + seek_start ), file_block_count, bufferin ); */
 
-	  while( ( blocks = DVDReadBlocks( dvd_file,( offset + seek_start ), file_block_count, bufferin ) ) <= 0 && tries < 10 )
-	    {
-	      if( tries == 9 )
-		{
-		  offset += file_block_count;
-		  skipped_blocks +=1;
-		  overall_skipped_blocks +=1;
-		  tries=0;
-		}
-	      /*                          if( verbosity_level >= 1 ) 
-					  fprintf( stderr, _("[Warn] Had to skip %d blocks (reading block %d)! \n "), skipped_blocks, i ); */
-	      tries++;
-	    }
+	      while( ( blocks = DVDReadBlocks( dvd_file,( offset + seek_start ), file_block_count, bufferin ) ) <= 0 && tries < 10 )
+	        {
+	          if( tries == 9 )
+		    {
+		      offset += file_block_count;
+		      skipped_blocks +=1;
+		      overall_skipped_blocks +=1;
+		      tries=0;
+		    }
+	          /*                          if( verbosity_level >= 1 ) 
+					      fprintf( stderr, _("[Warn] Had to skip %d blocks (reading block %d)! \n "), skipped_blocks, i ); */
+	          tries++;
+	        }
 	  
-	  if( verbosity_level >= 1 && skipped_blocks > 0 )
-	    fprintf( stderr,
-		     _("[Warn] Had to skip (couldn't read) %d blocks (before block %llu)! \n "),
-		     skipped_blocks,
-		     (long long unsigned)offset );
+	      if( verbosity_level >= 1 && skipped_blocks > 0 )
+	        fprintf( stderr,
+		         _("[Warn] Had to skip (couldn't read) %d blocks (before block %llu)! \n "),
+		         skipped_blocks,
+		         (long long unsigned)offset );
 
 /*TODO: this skipping here writes too few bytes to the output */
 
 
-          if( write( streamout, bufferin, DVD_VIDEO_LB_LEN * blocks ) < 0 )
-            {
-              fprintf( stderr, _("\n[Error] Write() error\n") );
-	      fprintf( stderr, _("[Error] It's possible that you try to write files\n") );
-	      fprintf( stderr, _("[Error] greater than 2GB to filesystem which\n") );
-	      fprintf( stderr, _("[Error] doesn't support it? (try without -l)\n") );
-              fprintf( stderr, _("[Error] Error: %s\n"), strerror( errno ) );
-              exit( 1 );
-            }
+              if( write( streamout, bufferin, DVD_VIDEO_LB_LEN * blocks ) < 0 )
+                {
+                  fprintf( stderr, _("\n[Error] Write() error\n") );
+	          fprintf( stderr, _("[Error] It's possible that you try to write files\n") );
+	          fprintf( stderr, _("[Error] greater than 2GB to filesystem which\n") );
+	          fprintf( stderr, _("[Error] doesn't support it? (try without -l)\n") );
+                  fprintf( stderr, _("[Error] Error: %s\n"), strerror( errno ) );
+                  exit( 1 );
+                }
 
-          /*this is for people who report that it takes vobcopy ages to copy something */
-          /* TODO */
+              /*this is for people who report that it takes vobcopy ages to copy something */
+              /* TODO */
 	  
-	  progressUpdate(starttime, (int)offset/512, (int)( file_size_in_blocks - seek_start - stop_before_end )/512, FALSE);
+	      progressUpdate(starttime, (int)offset/512, (int)( file_size_in_blocks - seek_start - stop_before_end )/512, FALSE);
+            }
         }
       if( !stdout_flag )
         {
@@ -1922,6 +2083,7 @@ The man replies, "I was talking to the sheep."
   ifoClose( vmg_file );
   DVDCloseFile( dvd_file );
   DVDClose( dvd );
+  free( selected_ranges );
   fprintf( stderr, _("\n[Info] Copying finished! Let's see if the sizes match (roughly)\n") );
   fprintf( stderr, _("[Info] Combined size of title-vobs: %.0f (%.0f MB)\n"), ( float ) vob_size, ( float ) vob_size / ( 1024*1024 ) );
   fprintf( stderr, _("[Info] Copied size (size on disk):  %.0f (%.0f MB)\n"), ( float ) disk_vob_size, ( float ) disk_vob_size / ( 1024*1024 ) );
@@ -2332,11 +2494,33 @@ char *safestrncpy(char *dest, const char *src, size_t n)
   return dest;
 }
 
+void sanitize_dvd_name( char *name )
+{
+  size_t i;
+
+  if( name == NULL )
+    {
+      return;
+    }
+
+  for( i = 0; name[ i ] != '\0'; i++ )
+    {
+      if( name[ i ] == ' '
+          || name[ i ] == '/'
+          || name[ i ] == '\\'
+          || name[ i ] == ':'
+          || !isprint( (unsigned char) name[ i ] ) )
+        {
+          name[ i ] = '_';
+        }
+    }
+}
+
 void get_fallback_dvd_name( const char *path, char *title, size_t title_size )
 {
   char path_copy[PATH_BUFFER_SIZE];
   char *component;
-  size_t i, path_length;
+  size_t path_length;
 
   if ( title_size == 0 )
     return;
@@ -2390,11 +2574,148 @@ void get_fallback_dvd_name( const char *path, char *title, size_t title_size )
     return;
 
   safestrncpy( title, component, title_size );
-  for( i = 0; title[ i ] != '\0'; i++ )
+  sanitize_dvd_name( title );
+}
+
+static int build_title_sector_ranges( ifo_handle_t *vts_file,
+                                      tt_srpt_t *tt_srpt,
+                                      int titleid,
+                                      int angle,
+                                      sector_range_t **ranges,
+                                      int *range_count,
+                                      off_t *total_blocks )
+{
+  int vts_ttn;
+  int pgcn;
+  int cell_index;
+  int count = 0;
+  pgc_t *pgc;
+  ttu_t *title;
+  sector_range_t *result;
+
+  if( !vts_file || !tt_srpt || !ranges || !range_count || !total_blocks )
     {
-      if( title[ i ] == ' ' )
-        title[ i ] = '_';
+      return -1;
     }
+
+  if( !vts_file->vts_ptt_srpt || !vts_file->vts_pgcit )
+    {
+      return -1;
+    }
+
+  vts_ttn = tt_srpt->title[ titleid - 1 ].vts_ttn;
+  if( vts_ttn < 1 || vts_ttn > vts_file->vts_ptt_srpt->nr_of_srpts )
+    {
+      return -1;
+    }
+
+  title = &vts_file->vts_ptt_srpt->title[ vts_ttn - 1 ];
+  if( title->nr_of_ptts < 1 )
+    {
+      return -1;
+    }
+
+  pgcn = title->ptt[ 0 ].pgcn;
+  if( pgcn < 1 || pgcn > vts_file->vts_pgcit->nr_of_pgci_srp )
+    {
+      return -1;
+    }
+
+  pgc = vts_file->vts_pgcit->pgci_srp[ pgcn - 1 ].pgc;
+  if( !pgc || !pgc->cell_playback )
+    {
+      return -1;
+    }
+
+  result = calloc( pgc->nr_of_cells, sizeof( *result ) );
+  if( !result )
+    {
+      return -1;
+    }
+
+  *total_blocks = 0;
+  for( cell_index = 0; cell_index < pgc->nr_of_cells; cell_index++ )
+    {
+      cell_playback_t *cell = &pgc->cell_playback[ cell_index ];
+
+      if( cell->block_type == BLOCK_TYPE_ANGLE_BLOCK )
+        {
+          int selected_cell_index;
+
+          if( cell->block_mode != BLOCK_MODE_FIRST_CELL )
+            {
+              continue;
+            }
+
+          selected_cell_index = cell_index + angle;
+          if( selected_cell_index >= pgc->nr_of_cells )
+            {
+              free( result );
+              return -1;
+            }
+
+          cell = &pgc->cell_playback[ selected_cell_index ];
+          if( cell->block_type != BLOCK_TYPE_ANGLE_BLOCK )
+            {
+              free( result );
+              return -1;
+            }
+          result[ count ].first_sector = cell->first_sector;
+          result[ count ].last_sector = cell->last_sector;
+          *total_blocks += ( off_t ) cell->last_sector - ( off_t ) cell->first_sector + 1;
+          count++;
+
+          while( cell_index < pgc->nr_of_cells
+                 && pgc->cell_playback[ cell_index ].block_mode != BLOCK_MODE_LAST_CELL )
+            {
+              cell_index++;
+            }
+        }
+      else
+        {
+          result[ count ].first_sector = cell->first_sector;
+          result[ count ].last_sector = cell->last_sector;
+          *total_blocks += ( off_t ) cell->last_sector - ( off_t ) cell->first_sector + 1;
+          count++;
+        }
+    }
+
+  if( count == 0 )
+    {
+      free( result );
+      return -1;
+    }
+
+  *ranges = result;
+  *range_count = count;
+  return 0;
+}
+
+static int advance_sector_range_position( const sector_range_t *ranges,
+                                          int range_count,
+                                          int *range_index,
+                                          uint32_t *sector,
+                                          off_t blocks )
+{
+  while( blocks > 0 && *range_index < range_count )
+    {
+      off_t remaining = ( off_t ) ranges[ *range_index ].last_sector - ( off_t ) *sector + 1;
+
+      if( blocks < remaining )
+        {
+          *sector += blocks;
+          return 0;
+        }
+
+      blocks -= remaining;
+      ( *range_index )++;
+      if( *range_index < range_count )
+        {
+          *sector = ranges[ *range_index ].first_sector;
+        }
+    }
+
+  return blocks == 0 ? 0 : -1;
 }
 
 
