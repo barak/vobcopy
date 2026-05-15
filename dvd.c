@@ -30,15 +30,15 @@ int get_dvd_name(const char *device, char *title)
   new_title = strstr( device, "d0/" ) + strlen( "d0/" );
   strncpy( title, new_title, sizeof(title)-1 );
 #else
-  int  filehandle = 0;
-  int  i = 0, last = 0;
+  int  filehandle = -1;
+  int  i = 0, last = -1;
   int  bytes_read;
 
   char tmp_buf[2048];
 
        
   /* open the device */
-  if ( !(filehandle = open(device, O_RDONLY, 0)) )       
+  if ( (filehandle = open(device, O_RDONLY, 0)) < 0 )
   {
       /* open failed */
       fprintf( stderr, _("[Error] Something went wrong while getting the dvd name  - please specify path as /cdrom or /dvd (mount point) or use -t\n"));
@@ -68,19 +68,20 @@ int get_dvd_name(const char *device, char *title)
       return -1;
   }
   
-  strncpy( title, &tmp_buf[40], 32 ); 
+  memcpy( title, &tmp_buf[40], 32 );
+  close( filehandle );
    
   /* make sure string is terminated */
   title[32] = '\0';
   
   /* we don't need trailing spaces           */
   /* find the last character that is not ' ' */
-  last = 0; /* and checkski below if it changes*/
+  last = -1; /* and checkski below if it changes*/
   for ( i = 0; i < 32; i++ ) 
   {
       if ( title[i] != ' ' ) { last = i; }
   }
-  if( 0 == last )
+  if( last < 0 )
       {
           fprintf( stderr, _("[Hint] The dvd has no name, will choose a nice one ;-), else use -t\n") );
           strcpy( title, "insert_name_here\0" );
@@ -90,7 +91,7 @@ int get_dvd_name(const char *device, char *title)
 
 #endif
 
-  for( i=0; i< strlen(title);i++ )
+  for( i = 0; title[i] != '\0'; i++ )
     {
       if( title[i] == ' ')
         title[i] = '_';
@@ -263,12 +264,24 @@ this is the code for the other-OSs, not solaris*/
           fprintf ( stderr, "[Info] Fuseiso detected. I'm looking for the iso file\n");
           // The directory is mounted by fuseiso. Here we try get the name & path of the ISO
           char *homedir;
+          char fuseiso_mtab_path[PATH_BUFFER_SIZE + 20];
           if ((homedir = getenv("HOME")) == NULL) {
               // TODO
               //homedir = getpwuid(getuid())->pw_dir;
           }
-          
-          if ((tmp_streamin_fuseiso = setmntent(strcat(homedir,"/.mtab.fuseiso"), "r"))){
+
+          if ( homedir == NULL )
+            {
+              continue;
+            }
+
+          if ( snprintf( fuseiso_mtab_path, sizeof(fuseiso_mtab_path),
+                         "%s/.mtab.fuseiso", homedir ) >= (int) sizeof(fuseiso_mtab_path) )
+            {
+              continue;
+            }
+
+          if ((tmp_streamin_fuseiso = setmntent(fuseiso_mtab_path, "r"))){
             while ((lmount_entry_fuseiso = getmntent(tmp_streamin_fuseiso))){
               if (strcmp(lmount_entry_fuseiso->mnt_dir, path) == 0){
                 /* Found the mount point */
