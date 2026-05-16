@@ -38,9 +38,8 @@ and run the test suite with:
 $ make check
 
 The test suite is integrated into Automake (`make check`) and currently has:
-- `tests/unit_helpers`: unit tests for helper and angle-range logic (`safestrncpy`,
-  `add_end_slash`, `sanitize_dvd_name`, `get_fallback_dvd_name`, `is_nav_pack`,
-  and range-position helpers).
+- `tests/unit_helpers`: unit tests for helper/path logic (`safestrncpy`,
+  `add_end_slash`, `sanitize_dvd_name`, and `get_fallback_dvd_name`).
 - `tests/cli-smoke.sh`: command-line smoke tests for options that do not require
   a mounted DVD (`-V`, `-h`, and invalid argument validation).
 
@@ -58,7 +57,7 @@ Code paths intentionally not covered by automated tests:
 - Signal/timer shutdown behavior (`SIGALRM`/`SIGTERM` handlers): deterministic unit
   testing would require process-level signal harnessing not used in `make check`.
 
-For rpm based systems the commands should be something link this:
+For rpm based systems the commands should be something like this:
 The src.rpm should rebuild cleanly on any RPM-based distro with
 "rpmbuild --rebuild vobcopy-0.5.8-1.src.rpm" (or replace "rpmbuild" with
 "rpm" on older distributions), so it's distribution-neutral.

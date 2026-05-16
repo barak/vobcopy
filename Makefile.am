@@ -1,6 +1,6 @@
 bin_PROGRAMS = vobcopy
 
-vobcopy_SOURCES = dvd.c vobcopy.c dvd.h vobcopy.h
+vobcopy_SOURCES = common.c dvd.c vobcopy.c common.h dvd.h vobcopy.h
 
 dist_man_MANS = vobcopy.1
 man1dedir = $(mandir)/de/man1
@@ -13,7 +13,7 @@ SH_LOG_COMPILER = $(SHELL)
 AM_TESTS_ENVIRONMENT = top_builddir='$(top_builddir)'; export top_builddir;
 
 tests_unit_helpers_SOURCES = tests/unit_helpers.c
-tests_unit_helpers_LDADD = -ldvdread
+tests_unit_helpers_LDADD = common.o
 
 EXTRA_DIST = vobcopy.spec vobcopy.1.de tests/cli-smoke.sh tests/unit_helpers.c
 
