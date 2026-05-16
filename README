@@ -33,6 +33,31 @@ and either invoke the vobcopy binary, or if desired, install with
 
 $ make install
 
+and run the test suite with:
+
+$ make check
+
+The test suite is integrated into Automake (`make check`) and currently has:
+- `tests/unit_helpers`: unit tests for helper and angle-range logic (`safestrncpy`,
+  `add_end_slash`, `sanitize_dvd_name`, `get_fallback_dvd_name`, `is_nav_pack`,
+  and range-position helpers).
+- `tests/cli-smoke.sh`: command-line smoke tests for options that do not require
+  a mounted DVD (`-V`, `-h`, and invalid argument validation).
+
+Input from a file path is already supported via `-i`: when path/device auto-detection
+fails, vobcopy will try to open the provided `-i` value directly as a directory/image
+path using libdvdread.
+
+Code paths intentionally not covered by automated tests:
+- Real DVD I/O and full title-copy loops (`DVDReadBlocks`, large-file writes, mirror
+  copies): these require real DVD media/images with valid structures and large data.
+- Interactive overwrite/continue prompts: these are terminal-driven flows that need
+  interactive input and side-effectful filesystem setup.
+- OS-specific mount/device probing in `get_device*` (`/etc/mtab`, `/etc/fstab`,
+  `getmntinfo`, Solaris `mnttab`): behavior depends on host OS/runtime mount state.
+- Signal/timer shutdown behavior (`SIGALRM`/`SIGTERM` handlers): deterministic unit
+  testing would require process-level signal harnessing not used in `make check`.
+
 For rpm based systems the commands should be something link this:
 The src.rpm should rebuild cleanly on any RPM-based distro with
 "rpmbuild --rebuild vobcopy-0.5.8-1.src.rpm" (or replace "rpmbuild" with

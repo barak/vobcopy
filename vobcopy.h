@@ -1,3 +1,6 @@
+#ifndef VOBCOPY_H
+#define VOBCOPY_H
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -176,4 +179,6 @@ int progressUpdate( int starttime, int cur, int tot, int force );
 
 #ifndef HAVE_FDATASYNC
 #define fdatasync(fd) 0
+#endif
+
 #endif
