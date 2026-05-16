@@ -1,5 +1,5 @@
-#include "common.h"
 #include "vobcopy.h"
+#include "common.h"
 
 int add_end_slash( char *path )
 {  /* add a trailing '/' to path */
