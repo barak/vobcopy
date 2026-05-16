@@ -161,7 +161,7 @@ void usage(char *);
 int add_end_slash( char * );
 off_t get_free_space( char *, int );
 off_t get_used_space( char *path, int verbosity_level );
-int make_output_path( char *, char *, int, char *, int, int );
+int make_output_path( char *, char *, char *, int, int );
 int is_nav_pack( unsigned char *buffer );
 void re_name( char *output_file );
 int makedir( char *name );

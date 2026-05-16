@@ -97,7 +97,7 @@ and potentially fatal."  - Thanks Leigh!*/
   char              alternate_output_dir[4][PATH_BUFFER_SIZE], onefile[PATH_BUFFER_SIZE];
   unsigned char     bufferin[ DVD_VIDEO_LB_LEN * BLOCK_COUNT ];
   int               i = 0,j = 0, argc_i = 0, alternate_dir_count = 0;
-  int               partcount = 0, get_dvd_name_return = 0, options_char = 0;
+  int               partcount = 0, dvd_name_status = 0, options_char = 0;
   int               dvd_count = 0, verbosity_level = 0, paths_taken = 0, fast_factor = 1;
   int               watchdog_minutes = 0;
   long long unsigned int          seek_start = 0, stop_before_end = 0, temp_var;
@@ -761,8 +761,8 @@ and potentially fatal."  - Thanks Leigh!*/
     safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name) );
   else
     {
-      get_dvd_name_return = get_dvd_name( dvd_path, dvd_name );
-      if ( get_dvd_name_return < 0 )
+      dvd_name_status = get_dvd_name( dvd_path, dvd_name );
+      if ( dvd_name_status < 0 )
         {
           get_fallback_dvd_name( dvd_path, dvd_name, sizeof(dvd_name) );
           fprintf( stderr, _("[Hint] Falling back to '%s' as dvd name.\n"), dvd_name );
@@ -1363,47 +1363,52 @@ next: /*for the goto - ugly, I know... */
                     fprintf( stderr, _("[Info] Start of %s at %d blocks \n"), output_file, start );
                   file_block_count = block_count;
 		  starttime = time(NULL);
-                  for( i = start + seek_start*2048/DVD_VIDEO_LB_LEN; ( i - start ) * DVD_VIDEO_LB_LEN < file_size - stop_before_end*2048 ; i += file_block_count)
-                    {
-		      int tries = 0, skipped_blocks = 0; 
-                      /* Only read and write as many blocks as there are left in the file */
-                      if ( ( i - start + file_block_count ) * DVD_VIDEO_LB_LEN > file_size - stop_before_end*2048 )
-                        {
-                          file_block_count = ( (file_size - stop_before_end*2048 )/ DVD_VIDEO_LB_LEN ) - ( i - start );
-                        }
+                  {
+                    const off_t file_end = file_size - (off_t) stop_before_end * DVD_VIDEO_LB_LEN;
+
+                    for( i = start + seek_start*2048/DVD_VIDEO_LB_LEN;
+                         (off_t) ( i - start ) * DVD_VIDEO_LB_LEN < file_end;
+                         i += file_block_count)
+                      {
+		        int tries = 0, skipped_blocks = 0; 
+                        /* Only read and write as many blocks as there are left in the file */
+                        if ( (off_t) ( i - start + file_block_count ) * DVD_VIDEO_LB_LEN > file_end )
+                          {
+                            file_block_count = ( file_end / DVD_VIDEO_LB_LEN ) - ( i - start );
+                          }
 
                       /*		      DVDReadBlocks( dvd_file, i, 1, bufferin );this has to be wrong with the 1 there...*/
 
-                      while( ( blocks = DVDReadBlocks( dvd_file, i, file_block_count, bufferin ) ) <= 0 && tries < 10 )
-                        {
-                          if( tries == 9 )
-                            {
-                              i += file_block_count;
-                              skipped_blocks +=1;
-                              overall_skipped_blocks +=1;
-                              tries=0;
-                            }
-			  /*                          if( verbosity_level >= 1 ) 
-						      fprintf( stderr, _("[Warn] Had to skip %d blocks (reading block %d)! \n "), skipped_blocks, i ); */
-                          tries++;
-                        }
+                        while( ( blocks = DVDReadBlocks( dvd_file, i, file_block_count, bufferin ) ) <= 0 && tries < 10 )
+                          {
+                            if( tries == 9 )
+                              {
+                                i += file_block_count;
+                                skipped_blocks +=1;
+                                overall_skipped_blocks +=1;
+                                tries=0;
+                              }
+			    /*                          if( verbosity_level >= 1 ) 
+							      fprintf( stderr, _("[Warn] Had to skip %d blocks (reading block %d)! \n "), skipped_blocks, i ); */
+                            tries++;
+                          }
 
-		      if( verbosity_level >= 1 && skipped_blocks > 0 )
-			fprintf( stderr, _("[Warn] Had to skip (couldn't read) %d blocks (before block %d)! \n "), skipped_blocks, i );
+		        if( verbosity_level >= 1 && skipped_blocks > 0 )
+			  fprintf( stderr, _("[Warn] Had to skip (couldn't read) %d blocks (before block %d)! \n "), skipped_blocks, i );
 
 /*TODO: this skipping here writes too few bytes to the output */
 		      
-                      if( write( streamout, bufferin, DVD_VIDEO_LB_LEN * blocks ) < 0 )
-                        {
-                          fprintf( stderr, _("\n[Error] Error writing to %s \n"), output_file );
-                          fprintf( stderr, _("[Error] Error: %s, errno: %d \n"), strerror( errno ), errno );
-                          exit( 1 );
-                        }
+                        if( write( streamout, bufferin, DVD_VIDEO_LB_LEN * blocks ) < 0 )
+                          {
+                            fprintf( stderr, _("\n[Error] Error writing to %s \n"), output_file );
+                            fprintf( stderr, _("[Error] Error: %s, errno: %d \n"), strerror( errno ), errno );
+                            exit( 1 );
+                          }
 
                       /*progression bar*/
                       /*this here doesn't work with -F 10 */
                       /*		      if( !( ( ( ( i-start )+1 )*DVD_VIDEO_LB_LEN )%( 1024*1024 ) ) ) */
-		      progressUpdate(starttime, (int)(( ( i-start+1 )*DVD_VIDEO_LB_LEN )), (int)(tmp_file_size+2048), FALSE);
+		        progressUpdate(starttime, (int)(( ( i-start+1 )*DVD_VIDEO_LB_LEN )), (int)(tmp_file_size+2048), FALSE);
 		      /*
                       if( check_progress() )
                         {
@@ -1417,7 +1422,8 @@ next: /*for the goto - ugly, I know... */
                           fprintf( stderr, _("( %3.1f %% ) "), percent );
                         }
 		      */
-                    }
+                      }
+                  }
 /*this is just so that at the end it actually says 100.0% all the time... */
 /*TODO: if it is correct to always assume it's 100% is a good question.... */
 /*                  fprintf( stderr, "\r");
@@ -1577,10 +1583,11 @@ next: /*for the goto - ugly, I know... */
       vob_size = (off_t) file_size_in_blocks * (off_t) DVD_VIDEO_LB_LEN;
     }
 
-  if ( vob_size == ( - ( seek_start * 2048 ) - ( stop_before_end * 2048 ) ) )
+  if ( vob_size == -( (off_t) seek_start + (off_t) stop_before_end ) * DVD_VIDEO_LB_LEN )
     {
       vob_size = ( ( off_t ) ( file_size_in_blocks ) * ( off_t ) DVD_VIDEO_LB_LEN ) -
-                 ( seek_start * 2048 ) - ( stop_before_end * 2048 );
+                 (off_t) seek_start * DVD_VIDEO_LB_LEN -
+                 (off_t) stop_before_end * DVD_VIDEO_LB_LEN;
       if( verbosity_level >= 1 )
         fprintf( stderr, _("[Info] Vob_size was 0\n") );
     }
@@ -1684,7 +1691,9 @@ The man replies, "I was talking to the sheep."
       safestrncpy( dvd_name, provided_dvd_name, sizeof(dvd_name) );
     }
 
-  while( offset < ( file_size_in_blocks - seek_start - stop_before_end ) )
+  while( offset < (off_t) file_size_in_blocks
+         - (off_t) seek_start
+         - (off_t) stop_before_end )
     {
       partcount++;
 
@@ -1698,9 +1707,9 @@ The man replies, "I was talking to the sheep."
               if( verbosity_level > 1 )
                 fprintf( stderr, _("[Info] Free space for -o dir: %.0f\n"), ( float ) free_space );
               if( large_file_flag )
-                make_output_path( pwd,name,get_dvd_name_return,dvd_name,titleid, -1 );
+                make_output_path( pwd, name, dvd_name, titleid, -1 );
               else
-                make_output_path( pwd,name,get_dvd_name_return,dvd_name,titleid, partcount );
+                make_output_path( pwd, name, dvd_name, titleid, partcount );
             }
           else
             {
@@ -1714,9 +1723,9 @@ The man replies, "I was talking to the sheep."
                       if( verbosity_level > 1 )
                         fprintf( stderr, _("[Info] Free space for -%i dir: %.0f\n"), i, ( float ) free_space );
                       if ( large_file_flag )
-                        make_output_path( alternate_output_dir[ i-1 ], name, get_dvd_name_return, dvd_name, titleid, -1 );
+                        make_output_path( alternate_output_dir[ i-1 ], name, dvd_name, titleid, -1 );
                       else
-                        make_output_path( alternate_output_dir[ i-1 ], name, get_dvd_name_return, dvd_name, titleid,partcount );
+                        make_output_path( alternate_output_dir[ i-1 ], name, dvd_name, titleid, partcount );
                       /* 			alternate_dir_count--; */
                     }
                 }
@@ -2213,7 +2222,7 @@ off_t get_used_space( char *path, int verbosity_level )
  * this function concatenates the given information into a path name
  */
 
-int make_output_path( char *pwd,char *name,int get_dvd_name_return, char *dvd_name,int titleid, int partcount )
+int make_output_path( char *pwd, char *name, char *dvd_name, int titleid, int partcount )
 {
   char temp[12];
   strcpy( name, pwd );
