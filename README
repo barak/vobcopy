@@ -40,6 +40,9 @@ $ make check
 The test suite is integrated into Automake (`make check`) and currently has:
 - `tests/unit_helpers`: unit tests for helper/path logic (`safestrncpy`,
   `add_end_slash`, `sanitize_dvd_name`, and `get_fallback_dvd_name`).
+- `tests/unit_dvd_image`: runtime-generated disk-image tests for dvd-name
+  extraction from synthetic binary images (including a sparse large image),
+  and error handling on too-small images.
 - `tests/cli-smoke.sh`: command-line smoke tests for options that do not require
   a mounted DVD (`-V`, `-h`, and invalid argument validation).
 
