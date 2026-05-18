@@ -6,7 +6,7 @@ Build-Depends: debhelper-compat (= 13),
 		libdvdread-dev,
 		autoconf-archive
 Standards-Version: 4.7.4
-Homepage: http://vobcopy.org
+Homepage: https://github.com/barak/vobcopy
 Vcs-Git: https://salsa.debian.org/debian/vobcopy.git
 Vcs-Browser: https://salsa.debian.org/debian/vobcopy
 
