@@ -1,3 +1,9 @@
+vobcopy (1.2.3-2) unstable; urgency=medium
+
+  * patch to fix i386 FTBS issue
+
+ -- Barak A. Pearlmutter <bap@debian.org>  Mon, 18 May 2026 17:17:53 +0100
+
 vobcopy (1.2.3-1) unstable; urgency=medium
 
   * debian/copyright, update to modern standards
