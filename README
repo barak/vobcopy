@@ -33,7 +33,67 @@ and either invoke the vobcopy binary, or if desired, install with
 
 $ make install
 
-For rpm based systems the commands should be something link this:
+and run the test suite with:
+
+$ make check
+
+To help debug test failures, two extra flags can be passed to all test programs
+via the TESTFLAGS make variable:
+
+  -v / --verbose      Print [verbose] progress lines (temp file paths, parsed
+                      values, each assertion reached) while running.
+  -k / --keep-temps   Do not delete temporary files and directories after the
+                      test; their paths are printed so you can inspect them.
+
+Examples:
+
+$ make check TESTFLAGS="-v"          # verbose output from all tests
+$ make check TESTFLAGS="-v -k"       # verbose + keep temp files for inspection
+
+The flags are also understood when running a test binary directly:
+
+$ ./tests/unit_dvd_image -v -k
+
+The test suite is integrated into Automake (`make check`) and currently has:
+- `tests/unit_helpers`: unit tests for helper/path logic (`safestrncpy`,
+  `add_end_slash`, `sanitize_dvd_name`, and `get_fallback_dvd_name`).
+- `tests/unit_dvd_image`: runtime-generated disk-image tests for dvd-name
+  extraction from synthetic binary images (including a sparse large image),
+  and error handling on too-small images.
+- `tests/unit_image_output_flow`: end-to-end unit flow using synthetic disk
+  images to verify that parsed disc titles are turned into the exact output
+  filenames used by vobcopy (`make_output_path`) and that completed `.partial`
+  files are promoted to final filenames (`re_name`) without data loss.
+- `tests/cli-smoke.sh`: command-line smoke tests for options that do not require
+  a mounted DVD (`-V`, `-h`, and invalid argument validation).
+
+How the synthetic image tests work:
+- They create temporary files in `/tmp`, write a 2048-byte block at the disc
+  title offset (`32768` bytes, with title bytes at offset `40` inside the
+  block), and then call the real parsing code (`get_dvd_name`).
+- The "large image" case uses sparse files so no large real disk allocation is
+  required.
+- The "too-small image" case verifies that failure is detected for short reads
+  and that the emitted reason is the short read itself (without a misleading
+  `error: Success` line).
+- Output-file tests then feed parsed titles into vobcopy output-name logic and
+  verify exact filenames and `.partial` rename behavior using temporary files.
+
+Input from a file path is already supported via `-i`: when path/device auto-detection
+fails, vobcopy will try to open the provided `-i` value directly as a directory/image
+path using libdvdread.
+
+Code paths intentionally not covered by automated tests:
+- Real DVD I/O and full title-copy loops (`DVDReadBlocks`, large-file writes, mirror
+  copies): these require real DVD media/images with valid structures and large data.
+- Interactive overwrite/continue prompts: these are terminal-driven flows that need
+  interactive input and side-effectful filesystem setup.
+- OS-specific mount/device probing in `get_device*` (`/etc/mtab`, `/etc/fstab`,
+  `getmntinfo`, Solaris `mnttab`): behavior depends on host OS/runtime mount state.
+- Signal/timer shutdown behavior (`SIGALRM`/`SIGTERM` handlers): deterministic unit
+  testing would require process-level signal harnessing not used in `make check`.
+
+For rpm based systems the commands should be something like this:
 The src.rpm should rebuild cleanly on any RPM-based distro with
 "rpmbuild --rebuild vobcopy-0.5.8-1.src.rpm" (or replace "rpmbuild" with
 "rpm" on older distributions), so it's distribution-neutral.

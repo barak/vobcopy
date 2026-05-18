@@ -1,3 +1,6 @@
+#ifndef VOBCOPY_H
+#define VOBCOPY_H
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -132,6 +135,12 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 #ifdef HAVE_GETMNTINFO
 #define USE_GETMNTINFO
 #define GETMNTINFO_USES_STATFS
+#ifdef USE_STATVFS_FOR_DEV
+#undef USE_STATVFS_FOR_DEV
+#endif
+#ifndef USE_STATFS_FOR_DEV
+#define USE_STATFS_FOR_DEV
+#endif
 #endif
 
 #include <dvdread/dvd_reader.h>
@@ -149,24 +158,25 @@ typedef enum  { FALSE=0, TRUE=1 }  bool;
 
 
 #include "dvd.h"
+#include "common.h"
 
 
 void usage(char *);
 int add_end_slash( char * );
 off_t get_free_space( char *, int );
 off_t get_used_space( char *path, int verbosity_level );
-int make_output_path( char *, char *, int, char *, int, int );
+int make_output_path( char *, char *, char *, int, int );
 int is_nav_pack( unsigned char *buffer );
 void re_name( char *output_file );
 int makedir( char *name );
 void install_signal_handlers();
 void watchdog_handler( int signal );
 void shutdown_handler( int signal );
-char *safestrncpy(char *dest, const char *src, size_t n);
-void get_fallback_dvd_name( const char *path, char *title, size_t title_size );
 int check_progress( void ); /* this can be removed because the one below supersedes it */
 int progressUpdate( int starttime, int cur, int tot, int force );
 
 #ifndef HAVE_FDATASYNC
 #define fdatasync(fd) 0
+#endif
+
 #endif

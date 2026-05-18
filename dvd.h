@@ -1,3 +1,6 @@
+#ifndef VOBCOPY_DVD_H
+#define VOBCOPY_DVD_H
+
 /*this files is part of vobcopy*/
 
 int get_dvd_name(const char *, char *);
@@ -76,3 +79,5 @@ struct dvd_info {
 	} *titles;
 	int longest_track;
 };
+
+#endif

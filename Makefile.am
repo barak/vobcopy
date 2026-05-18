@@ -1,12 +1,28 @@
 bin_PROGRAMS = vobcopy
 
-vobcopy_SOURCES = dvd.c vobcopy.c dvd.h vobcopy.h
+vobcopy_SOURCES = common.c dvd.c vobcopy.c common.h dvd.h vobcopy.h
 
 dist_man_MANS = vobcopy.1
 man1dedir = $(mandir)/de/man1
 man1de_DATA = intl/de/vobcopy.1
 
-EXTRA_DIST = vobcopy.spec vobcopy.1.de
+check_PROGRAMS = tests/unit_helpers tests/unit_dvd_image tests/unit_image_output_flow
+TESTS = tests/cli-smoke.sh $(check_PROGRAMS)
+TEST_EXTENSIONS = .sh
+SH_LOG_COMPILER = $(SHELL)
+AM_TESTS_ENVIRONMENT = top_builddir='$(top_builddir)'; export top_builddir; \
+                       TESTFLAGS='$(TESTFLAGS)'; export TESTFLAGS;
+
+tests_unit_helpers_SOURCES = tests/unit_helpers.c
+tests_unit_helpers_LDADD = common.o
+
+tests_unit_dvd_image_SOURCES = tests/unit_dvd_image.c
+tests_unit_dvd_image_LDADD = common.o dvd.o
+
+tests_unit_image_output_flow_SOURCES = tests/unit_image_output_flow.c
+tests_unit_image_output_flow_LDADD = common.o dvd.o
+
+EXTRA_DIST = vobcopy.spec vobcopy.1.de tests/cli-smoke.sh tests/testflags.h tests/unit_helpers.c tests/unit_dvd_image.c tests/unit_image_output_flow.c
 
 dist_doc_DATA = alternative_programs.txt Changelog README Release-Notes TODO COPYING
 

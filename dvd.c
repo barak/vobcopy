@@ -61,10 +61,14 @@ int get_dvd_name(const char *device, char *title)
   /* read title */
   if ( (bytes_read = read(filehandle, tmp_buf, 2048)) != 2048 )      
   {
+      int saved_errno = errno;
       close(filehandle);
       fprintf( stderr, _("[Error] something wrong in dvd_name getting - please specify path as /cdrom or /dvd (mount point) or use -t\n") );
       fprintf( stderr, _("[Error] only read %d bytes instead of 2048\n"), bytes_read);
-      fprintf( stderr, _("[Error] error: %s\n"), strerror( errno ) );
+      if ( bytes_read < 0 )
+      {
+          fprintf( stderr, _("[Error] error: %s\n"), strerror( saved_errno ) );
+      }
       return -1;
   }
   
@@ -91,11 +95,7 @@ int get_dvd_name(const char *device, char *title)
 
 #endif
 
-  for( i = 0; title[i] != '\0'; i++ )
-    {
-      if( title[i] == ' ')
-        title[i] = '_';
-    }
+  sanitize_dvd_name( title );
 
   return 0;
 }

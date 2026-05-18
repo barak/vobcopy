@@ -1,16 +1,23 @@
 Changelog for vobcopy:
 For more infos on the options see "man vobcopy"
+
+1.2.3:  Use copilot to fix all outstanding github issues:
+	#6, video angle selection with -a ANGLE
+	#7, DVD titles containing slashes and dangerous characters
+	#14, MacOS error: struct statvs missing f_mntonname, f_mntfromname
+	#22, compiler warnings about buffers overflows
+	and to add a test set for "make check".
+
 1.2.2:  Changed the home website of the project
 
 1.2.0:  Some new features!
-	-Progress bar and speed enhancements/system load reduction
-	coming with it - many thanks to Eric Kilfoil!
-	-Vobcopy can now "rip" from an iso image on hdd or a directory
-	containing a VIDEO_TS directory. People seem to need this for
-	streaming dvd content to a ps3 via fuppes. That part seem to
-	be buggy though, works 50/50. Will look further into that.
-	-Option -M to rip the title with the longest playing time.
-	-Other small corrections I think.
+	-Progress bar and speed enhancements/system load reduction coming
+	with it - many thanks to Eric Kilfoil! -Vobcopy can now "rip" from
+	an iso image on hdd or a directory containing a VIDEO_TS
+	directory. People seem to need this for streaming dvd content to a
+	ps3 via fuppes. That part seem to be buggy though, works 50/50.
+	Will look further into that. -Option -M to rip the title with the
+	longest playing time. -Other small corrections I think.
 
 1.1.2:  German l12n in the program
 	added [x]overwrite all option
@@ -20,7 +27,7 @@ For more infos on the options see "man vobcopy"
 
 1.1.0:	Fixes debian bug #448319/CVE-2007-5718
 	MacOSX (at least 10.5) compiles again
-	other small fixes 
+	other small fixes
 
 1.0.2:  I fixed a segfault in the log file writing routine. Otherwise
 	small fixes and experimental "step over the bad part" code.
@@ -29,7 +36,7 @@ For more infos on the options see "man vobcopy"
 	choose the right dvd device from fstab (Jens Seidel)
 	read only as many blocks as there are actually left (Ingo Saitz)
 	partial fix for detection of full nfs files (Robert Story)
-	
+
 1.0.0:  Yay! 1.0.0! Only some minor cleanup and some minor bugfixes. Still
 	not perfect but good enough to enter "maintainance mode". vobcopy2 is
 	being worked on!
@@ -52,16 +59,16 @@ For more infos on the options see "man vobcopy"
 0.5.15: with -m, if files exist you now have the option to [s]kip the files
 	already present - by patch from Guy Naor
 	some dvd's show files ending in ";?", they should now work.
-	
+
 0.5.14: some more cleanup. Another small fix for different freebsd versions. Nothing major.
 
 0.5.14-rc1:
 	lots of bug fixes for *bds, solaris and -tada- OSX!
 	Quite some stuff should now work better on freebsd, openbsd and
 	solaris since Takeshi Nakamura provided some patches. Also
-	incorporated the fix the netbsd folks did when they incorporated 
-	0.5.13 into their ports collection. AND it seems that OSX now 
-	works (besides fink, which provided vobcopy for quite some time 
+	incorporated the fix the netbsd folks did when they incorporated
+	0.5.13 into their ports collection. AND it seems that OSX now
+	works (besides fink, which provided vobcopy for quite some time
 	already). What is needed is dlcompat IIRC. Thanks to all for their help!
 
 0.5.14-test1:
@@ -92,10 +99,10 @@ For more infos on the options see "man vobcopy"
 0.5.10: e.g -O vts_01_4 now actually copies 4, not 1 like it did before
 	    thanks Stewart Andreason
 	some other cleanup
-	    
+
 0.5.9: -F now needs speed factor in range 1 .. 64 and this is enforced..
        new spec file (again?) - Florin Andrei
-       
+
 0.5.9-pre2: code cleanup and small bugfix - suggested by Ashley Martens
 
 0.5.9-pre1: -O has now globbing function and separation of files has to be ","
@@ -111,16 +118,16 @@ For more infos on the options see "man vobcopy"
        udf in the mount command...)
 
 0.5.7: 32 spaces as name if no name is present on dvd is fixed
-       fast switch (-F) added 
+       fast switch (-F) added
        d_name[k] wasn't zero terminated, sometimes leading to garbled names.
-       
+
 0.5.6: fixed parsing of fstab and mtab on supermount using systems like
        Mandrake
 
 0.5.5: Erik Hovland made some extensive patches to get vobcopy to work on
        solaris. Yeeha, another platform. Thanks a lot Erik!
        -bugfix: -f didn't work right
-       
+
 0.5.4: HIYAMA Takeshi did it again, patches for FreeBSD:
        dvd device detection should now work if I gather it correctly
        output of the log file should now work too
@@ -134,7 +141,7 @@ For more infos on the options see "man vobcopy"
        -added stuff for debian packaging
        -v -v fixed
        -now stops cleanly even if forced and no space left
-       
+
 0.5.1: -removed forgotten debug code
        -console doesn't get spammed anylonger with -m
        -m outputs now to DVD_NAME/VIDEO_TS/VTS...
@@ -143,9 +150,9 @@ For more infos on the options see "man vobcopy"
        -percent output to -m added
        -progression bar output now in MB rather than blocks for normal copy
        -removed lots of compiler warning (-Wall -pedantic)
-       
-0.5.0:	OK, some steps closer to what I want to have: There is now the -m 
-	(--mirror) option which mirrors the dvd/video_ts/ content to a dir 
+
+0.5.0:	OK, some steps closer to what I want to have: There is now the -m
+	(--mirror) option which mirrors the dvd/video_ts/ content to a dir
 	created with the name of the dvd. The vobs are decrypted though.
 	Also long-options have been added (--Info), look in the man-page.
 	Some cleanup and bug-fix too.
@@ -153,39 +160,39 @@ For more infos on the options see "man vobcopy"
 0.4.3: -HIYAMA Takeshi ported my baby to FreeBSD (I sure hope it works there
        ;-)
 
-0.4.2: 	-small bugfix for systems using devfs. 
-	-new option -t name: You can specify the name of the output file if 
-	you don't like the one from dvd or, if you want to pipe the output 
+0.4.2: 	-small bugfix for systems using devfs.
+	-new option -t name: You can specify the name of the output file if
+	you don't like the one from dvd or, if you want to pipe the output
 	someplace, say "-t stdout".
-	
+
 0.4.1:	-small bugfix: there is a include at the beginning of 0.4.0 that`s not
 	met by a standard install of libdvdread.
 	-more options: -b size[bkmg]
-	begins to copy from the specified offset-size. Modifiers like b for 
-	512-bytes, k for kilo-bytes, m for mega- and g for giga-bytes can be 
-	appended to the number. Example: vobcopy -b 500m will start to copy 
+	begins to copy from the specified offset-size. Modifiers like b for
+	512-bytes, k for kilo-bytes, m for mega- and g for giga-bytes can be
+	appended to the number. Example: vobcopy -b 500m will start to copy
 	from 500MB onward till the end.
 	-e size[bkmg]
-	similar to -b, this options lets you specify some size to stop before 
+	similar to -b, this options lets you specify some size to stop before
 	the end.
 	-vobcopy takes the title with the most chapters by default if no title
 	is specified
-	
-0.4.0:  behind -1, -2, -3 and -4 you can specify auxiliary/alternative 
-	directories (but you have to take -o first) where the data will be 
-	written to. The data will be split to fit on the first (-o) and 
+
+0.4.0:  behind -1, -2, -3 and -4 you can specify auxiliary/alternative
+	directories (but you have to take -o first) where the data will be
+	written to. The data will be split to fit on the first (-o) and
 	continued on the second (-1) ...
-	(beware: the path probably has to be specified *directly* behind the 
-	number like this -1/tmp/ and might even then be necessary to to this 
+	(beware: the path probably has to be specified *directly* behind the
+	number like this -1/tmp/ and might even then be necessary to to this
 	to -o too)
-	I gives you information about the titles, chapters and angles on the 
+	I gives you information about the titles, chapters and angles on the
 	dvd.
-	Code-specific: Moved some things into separate functions to clean up 
+	Code-specific: Moved some things into separate functions to clean up
 	the code a little bit.
-	
-0.3.0: 	vobcopy has now the ability to work on it's own, meaning you can call 
+
+0.3.0: 	vobcopy has now the ability to work on it's own, meaning you can call
 	it simply by "vobcopy" and it will find the mounted dvd and copy the
-	first title to the directory you called vobcopy from. Alternatively 
+	first title to the directory you called vobcopy from. Alternatively
 	some command line options emerged:
 	-l for large file support (i.e. file output to larger than 2 GB)
 	-i /path/to/the/mounted/dvd/ (if vobcopy doesn't do it correctly)
@@ -198,14 +205,14 @@ For more infos on the options see "man vobcopy"
 
 	There have even been some efforts to get it to work under solaris, how
 	far this actually works is unknown. Give it a try.
-	
+
 0.2.0: 	Included the -o option to specify the destination directory. The title-
-	number has to be given now behind -n  
+	number has to be given now behind -n
 
 0.1.1: 	Added the Makefile and alternative_programs.txt
 
 0.1.0: 	Now the program checks in advance if on the destination drive (the
-	directory from which you call vobcopy) is enough free space. It then 
+	directory from which you call vobcopy) is enough free space. It then
 	gives you something like a progression indicator and at the very end it
 	compares the size of what has been copied against the combined size of
 	the title-vobs on dvd.
