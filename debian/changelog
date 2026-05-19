@@ -1,8 +1,8 @@
-vobcopy (1.2.3-3) UNRELEASED; urgency=medium
+vobcopy (1.2.3-3) unstable; urgency=medium
 
   * update homepage (closes: #1068826)
 
- -- Barak A. Pearlmutter <bap@debian.org>  Mon, 18 May 2026 23:45:54 +0100
+ -- Barak A. Pearlmutter <bap@debian.org>  Tue, 19 May 2026 08:33:33 +0100
 
 vobcopy (1.2.3-2) unstable; urgency=medium
 
