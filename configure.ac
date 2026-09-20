@@ -12,7 +12,9 @@ AM_INIT_AUTOMAKE([foreign -Wall subdir-objects])
 
 # Checks for programs.
 AC_PROG_CC
-AX_CFLAGS_WARN_ALL
+dnl AX_CFLAGS_WARN_ALL is supplied by autoconf-archive on some systems, but
+dnl it is not required to generate a build system (notably in MSYS2).
+m4_ifdef([AX_CFLAGS_WARN_ALL], [AX_CFLAGS_WARN_ALL])
 AC_PROG_LN_S
 AC_PROG_MKDIR_P
 

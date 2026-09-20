@@ -52,7 +52,6 @@
 
 #include "vobcopy.h"
 
-extern int errno;
 char              name[300];
 bool              overwrite_flag = FALSE;
 bool              overwrite_all_flag = FALSE;
@@ -86,6 +85,10 @@ static void normalize_sector_range_position( const sector_range_t *ranges,
 
 int main ( int argc, char *argv[] )
 {
+#ifdef _WIN32
+  /* _open honours _fmode when no explicit O_BINARY is supplied. */
+  _fmode = O_BINARY;
+#endif
   int               streamout, block_count, blocks, file_block_count;
   int               op;
   char              dvd_path[PATH_BUFFER_SIZE], logfile_name[20],logfile_path[280]="\0"; /* TODO: fill logfile_path with all zeros so that
@@ -944,7 +947,11 @@ and potentially fatal."  - Thanks Leigh!*/
   if( watchdog_minutes )
     {
       fprintf( stderr, _("\n[Info] Setting watchdog timer to %d minutes\n"), watchdog_minutes );
+#ifdef _WIN32
+      fprintf( stderr, _("[Warning] The watchdog timer is unavailable on Windows.\n") );
+#else
       alarm( watchdog_minutes * 60 );
+#endif
     }
 
   /***
@@ -2119,6 +2126,18 @@ The man replies, "I was talking to the sheep."
 off_t get_free_space( char *path, int verbosity_level )
 {
 
+#ifdef _WIN32
+  ULARGE_INTEGER available, total, free_bytes;
+  if( !GetDiskFreeSpaceExA( path, &available, &total, &free_bytes ) )
+    {
+      fprintf( stderr, _("[Error] Could not determine free space for %s.\n"), path );
+      return 0;
+    }
+  if( verbosity_level >= 1 )
+    fprintf( stderr, _("[Info] Used Windows GetDiskFreeSpaceEx\n") );
+  return (off_t) available.QuadPart;
+#else
+
   #ifdef USE_STATFS
     struct statfs     buf1;
   #else 
@@ -2153,6 +2172,7 @@ off_t get_free_space( char *path, int verbosity_level )
     }
   /*   return ( buf1.f_bavail * buf1.f_bsize ); */
   return sum;
+#endif
 }
 
 
@@ -2162,6 +2182,18 @@ off_t get_free_space( char *path, int verbosity_level )
 
 off_t get_used_space( char *path, int verbosity_level )
 {
+
+#ifdef _WIN32
+  ULARGE_INTEGER available, total, free_bytes;
+  if( !GetDiskFreeSpaceExA( path, &available, &total, &free_bytes ) )
+    {
+      fprintf( stderr, _("[Error] Could not determine used space for %s.\n"), path );
+      return 0;
+    }
+  if( verbosity_level >= 1 )
+    fprintf( stderr, _("[Info] Used Windows GetDiskFreeSpaceEx\n") );
+  return (off_t) (total.QuadPart - free_bytes.QuadPart);
+#else
 
 #ifdef USE_STATFS
   struct statfs     buf2;
@@ -2197,6 +2229,7 @@ off_t get_used_space( char *path, int verbosity_level )
     }
   /*   return ( buf1.f_blocks * buf1.f_bsize ); */
   return sum;
+#endif
 }
 
 /*
@@ -2235,7 +2268,11 @@ void usage( char *program_name )
   fprintf( stderr, _("Options:\n") );
   fprintf( stderr, _("[-m (mirror the whole dvd)] \n") );
   fprintf( stderr, _("[-M (Main title - i.e. the longest (playing time) title on the dvd)] \n") );
+#ifdef _WIN32
+  fprintf( stderr, _("[-i E:\\ (DVD drive), ISO image, or VIDEO_TS directory]\n") );
+#else
   fprintf( stderr, _("[-i /path/to/the/mounted/dvd/]\n") );
+#endif
   fprintf( stderr, _("[-n title-number] \n") );
   fprintf( stderr, _("[-t <your name for the dvd>] \n") );
   fprintf( stderr, _("[-o /path/to/output-dir/ (can be \"stdout\" or \"-\")] \n") );
@@ -2279,6 +2316,17 @@ void re_name( char *output_file )
   strcpy( new_output_file, output_file );
   new_output_file[ strlen( new_output_file ) - 8 ] = 0;
 
+#ifdef _WIN32
+  if( GetFileAttributesA( new_output_file ) != INVALID_FILE_ATTRIBUTES && !overwrite_flag )
+    {
+      fprintf( stderr, _("[Error] File %s already exists! Gonna name the new one %s.dupe \n"), new_output_file, new_output_file );
+      strcat( new_output_file, ".dupe" );
+    }
+  if( !MoveFileExA( output_file, new_output_file, MOVEFILE_REPLACE_EXISTING ) )
+    {
+      fprintf( stderr, _("[Error] Could not rename %s to %s.\n"), output_file, new_output_file );
+    }
+#else
   if( ! link( output_file, new_output_file ) )
     {
       if( unlink( output_file ) )
@@ -2309,6 +2357,7 @@ void re_name( char *output_file )
           /*                fprintf( stderr, _("[Info] Removed \".partial\" from %s since it got copied in full \n"), output_file ); */
         }
     }
+#endif
   if( strstr( name, ".partial" ) )
     name[ strlen( name ) - 8 ] = 0;
 
@@ -2321,7 +2370,11 @@ void re_name( char *output_file )
 
 int makedir( char *name )
 {
+#ifdef _WIN32
+  if( _mkdir( name ) )
+#else
   if( mkdir( name, 0777 ) )
+#endif
     {
       if( errno == EEXIST )
         {
@@ -2375,11 +2428,18 @@ int makedir( char *name )
  * Get the width in characters of the terminal window, or defaults to 80.
  */
 int get_term_width() {
+#ifdef _WIN32
+   CONSOLE_SCREEN_BUFFER_INFO info;
+   if( GetConsoleScreenBufferInfo( GetStdHandle( STD_OUTPUT_HANDLE ), &info ) )
+      return info.srWindow.Right - info.srWindow.Left + 1;
+   return 80;
+#else
    struct winsize ws;
    if (ioctl(1, TIOCGWINSZ, &ws) >= 0)
       return ws.ws_col;
    else
       return 80;
+#endif
 }
 
 
@@ -2444,6 +2504,10 @@ int progressUpdate(int starttime, int cur, int tot, int force)
 
 void install_signal_handlers()
 {
+#ifdef _WIN32
+  /* SIGALRM and sigaction are not provided by the Windows CRT. */
+  return;
+#else
   struct sigaction action;
 
   action.sa_flags = 0;
@@ -2455,18 +2519,29 @@ void install_signal_handlers()
   action.sa_handler = shutdown_handler;
   sigemptyset(&action.sa_mask);
   sigaction(SIGTERM, &action, NULL);
+#endif
 }
 
 void watchdog_handler( int signal )
 {
+#ifdef _WIN32
+  (void) signal;
+  ExitProcess( 2 );
+#else
   fprintf( stderr, _("\n[Info] Timer expired - shooting myself in the head.\n") );
   kill( getpid(), SIGTERM );
+#endif
 }
 
 void shutdown_handler( int signal )
 {
+  (void) signal;
   fprintf( stderr, _("\n[Info] Terminate signal received, exiting.\n") );
+#ifdef _WIN32
+  ExitProcess( 2 );
+#else
   _exit( 2 );
+#endif
 }
 
 static int build_title_sector_ranges( ifo_handle_t *vts_file,

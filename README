@@ -37,6 +37,8 @@ and run the test suite with:
 
 $ make check
 
+For Windows cross-build instructions, see BUILDING-WINDOWS.md.
+
 To help debug test failures, two extra flags can be passed to all test programs
 via the TESTFLAGS make variable:
 

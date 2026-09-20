@@ -24,7 +24,24 @@
 int get_dvd_name(const char *device, char *title)
 {
 
-#if defined( __sun )
+#if defined( _WIN32 )
+  char volume_name[MAX_PATH];
+
+  /* A drive root cannot be read as a regular file by the CRT.  On Windows,
+   * use its volume label so mirror output follows the same naming convention
+   * as a mounted DVD on Unix. */
+  if( device && isalpha( (unsigned char) device[0] ) && device[1] == ':' &&
+      ( device[2] == '\\' || device[2] == '/' ) && device[3] == '\0' )
+    {
+      if( !GetVolumeInformationA( device, volume_name, sizeof( volume_name ),
+                                  NULL, NULL, NULL, NULL, 0 ) || !volume_name[0] )
+        return -1;
+
+      safestrncpy( title, volume_name, 33 );
+      sanitize_dvd_name( title );
+      return 0;
+    }
+#elif defined( __sun )
   /* title is actually in the device name */
   char *new_title;
   new_title = strstr( device, "d0/" ) + strlen( "d0/" );
@@ -107,6 +124,16 @@ int get_dvd_name(const char *device, char *title)
 /* returns <0 if error                            */
 int get_device( char *path, char *device )
 {
+
+#ifdef _WIN32
+  /* Windows does not expose an /etc/mtab equivalent.  libdvdread accepts a
+   * drive root, an ISO image, or a VIDEO_TS directory directly, so retain the
+   * caller's path and let it open that input without Unix mount probing. */
+  (void) device;
+  if( !path || !*path )
+    return -1;
+  return 0;
+#else
 
 #if ( !defined( __sun ) )
   FILE	*tmp_streamin;
@@ -399,6 +426,7 @@ this is the code for the other-OSs, not solaris*/
   }
 #endif
   return mounted;
+#endif
 }
 
 
@@ -409,6 +437,12 @@ this is the code for the other-OSs, not solaris*/
 /* returns <0 if error                            */
 int get_device_on_your_own( char *path, char *device )
 { /*oyo*/
+#ifdef _WIN32
+  (void) path;
+  (void) device;
+  fprintf( stderr, _("[Error] Windows cannot auto-detect a DVD drive; use -i <drive, ISO, or VIDEO_TS directory>.\n") );
+  return -1;
+#else
 #ifdef USE_GETMNTINFO
   int i, n, dvd_count = 0;
 #ifdef GETMNTINFO_USES_STATFS
@@ -612,6 +646,7 @@ int get_device_on_your_own( char *path, char *device )
    }
 #endif
  return dvd_count;
+#endif
 }
 
 

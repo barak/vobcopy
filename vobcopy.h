@@ -57,11 +57,39 @@
 
 #include <fcntl.h>
 
+#ifdef _WIN32
+/* Keep the copy path binary on the Microsoft CRT.  In particular, text-mode
+ * writes would otherwise turn 0x0a bytes in VOB data into CRLF pairs. */
+#include <windows.h>
+#include <io.h>
+#include <direct.h>
+#ifndef O_BINARY
+#define O_BINARY _O_BINARY
+#endif
+#ifndef strcasecmp
+#define strcasecmp _stricmp
+#endif
+#ifndef getcwd
+#define getcwd _getcwd
+#endif
+#ifndef lseek
+#define lseek _lseeki64
+#endif
+#endif
+
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
+#ifdef _WIN32
+#ifndef usleep
+#define usleep(usec) Sleep((DWORD)(((usec) + 999) / 1000))
+#endif
+#endif
+
+#ifdef HAVE_DIRENT_H
 #include <dirent.h> /*for readdir*/
+#endif
 #include <errno.h>
 #include <signal.h>
 #include <time.h>
@@ -177,6 +205,11 @@ int progressUpdate( int starttime, int cur, int tot, int force );
 
 #ifndef HAVE_FDATASYNC
 #define fdatasync(fd) 0
+#endif
+
+#ifdef _WIN32
+#undef fdatasync
+#define fdatasync(fd) _commit(fd)
 #endif
 
 #endif
